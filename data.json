@@ -1,0 +1,20 @@
+{
+  "products": [],
+  "orders": [],
+  "staff": [],
+  "customers": [],
+  "suppliers": [],
+  "expenses": [],
+  "organizationConfig": {
+    "profileType": "business",
+    "name": "Your Business",
+    "industry": "",
+    "location": "",
+    "currency": "USD ($)",
+    "contactEmail": "",
+    "contactPhone": "",
+    "staffCount": 0,
+    "modules": ["transactions", "inventory", "customers", "staff", "reports", "ai"],
+    "logoUrl": ""
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "name": "Eenvoq",
+  "short_name": "Eenvoq",
+  "description": "Eenvoq mobile app experience for operations and business management.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#8EE5C2",
+  "theme_color": "#8EE5C2",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://i.ibb.co/1f3mhnj4/file-000000009c0871f4a926f8036d1d614e.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://i.ibb.co/1f3mhnj4/file-000000009c0871f4a926f8036d1d614e.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://i.ibb.co/1f3mhnj4/file-000000009c0871f4a926f8036d1d614e.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

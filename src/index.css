@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+@theme {
+  --color-mint: #8EE5C2;
+  --color-mint-modern: #7EE7C1;
+  --color-mint-luxury: #9CEACD;
+  --color-mint-apple: #A8F0D1;
+}
+
+.shadow-mint-glow {
+  box-shadow: 0 0 15px rgba(142, 229, 194, 0.45);
+}
+
+.shadow-mint-glow-sm {
+  box-shadow: 0 0 8px rgba(142, 229, 194, 0.35);
+}
+
+html, body, #root {
+  min-height: 100%;
+  background-color: #8EE5C2;
+}
+
+body {
+  margin: 0;
+}
+
+input, select, textarea {
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: #8EE5C2 !important;
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(142, 229, 194, 0.3) !important;
+}
+
+input[type="checkbox"], input[type="radio"], input[type="range"] {
+  accent-color: #8EE5C2;
+}
+
+
