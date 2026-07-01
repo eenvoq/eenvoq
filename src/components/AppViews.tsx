@@ -30,7 +30,9 @@ import {
   ChevronRight,
   ChevronDown,
   Truck,
-  History
+  History,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 
 interface LandingPageProps {
@@ -48,6 +50,18 @@ interface AuthPageProps {
   setAuthEmail: (value: string) => void;
   setAuthPassword: (value: string) => void;
   setAppMode: (mode: 'auth' | 'app' | 'onboarding') => void;
+  onSubmit: (mode: 'login' | 'signup') => Promise<void>;
+  isLoading: boolean;
+  authError?: string;
+  passwordVisible: boolean;
+  setPasswordVisible: (value: boolean) => void;
+  forgotPasswordMode: boolean;
+  setForgotPasswordMode: (value: boolean) => void;
+  resetPasswordMessage: string;
+  resetPasswordError: string;
+  resetPasswordLoading: boolean;
+  resetPasswordCooldown: number;
+  onResetPassword: () => Promise<void>;
 }
 
 interface OnboardingWizardProps {
@@ -853,7 +867,7 @@ function LandingPage({ setAuthMode, setAppMode }: LandingPageProps) {
               </div>
             </div>
 
-            <div ref={heroVisualRef} className="rounded-[8px] border border-[#E6ECEA] bg-white p-4 shadow-[0_24px_90px_rgba(0,0,0,0.05)]">
+            <div ref={heroVisualRef} className="rounded-[8px] border border-[#E6ECEA] bg-white p-4 shadow-[0_10px_30px_rgba(0,0,0,0.08)]">
               <div className="mb-3 overflow-hidden rounded-[8px] border border-[#E6ECEA]">
                 <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80" alt="A calm workspace showing key operations modules" loading="lazy" decoding="async" className="h-44 w-full object-cover" />
               </div>
@@ -991,7 +1005,7 @@ function LandingPage({ setAuthMode, setAppMode }: LandingPageProps) {
   );
 }
 
-function AuthPage({ authMode, setAuthMode, authName, authEmail, authPassword, setAuthName, setAuthEmail, setAuthPassword, setAppMode }: AuthPageProps) {
+function AuthPage({ authMode, setAuthMode, authName, authEmail, authPassword, setAuthName, setAuthEmail, setAuthPassword, setAppMode, onSubmit, isLoading, authError, passwordVisible, setPasswordVisible, forgotPasswordMode, setForgotPasswordMode, resetPasswordMessage, resetPasswordError, resetPasswordLoading, resetPasswordCooldown, onResetPassword }: AuthPageProps) {
   return (
     <div className="flex min-h-screen items-start justify-center bg-neutral-50 px-4 py-4 sm:px-6 sm:py-10 lg:items-center lg:px-8">
       <div className="grid w-full max-w-5xl gap-4 rounded-[24px] border border-neutral-200 bg-white p-4 shadow-[0_12px_40px_rgba(0,0,0,0.03)] lg:grid-cols-[0.95fr_1.05fr] lg:p-6">
@@ -1029,8 +1043,18 @@ function AuthPage({ authMode, setAuthMode, authName, authEmail, authPassword, se
             <button onClick={() => setAuthMode('login')} className={`flex-1 rounded-full px-4 py-2 text-sm font-medium transition ${authMode === 'login' ? 'bg-black text-white' : 'text-neutral-600'}`}>Log in</button>
           </div>
 
-          <form className="mt-6 space-y-4" onSubmit={(event) => { event.preventDefault(); setAppMode(authMode === 'signup' ? 'onboarding' : 'app'); }}>
-            {authMode === 'signup' && (
+          <form
+            className="mt-6 space-y-4"
+            onSubmit={async (event) => {
+              event.preventDefault();
+              if (forgotPasswordMode) {
+                await onResetPassword();
+              } else {
+                await onSubmit(authMode);
+              }
+            }}
+          >
+            {authMode === 'signup' && !forgotPasswordMode && (
               <div>
                 <label className="mb-2 block text-sm font-medium text-black">Full name</label>
                 <input value={authName} onChange={(event) => setAuthName(event.target.value)} className="w-full rounded-2xl border border-neutral-300 bg-white px-4 py-3 text-sm text-black focus:border-[#8EE5C2] focus:outline-none focus:ring-2 focus:ring-[#8EE5C2]/20" placeholder="Alex Morgan" />
@@ -1040,11 +1064,78 @@ function AuthPage({ authMode, setAuthMode, authName, authEmail, authPassword, se
               <label className="mb-2 block text-sm font-medium text-black">Email</label>
               <input type="email" value={authEmail} onChange={(event) => setAuthEmail(event.target.value)} className="w-full rounded-2xl border border-neutral-300 bg-white px-4 py-3 text-sm text-black focus:border-[#8EE5C2] focus:outline-none focus:ring-2 focus:ring-[#8EE5C2]/20" placeholder="you@company.com" />
             </div>
-            <div>
-              <label className="mb-2 block text-sm font-medium text-black">Password</label>
-              <input type="password" value={authPassword} onChange={(event) => setAuthPassword(event.target.value)} className="w-full rounded-2xl border border-neutral-300 bg-white px-4 py-3 text-sm text-black focus:border-[#8EE5C2] focus:outline-none focus:ring-2 focus:ring-[#8EE5C2]/20" placeholder="••••••••" />
-            </div>
-            <button type="submit" className="w-full rounded-full bg-black px-4 py-3 text-sm font-medium text-white transition hover:shadow-[0_0_22px_rgba(142,229,194,0.25)]">{authMode === 'signup' ? 'Create account' : 'Log in'}</button>
+            {!forgotPasswordMode && (
+              <div>
+                <label className="mb-2 block text-sm font-medium text-black">Password</label>
+                <div className="relative">
+                  <input
+                    type={passwordVisible ? 'text' : 'password'}
+                    value={authPassword}
+                    onChange={(event) => setAuthPassword(event.target.value)}
+                    className="w-full rounded-2xl border border-neutral-300 bg-white px-4 py-3 text-sm text-black focus:border-[#8EE5C2] focus:outline-none focus:ring-2 focus:ring-[#8EE5C2]/20"
+                    placeholder="••••••••"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setPasswordVisible(!passwordVisible)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 text-neutral-500 transition hover:text-black"
+                    aria-label={passwordVisible ? 'Hide password' : 'Show password'}
+                  >
+                    {passwordVisible ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
+                </div>
+                {authMode === 'login' ? (
+                  <div className="mt-3 flex items-center justify-between text-sm text-neutral-500">
+                    <span>Need help signing in?</span>
+                    <button
+                      type="button"
+                      onClick={() => setForgotPasswordMode(true)}
+                      className="font-semibold text-black transition hover:text-[#0f766e]"
+                    >
+                      Forgot password?
+                    </button>
+                  </div>
+                ) : null}
+              </div>
+            )}
+            {forgotPasswordMode ? (
+              <div className="rounded-2xl border border-[#8EE5C2]/30 bg-[#F7FFF9] p-4 text-sm text-neutral-700">
+                <p className="font-medium text-black">Reset your password</p>
+                <p className="mt-2">Enter the email address for your account, and we’ll send a reset link.</p>
+                {resetPasswordError ? <p className="mt-3 text-sm text-red-700">{resetPasswordError}</p> : null}
+                {resetPasswordMessage ? <p className="mt-3 text-sm text-green-700">{resetPasswordMessage}</p> : null}
+              </div>
+            ) : null}
+            {authError && !forgotPasswordMode ? (
+              <div className="rounded-2xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">{authError}</div>
+            ) : null}
+            <button
+              type="submit"
+              disabled={isLoading || resetPasswordLoading || resetPasswordCooldown > 0}
+              className="w-full rounded-full bg-black px-4 py-3 text-sm font-medium text-white transition hover:shadow-[0_0_22px_rgba(142,229,194,0.25)] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {forgotPasswordMode
+                ? resetPasswordLoading
+                  ? 'Sending reset link...'
+                  : resetPasswordCooldown > 0
+                  ? `Wait ${resetPasswordCooldown}s`
+                  : 'Send reset link'
+                : isLoading
+                ? 'Working...'
+                : authMode === 'signup'
+                ? 'Create account'
+                : 'Log in'}
+            </button>
+            {forgotPasswordMode ? (
+              <button
+                type="button"
+                onClick={() => setForgotPasswordMode(false)}
+                disabled={resetPasswordLoading}
+                className="w-full rounded-full border border-neutral-200 bg-white px-4 py-3 text-sm font-medium text-black transition hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Back to login
+              </button>
+            ) : null}
           </form>
 
           <div className="mt-6 rounded-2xl border border-[#8EE5C2]/30 bg-[#8EE5C2]/10 p-4 text-sm text-neutral-700">

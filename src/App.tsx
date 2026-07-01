@@ -47,8 +47,23 @@ import {
 
 import { AuthPage, OnboardingWizard, SidebarNavButton, AppHeader, MetricCard } from './components/AppViews';
 import { getOrganizationProfile, type ModuleKey, type OrganizationTypeKey } from './organizationConfig';
+import { supabase } from './supabaseClient';
+
+type AppSession = { user: { id: string; email?: string } } | null;
 
 // Interfaces matching the server models
+interface AppUser {
+  id: string;
+  business_id: string;
+  full_name: string;
+  email: string;
+  role: 'owner' | 'manager' | 'staff';
+  profile_pic?: string;
+  online?: boolean;
+  last_active?: string;
+  is_active?: boolean;
+}
+
 interface Product {
   id: string;
   name: string;
@@ -291,7 +306,6 @@ const educationRecordCategories = [
   'Parent/Guardian',
   'Department',
   'Campus/Branch',
-  'Library Book',
   'Books/Library',
   'Examination',
   'Academic Session',
@@ -581,14 +595,6 @@ const educationCategoryFields: Record<EducationRecordCategory, FieldDefinition[]
     { key: 'condition', label: 'Condition', type: 'select', options: ['New', 'Good', 'Fair', 'Needs repair'] },
     { key: 'maintenanceSchedule', label: 'Maintenance Schedule', type: 'text' }
   ],
-  'Library Book': [
-    { key: 'title', label: 'Book / Resource Title', type: 'text' },
-    { key: 'author', label: 'Author', type: 'text' },
-    { key: 'isbn', label: 'ISBN / Reference', type: 'text' },
-    { key: 'libraryLocation', label: 'Library Location', type: 'text' },
-    { key: 'copiesAvailable', label: 'Copies Available', type: 'number' },
-    { key: 'status', label: 'Status', type: 'select', options: ['Available', 'Checked out', 'Reserved'] }
-  ],
   Examination: [
     { key: 'examName', label: 'Examination Name', type: 'text' },
     { key: 'examCode', label: 'Exam Code', type: 'text' },
@@ -654,7 +660,7 @@ const educationCategoryFields: Record<EducationRecordCategory, FieldDefinition[]
     { key: 'price', label: 'Service Price', type: 'number' },
     { key: 'provider', label: 'Service Provider', type: 'text' }
   ],
-  'Library Book': [
+  'Books/Library': [
     { key: 'title', label: 'Book Title', type: 'text' },
     { key: 'author', label: 'Author', type: 'text' },
     { key: 'isbn', label: 'ISBN', type: 'text' },
@@ -697,6 +703,25 @@ export default function App() {
   const [authName, setAuthName] = useState('');
   const [authEmail, setAuthEmail] = useState('');
   const [authPassword, setAuthPassword] = useState('');
+  const [session, setSession] = useState<AppSession | null>(null);
+  const [profile, setProfile] = useState<AppUser | null>(null);
+  const [businessId, setBusinessId] = useState('');
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState('');
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [forgotPasswordMode, setForgotPasswordMode] = useState(false);
+  const [resetPasswordMessage, setResetPasswordMessage] = useState('');
+  const [resetPasswordError, setResetPasswordError] = useState('');
+  const [resetPasswordLoading, setResetPasswordLoading] = useState(false);
+  const [resetPasswordCooldown, setResetPasswordCooldown] = useState(0);
+
+  useEffect(() => {
+    setForgotPasswordMode(false);
+    setResetPasswordMessage('');
+    setResetPasswordError('');
+    setPasswordVisible(false);
+    setResetPasswordCooldown(0);
+  }, [authMode]);
 
   // Dynamic Data States
   const [products, setProducts] = useState<Product[]>([]);
@@ -1028,10 +1053,14 @@ export default function App() {
   });
 
   // New Order Form State
-  const [newOrder, setNewOrder] = useState({
+  const [newOrder, setNewOrder] = useState<{
+    customerName: string;
+    items: Array<OrderItem>;
+    status: 'Pending';
+  }>({
     customerName: '',
-    items: [{ productId: '', quantity: 1 }],
-    status: 'Pending' as const
+    items: [{ productId: '', productName: '', quantity: 1, price: 0 }],
+    status: 'Pending'
   });
 
   // New Staff & Customer form states
@@ -1143,7 +1172,266 @@ export default function App() {
         console.error('Unable to restore organization config', error);
       }
     }
+
+    const initSupabaseAuth = async () => {
+      const { data, error } = await supabase.auth.getSession();
+      if (error) {
+        console.error('Supabase auth init error', error);
+        return;
+      }
+
+      if (data?.session?.user) {
+        await handleAuthSession(data.session as AppSession);
+      } else {
+        setAppMode('auth');
+      }
+    };
+
+    initSupabaseAuth();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (_event: string, session: AppSession) => {
+      if (session?.user) {
+        await handleAuthSession(session);
+      } else {
+        setSession(null);
+        setProfile(null);
+        setBusinessId('');
+        setAppMode('auth');
+      }
+    });
+
+    return () => {
+      authListener?.subscription?.unsubscribe();
+    };
   }, []);
+
+  const fetchProfile = async (userId: string) => {
+    const { data, error } = await supabase
+      .from('business_profiles')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    return data as AppUser & { business_name?: string; business_currency?: string };
+  };
+
+  const createBusinessAndProfile = async (userId: string, fullName: string, email: string) => {
+    const defaultBusiness = {
+      name: `${fullName.split(' ')[0] || 'Team'}'s business`,
+      industry: 'Retail',
+      subtype: 'Retail Store',
+      location: 'Lagos, Nigeria',
+      currency: 'USD ($)',
+      contact_email: email,
+      contact_phone: '',
+      modules: organizationSetup.modules,
+      logo_url: '',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+
+    const { data: businessData, error: businessError } = await supabase
+      .from('businesses')
+      .insert(defaultBusiness)
+      .select()
+      .single();
+
+    if (businessError || !businessData) {
+      throw businessError || new Error('Unable to create business.');
+    }
+
+    const { data: profileData, error: profileError } = await supabase
+      .from('profiles')
+      .insert({
+        user_id: userId,
+        business_id: businessData.id,
+        full_name: fullName,
+        email,
+        role: 'owner',
+        profile_pic: '',
+        online: true,
+        last_active: new Date().toISOString(),
+        is_active: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })
+      .select()
+      .single();
+
+    if (profileError || !profileData) {
+      throw profileError || new Error('Unable to create profile.');
+    }
+
+    return { business: businessData, profile: profileData };
+  };
+
+  const handleAuthSession = async (authSession: AppSession) => {
+    if (!authSession?.user) {
+      setAppMode('auth');
+      return;
+    }
+
+    setSession(authSession);
+
+    try {
+      const accountProfile = await fetchProfile(authSession.user.id);
+      setProfile(accountProfile);
+      setBusinessId(accountProfile.business_id);
+      setOwnerName(accountProfile.full_name || 'Business Owner');
+      setOwnerEmail(accountProfile.email || '');
+      setOwnerRole(accountProfile.role || 'Owner');
+      setBusinessName(accountProfile.business_name || businessName);
+      setBusinessCurrency(accountProfile.business_currency || businessCurrency);
+      setAuthName(accountProfile.full_name || '');
+      setAuthEmail(accountProfile.email || '');
+      setAuthError('');
+      setAppMode('app');
+      await loadAllData(accountProfile.business_id);
+      await loadOrganizationConfig();
+    } catch (error) {
+      console.error('Error loading profile data', error);
+      setAppMode('onboarding');
+    }
+  };
+
+  const handleAuthSubmit = async (mode: 'login' | 'signup') => {
+    setAuthError('');
+    setAuthLoading(true);
+
+    try {
+      if (mode === 'login') {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: authEmail,
+          password: authPassword
+        });
+
+        if (error) {
+          setAuthError(error.message);
+          return;
+        }
+
+        if (data?.session) {
+          await handleAuthSession(data.session);
+        } else if (data?.user) {
+          await createBusinessAndProfile(data.user.id, authName || data.user.email || 'Business Owner', authEmail);
+          const { data: sessionData } = await supabase.auth.getSession();
+          if (sessionData?.session) {
+            await handleAuthSession(sessionData.session);
+          }
+        }
+      } else {
+        if (!authName.trim() || !authEmail.trim() || !authPassword.trim()) {
+          setAuthError('Name, email, and password are required.');
+          return;
+        }
+
+        const { data, error } = await supabase.auth.signUp({
+          email: authEmail,
+          password: authPassword
+        });
+
+        if (error) {
+          setAuthError(error.message);
+          return;
+        }
+
+        const signedUpUserId = data?.user?.id;
+        const session = data?.session;
+
+        if (session && signedUpUserId) {
+          await createBusinessAndProfile(signedUpUserId, authName, authEmail);
+          await handleAuthSession(session);
+          return;
+        }
+
+        if (signedUpUserId) {
+          setAuthError('Account created. Please confirm your email before logging in.');
+          return;
+        }
+
+        setAuthError('Account created. Please check your email to confirm sign up.');
+      }
+    } catch (error) {
+      console.error('Authentication error', error);
+      if (error instanceof Error) {
+        setAuthError(error.message);
+      } else if (error && typeof error === 'object' && 'message' in error) {
+        setAuthError((error as { message?: string }).message || 'An unexpected auth error occurred.');
+      } else {
+        setAuthError('An unexpected auth error occurred.');
+      }
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleResetPassword = async () => {
+    if (resetPasswordCooldown > 0) {
+      setResetPasswordError(`Please wait ${resetPasswordCooldown} second${resetPasswordCooldown === 1 ? '' : 's'} before requesting another reset email.`);
+      return;
+    }
+
+    setResetPasswordError('');
+    setResetPasswordMessage('');
+    setResetPasswordLoading(true);
+
+    if (!authEmail.trim()) {
+      setResetPasswordError('Please enter your email address to reset your password.');
+      setResetPasswordLoading(false);
+      return;
+    }
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(authEmail.trim(), {
+        redirectTo: typeof window !== 'undefined' ? window.location.origin : undefined
+      });
+
+      if (error) {
+        const message = error.message || 'Unable to send reset email. Please try again.';
+        setResetPasswordError(message.includes('rate limit') || message.includes('Rate limit') ? 'Email send rate limit exceeded. Please wait a few minutes and try again.' : message);
+        setResetPasswordCooldown(60);
+      } else {
+        setResetPasswordMessage('If an account exists for that email, a reset link has been sent. Please check your inbox.');
+        setResetPasswordCooldown(60);
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unable to send reset email. Please try again.';
+      setResetPasswordError(message.includes('rate limit') || message.includes('Rate limit') ? 'Email send rate limit exceeded. Please wait a few minutes and try again.' : message);
+      setResetPasswordCooldown(60);
+    } finally {
+      setResetPasswordLoading(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error('Logout error', error);
+    }
+
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('eenvoq-session');
+    }
+
+    setSession(null);
+    setProfile(null);
+    setBusinessId('');
+    setAppMode('auth');
+    setAuthMode('login');
+    setAuthName('');
+    setAuthEmail('');
+    setAuthPassword('');
+    setPasswordVisible(false);
+    setForgotPasswordMode(false);
+    setResetPasswordMessage('');
+    setResetPasswordError('');
+    setResetPasswordCooldown(0);
+  };
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -1172,6 +1460,16 @@ export default function App() {
       applyTheme('#8EE5C2');
     }
   }, [appMode]);
+
+  useEffect(() => {
+    if (resetPasswordCooldown <= 0) return;
+
+    const interval = window.setInterval(() => {
+      setResetPasswordCooldown((current) => Math.max(0, current - 1));
+    }, 1000);
+
+    return () => window.clearInterval(interval);
+  }, [resetPasswordCooldown]);
 
   useEffect(() => {
     if (appMode !== 'app') {
@@ -1205,30 +1503,160 @@ export default function App() {
   }, [appMode, splashMessages.length]);
 
   // Initial Data Fetching
-  const loadAllData = async () => {
+  const getActiveBusinessId = () => businessId || profile?.business_id;
+
+  const loadAllData = async (businessIdOverride?: string) => {
+    const activeBusinessId = businessIdOverride || getActiveBusinessId();
+    if (!activeBusinessId) {
+      return;
+    }
+
     try {
       setLoading(true);
-      const [resProd, resOrders, resSum, resStaff, resCust, resSuppliers, resExpenses, resFinance] = await Promise.all([
-        fetch('/api/inventory').then(r => r.json()),
-        fetch('/api/orders').then(r => r.json()),
-        fetch('/api/sales-summary').then(r => r.json()),
-        fetch('/api/staff').then(r => r.json()),
-        fetch('/api/customers').then(r => r.json()),
-        fetch('/api/suppliers').then(r => r.json()),
-        fetch('/api/expenses').then(r => r.json()),
-        fetch('/api/finance-summary').then(r => r.json())
+      const [productsResponse, ordersResponse, customersResponse, suppliersResponse, expensesResponse, staffResponse] = await Promise.all([
+        supabase.from('products').select('*').eq('business_id', activeBusinessId),
+        supabase.from('orders').select('*').eq('business_id', activeBusinessId),
+        supabase.from('customers').select('*').eq('business_id', activeBusinessId),
+        supabase.from('suppliers').select('*').eq('business_id', activeBusinessId),
+        supabase.from('expenses').select('*').eq('business_id', activeBusinessId),
+        supabase.from('profiles').select('*').eq('business_id', activeBusinessId)
       ]);
 
-      setProducts(resProd);
-      setOrders(resOrders);
-      setSummary(resSum);
-      setStaff(resStaff);
-      setCustomers(resCust);
-      setSuppliers(resSuppliers);
-      setExpenses(resExpenses);
-      setFinanceSummary(resFinance);
+      if (productsResponse.error) throw productsResponse.error;
+      if (ordersResponse.error) throw ordersResponse.error;
+      if (customersResponse.error) throw customersResponse.error;
+      if (suppliersResponse.error) throw suppliersResponse.error;
+      if (expensesResponse.error) throw expensesResponse.error;
+      if (staffResponse.error) throw staffResponse.error;
+
+      const productRecords = (productsResponse.data || []).map((product: any) => ({
+        id: product.id,
+        name: product.name,
+        sku: product.sku,
+        category: product.category,
+        stock: product.stock ?? 0,
+        minStock: product.min_stock ?? 0,
+        price: Number(product.price ?? 0),
+        cost: Number(product.cost ?? 0),
+        image: product.image_url || product.image || '',
+        status: product.status,
+        note: product.note,
+        details: product.details ?? {},
+        lastModifiedBy: product.last_modified_by ?? '',
+        owner: product.owner ?? '',
+        updatedAt: product.updated_at ?? '',
+        createdAt: product.created_at ?? '',
+        tags: product.tags ?? [],
+        attachments: product.attachments ?? []
+      })) as Product[];
+
+      const orderRecords = (ordersResponse.data || []).map((order: any) => ({
+        id: order.id,
+        customerName: order.customer_name,
+        items: order.items ?? [],
+        totalAmount: Number(order.total_amount ?? 0),
+        date: order.date || order.created_at || '',
+        status: order.status,
+        recordedBy: order.recorded_by,
+        transactionType: order.transaction_type,
+        recipientId: order.recipient_id,
+        recipientName: order.recipient_name,
+        category: order.category,
+        inventoryId: order.inventory_id,
+        inventoryName: order.inventory_name,
+        inventoryPhoto: order.inventory_photo,
+        saleDate: order.sale_date,
+        purchasePrice: Number(order.purchase_price ?? 0),
+        sellingPrice: Number(order.selling_price ?? 0),
+        profit: Number(order.profit ?? 0),
+        balanceDue: Number(order.balance_due ?? 0),
+        currency: order.currency,
+        notes: order.notes,
+        createdAt: order.created_at ?? '',
+        updatedAt: order.updated_at ?? ''
+      })) as Order[];
+
+      const customerRecords = (customersResponse.data || []).map((customer: any) => ({
+        id: customer.id,
+        name: customer.name,
+        email: customer.email,
+        phone: customer.phone,
+        company: customer.company,
+        status: customer.status,
+        totalSpent: Number(customer.total_spent ?? 0),
+        ordersCount: customer.orders_count ?? 0,
+        lastPurchaseDate: customer.last_purchase_date,
+        createdAt: customer.created_at ?? '',
+        updatedAt: customer.updated_at ?? ''
+      })) as Customer[];
+
+      const supplierRecords = (suppliersResponse.data || []).map((supplier: any) => ({
+        id: supplier.id,
+        name: supplier.name,
+        specialty: supplier.specialty,
+        leadTime: supplier.lead_time ?? 0,
+        contact: supplier.contact ?? '',
+        email: supplier.email ?? '',
+        createdAt: supplier.created_at ?? '',
+        updatedAt: supplier.updated_at ?? ''
+      })) as Supplier[];
+
+      const expenseRecords = (expensesResponse.data || []).map((expense: any) => ({
+        id: expense.id,
+        title: expense.title,
+        category: expense.category,
+        amount: Number(expense.amount ?? 0),
+        date: expense.date,
+        vendor: expense.vendor ?? '',
+        product: expense.product ?? '',
+        notes: expense.notes ?? '',
+        receipt: expense.receipt_url ?? expense.receipt ?? '',
+        recordedBy: expense.recorded_by,
+        createdAt: expense.created_at ?? '',
+        updatedAt: expense.updated_at ?? ''
+      })) as ExpenseRecord[];
+
+      const staffRecords = (staffResponse.data || []).map((profileItem: any) => ({
+        id: profileItem.id,
+        name: profileItem.full_name || profileItem.email || 'Team member',
+        role: profileItem.role || 'Staff',
+        online: profileItem.online || false,
+        lastActive: profileItem.last_active || ''
+      }));
+
+      setProducts(productRecords);
+      setOrders(orderRecords);
+      setCustomers(customerRecords);
+      setSuppliers(supplierRecords);
+      setExpenses(expenseRecords);
+      setStaff(staffRecords);
+
+      const revenue = orderRecords.reduce((acc, order) => acc + Number(order.totalAmount || 0), 0);
+      const cost = orderRecords.reduce((acc, order) => acc + Number(order.purchasePrice || 0), 0);
+      const profit = revenue - cost;
+      const lowStockCount = productRecords.filter((product) => (product.stock ?? 0) <= (product.minStock ?? 0)).length;
+      const pendingOrdersCount = orderRecords.filter((order) => ['Pending', 'Processing'].includes(order.status)).length;
+      const categoryBreakdown = Array.from(
+        productRecords.reduce((map, product) => {
+          const category = product.category || 'Other';
+          const value = Number(product.price ?? 0) * Number(product.stock ?? 0);
+          map.set(category, (map.get(category) || 0) + value);
+          return map;
+        }, new Map<string, number>())
+      ).map(([name, value]) => ({ name, value }));
+
+      setSummary({
+        revenue,
+        cost,
+        profit,
+        totalProducts: productRecords.length,
+        lowStockCount,
+        pendingOrdersCount,
+        topSelling: [],
+        categoryBreakdown
+      });
     } catch (e) {
-      console.error('Error fetching data from API:', e);
+      console.error('Error loading data from Supabase:', e);
     } finally {
       setLoading(false);
     }
@@ -1246,18 +1674,6 @@ export default function App() {
     return found ? found.name : ownerName;
   };
 
-  const handleLogout = () => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('eenvoq-session');
-    }
-    setAppMode('onboarding');
-    setActiveTab('desk');
-    setAuthMode('signup');
-    setAuthName('');
-    setAuthEmail('');
-    setAuthPassword('');
-  };
-
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return 'Good Morning';
@@ -1269,14 +1685,45 @@ export default function App() {
   const dashboardHeroLabel = `${businessName} ${dashboardLabel}`.trim();
 
   const loadOrganizationConfig = async () => {
+    const activeBusinessId = getActiveBusinessId();
+    if (!activeBusinessId) return;
+
     try {
-      const response = await fetch('/api/organization-config');
-      if (!response.ok) return;
-      const config = await response.json() as OrganizationSetupConfig;
-      setOrganizationSetup(config);
-      setBusinessName(config.name || 'Your Business');
-      setBusinessCurrency(config.currency || 'NGN (₦)');
-      setOrganizationType(config.profileType as OrganizationKind);
+      const { data, error } = await supabase
+        .from('businesses')
+        .select('*')
+        .eq('id', activeBusinessId)
+        .single();
+
+      if (error) {
+        console.error('Unable to load business config', error);
+        return;
+      }
+
+      if (data) {
+        const config: OrganizationSetupConfig = {
+          profileType: organizationSetup.profileType,
+          name: data.name || 'Your Business',
+          industry: data.industry || organizationSetup.industry,
+          subtype: data.subtype || organizationSetup.subtype,
+          location: data.location || organizationSetup.location,
+          currency: data.currency || organizationSetup.currency,
+          contactEmail: data.contact_email || organizationSetup.contactEmail,
+          contactPhone: data.contact_phone || organizationSetup.contactPhone,
+          staffCount: organizationSetup.staffCount,
+          modules: (data.modules as ModuleKey[]) || organizationSetup.modules,
+          logoUrl: data.logo_url || organizationSetup.logoUrl
+        };
+
+        setOrganizationSetup(config);
+        setBusinessName(config.name || 'Your Business');
+        setBusinessCurrency(config.currency || 'NGN (₦)');
+        setOrganizationType(config.profileType as OrganizationKind);
+
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('eenvoq-organization-config', JSON.stringify(config));
+        }
+      }
     } catch (error) {
       console.error('Unable to load organization config', error);
     }
@@ -1292,15 +1739,34 @@ export default function App() {
 
     if (typeof window !== 'undefined') {
       localStorage.setItem('eenvoq-organization-config', JSON.stringify(config));
-      try {
-        await fetch('/api/organization-config', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(config)
-        });
-      } catch (error) {
+    }
+
+    const activeBusinessId = getActiveBusinessId();
+    if (!activeBusinessId) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('businesses')
+        .update({
+          name: config.name,
+          industry: config.industry,
+          subtype: config.subtype,
+          location: config.location,
+          currency: config.currency,
+          contact_email: config.contactEmail,
+          contact_phone: config.contactPhone,
+          modules: config.modules,
+          logo_url: config.logoUrl
+        })
+        .eq('id', activeBusinessId);
+
+      if (error) {
         console.error('Unable to persist organization config', error);
       }
+    } catch (error) {
+      console.error('Unable to persist organization config', error);
     }
   };
 
@@ -1374,7 +1840,7 @@ export default function App() {
   };
 
   const submitTransaction = async () => {
-    const selectedInventoryItem = transactionInventoryCatalog.find((record: { id: string; name: string; category: string; purchasePrice: number; sellingPrice: number; image: string; stock: number; inventoryType: string; productId: string }) => record.id === transactionDraft.inventoryId);
+    const selectedInventoryItem = transactionInventoryCatalog.find((record) => record.id === transactionDraft.inventoryId);
     const purchasePrice = Number(transactionDraft.purchasePrice || selectedInventoryItem?.purchasePrice || 0);
     const sellingPrice = Number(transactionDraft.sellingPrice || 0);
     const quantity = Math.max(1, Number(transactionDraft.quantity || 1));
@@ -1426,16 +1892,34 @@ export default function App() {
     };
 
     try {
-      const method = editingOrderId ? 'PUT' : 'POST';
-      const response = await fetch(editingOrderId ? `/api/orders/${editingOrderId}` : '/api/orders', {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+      const activeBusinessId = getActiveBusinessId();
+      if (!activeBusinessId) throw new Error('Unable to determine active business for the transaction.');
+
+      const response = await supabase.from('orders').insert({
+        business_id: activeBusinessId,
+        customer_name: recipientName,
+        items: payload.items,
+        total_amount: saleTotal,
+        status: 'Completed',
+        recorded_by: profile?.id ?? null,
+        transaction_type: transactionDraft.transactionType,
+        recipient_id: transactionDraft.recipientId && transactionDraft.recipientId !== 'walk-in' ? transactionDraft.recipientId : null,
+        recipient_name: recipientName,
+        category: transactionDraft.category || selectedInventoryItem?.category,
+        inventory_id: transactionDraft.inventoryId || selectedInventoryItem?.id || null,
+        inventory_name: selectedInventoryItem?.name || transactionDraft.inventoryName,
+        inventory_photo: selectedInventoryItem?.image || '',
+        sale_date: transactionDraft.soldDate || null,
+        purchase_price: purchasePrice,
+        selling_price: sellingPrice,
+        profit,
+        balance_due: balanceDue,
+        currency: transactionDraft.currency || businessCurrency || organizationSetup.currency || 'USD ($)',
+        notes: transactionDraft.notes
       });
 
-      if (!response.ok) {
-        const errorPayload = await response.json().catch(() => ({}));
-        throw new Error(errorPayload.error || 'Unable to save transaction.');
+      if (response.error) {
+        throw response.error;
       }
 
       setReceiptDelivered(receiptRequested);
@@ -1482,9 +1966,9 @@ export default function App() {
 
   const deleteOrder = async (orderId: string) => {
     try {
-      const response = await fetch(`/api/orders/${orderId}`, { method: 'DELETE' });
-      if (!response.ok) {
-        throw new Error('Unable to delete transaction.');
+      const { error } = await supabase.from('orders').delete().eq('id', orderId);
+      if (error) {
+        throw error;
       }
       await loadAllData();
       setTransactionNotice('Transaction deleted.');
@@ -1642,14 +2126,33 @@ export default function App() {
     };
 
     try {
-      const response = await fetch('/api/inventory', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+      const activeBusinessId = getActiveBusinessId();
+      if (!activeBusinessId) {
+        throw new Error('Unable to determine active business for inventory creation.');
+      }
+
+      const tagsArray = recordDraft.tags ? recordDraft.tags.split(',').map((tag) => tag.trim()).filter(Boolean) : [];
+
+      const { error } = await supabase.from('products').insert({
+        business_id: activeBusinessId,
+        created_by: profile?.id ?? null,
+        name: recordName,
+        sku: generatedRecordId,
+        category: selectedCategory,
+        status: recordDraft.status,
+        note: recordDraft.note,
+        details: detailsWithIds,
+        attachments: recordDraft.attachments,
+        image_url: productImageBase64 || '',
+        branch: recordDraft.branch,
+        department: recordDraft.department,
+        tags: tagsArray,
+        last_modified_by: getOperatorName(),
+        owner: getOperatorName()
       });
 
-      if (!response.ok) {
-        throw new Error('Unable to save the intake record.');
+      if (error) {
+        throw error;
       }
 
       logAudit('Inventory', `Recorded ${recordName} under ${selectedCategory}.`);
@@ -1684,18 +2187,26 @@ export default function App() {
     }
 
     try {
-      const response = await fetch('/api/expenses', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...expenseDraft,
-          amount: Number(expenseDraft.amount || 0),
-          recordedBy: getOperatorName()
-        })
+      const activeBusinessId = getActiveBusinessId();
+      if (!activeBusinessId) {
+        throw new Error('Unable to determine active business for expense record.');
+      }
+
+      const { error } = await supabase.from('expenses').insert({
+        business_id: activeBusinessId,
+        title: expenseDraft.title,
+        category: expenseDraft.category,
+        amount: Number(expenseDraft.amount || 0),
+        date: expenseDraft.date,
+        vendor: expenseDraft.vendor,
+        product: expenseDraft.product,
+        notes: expenseDraft.notes,
+        receipt_url: expenseDraft.receipt,
+        recorded_by: profile?.id ?? null
       });
 
-      if (!response.ok) {
-        throw new Error('Unable to save the operating cost.');
+      if (error) {
+        throw error;
       }
 
       setExpenseDraft({
@@ -1724,15 +2235,31 @@ export default function App() {
       return;
     }
     try {
-      const response = await fetch(`/api/inventory/${editingProduct.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editingProduct)
-      });
-      if (response.ok) {
+      const { error } = await supabase.from('products').update({
+        name: editingProduct.name,
+        sku: editingProduct.sku,
+        category: editingProduct.category,
+        stock: editingProduct.stock,
+        min_stock: editingProduct.minStock,
+        price: editingProduct.price,
+        cost: editingProduct.cost,
+        image_url: editingProduct.image,
+        status: editingProduct.status,
+        note: editingProduct.note,
+        details: editingProduct.details,
+        branch: editingProduct.branch,
+        department: editingProduct.department,
+        last_modified_by: getOperatorName(),
+        owner: editingProduct.owner,
+        updated_at: new Date().toISOString()
+      }).eq('id', editingProduct.id);
+
+      if (!error) {
         setEditingProduct(null);
         logAudit('Inventory', `Updated inventory item ${editingProduct.name}.`);
         await loadAllData();
+      } else {
+        throw error;
       }
     } catch (err) {
       console.error(err);
@@ -1747,13 +2274,12 @@ export default function App() {
       return;
     }
     try {
-      const response = await fetch(`/api/inventory/${productId}`, {
-        method: 'DELETE'
-      });
-      if (response.ok) {
-        logAudit('Inventory', `Deleted inventory item ${productId}.`);
-        await loadAllData();
+      const { error } = await supabase.from('products').delete().eq('id', productId);
+      if (error) {
+        throw error;
       }
+      logAudit('Inventory', `Deleted inventory item ${productId}.`);
+      await loadAllData();
     } catch (err) {
       console.error(err);
     }
@@ -1767,15 +2293,12 @@ export default function App() {
       return;
     }
     try {
-      const updatedStock = product.stock + amount;
-      const response = await fetch(`/api/inventory/${productId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ stock: updatedStock })
-      });
-      if (response.ok) {
-        await loadAllData();
+      const updatedStock = (product.stock ?? 0) + amount;
+      const { error } = await supabase.from('products').update({ stock: updatedStock }).eq('id', productId);
+      if (error) {
+        throw error;
       }
+      await loadAllData();
     } catch (err) {
       console.error(err);
     }
@@ -1788,46 +2311,53 @@ export default function App() {
     if (filteredItems.length === 0) return;
 
     try {
-      const response = await fetch('/api/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          customerName: newOrder.customerName,
-          items: filteredItems,
-          status: newOrder.status,
-          recordedBy: getOperatorName()
-        })
+      const activeBusinessId = getActiveBusinessId();
+      if (!activeBusinessId) {
+        throw new Error('Unable to determine active business for order creation.');
+      }
+
+      const { error } = await supabase.from('orders').insert({
+        business_id: activeBusinessId,
+        customer_name: newOrder.customerName,
+        items: filteredItems,
+        total_amount: filteredItems.reduce((sum, item) => {
+          const product = products.find((product) => product.id === item.productId);
+          return sum + Number(product?.price ?? 0) * item.quantity;
+        }, 0),
+        status: newOrder.status,
+        recorded_by: profile?.id ?? null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       });
 
-      if (response.ok) {
-        setShowAddOrderModal(false);
-        setNewOrder({
-          customerName: '',
-          items: [{ productId: '', quantity: 1 }],
-          status: 'Pending'
-        });
-        
-        // Log to ledger
-        logAudit('Sales', `Sale recorded by ${getOperatorName()} for customer ${newOrder.customerName}.`);
-
-        await loadAllData();
+      if (error) {
+        throw error;
       }
+
+      setShowAddOrderModal(false);
+      setNewOrder({
+        customerName: '',
+        items: [{ productId: '', productName: '', quantity: 1, price: 0 }],
+        status: 'Pending'
+      });
+
+      logAudit('Sales', `Sale recorded by ${getOperatorName()} for customer ${newOrder.customerName}.`);
+
+      await loadAllData();
     } catch (err) {
       console.error(err);
+      setTransactionNotice(err instanceof Error ? err.message : 'Unable to create order.');
     }
   };
 
   // API Call: Update order status
   const handleUpdateOrderStatus = async (orderId: string, status: Order['status']) => {
     try {
-      const response = await fetch(`/api/orders/${orderId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status })
-      });
-      if (response.ok) {
-        await loadAllData();
+      const { error } = await supabase.from('orders').update({ status }).eq('id', orderId);
+      if (error) {
+        throw error;
       }
+      await loadAllData();
     } catch (err) {
       console.error(err);
     }
@@ -1837,17 +2367,40 @@ export default function App() {
   const handleCreateStaff = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch('/api/staff', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newStaffMember)
-      });
-      if (response.ok) {
-        setShowAddStaffModal(false);
-        setNewStaffMember({ name: '', role: 'Sales Assistant', online: true });
-        logAudit('Security', `Business owner registered new staff member: ${newStaffMember.name}.`);
-        await loadAllData();
+      const activeBusinessId = getActiveBusinessId();
+      if (!activeBusinessId) {
+        throw new Error('Unable to determine active business for staff creation.');
       }
+
+      const staffData = {
+        id: `staff-${Date.now()}`,
+        name: newStaffMember.name,
+        role: newStaffMember.role,
+        online: newStaffMember.online,
+        lastActive: new Date().toISOString().slice(0, 16).replace('T', ' ')
+      };
+
+      const { error } = await supabase.from('profiles').insert({
+        user_id: null,
+        business_id: activeBusinessId,
+        full_name: staffData.name,
+        email: '',
+        role: 'staff',
+        online: staffData.online,
+        last_active: new Date().toISOString(),
+        is_active: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      setShowAddStaffModal(false);
+      setNewStaffMember({ name: '', role: 'Sales Assistant', online: true });
+      logAudit('Security', `Business owner registered new staff member: ${newStaffMember.name}.`);
+      await loadAllData();
     } catch (err) {
       console.error(err);
     }
@@ -1856,16 +2409,13 @@ export default function App() {
   // API Call: Toggle staff member online/offline status
   const handleToggleStaffOnline = async (staffId: string, currentOnline: boolean) => {
     try {
-      const response = await fetch(`/api/staff/${staffId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ online: !currentOnline })
-      });
-      if (response.ok) {
-        const found = staff.find(s => s.id === staffId);
-        logAudit('Security', `Staff member ${found ? found.name : 'Unknown'} set to ${!currentOnline ? 'Online' : 'Offline'}.`);
-        await loadAllData();
+      const { error } = await supabase.from('profiles').update({ online: !currentOnline, updated_at: new Date().toISOString() }).eq('id', staffId);
+      if (error) {
+        throw error;
       }
+      const found = staff.find(s => s.id === staffId);
+      logAudit('Security', `Staff member ${found ? found.name : 'Unknown'} set to ${!currentOnline ? 'Online' : 'Offline'}.`);
+      await loadAllData();
     } catch (err) {
       console.error(err);
     }
@@ -1874,11 +2424,12 @@ export default function App() {
   // API Call: Delete staff member
   const handleDeleteStaff = async (staffId: string) => {
     try {
-      const response = await fetch(`/api/staff/${staffId}`, { method: 'DELETE' });
-      if (response.ok) {
-        logAudit('Security', `Removed staff member ${staffId}.`);
-        await loadAllData();
+      const { error } = await supabase.from('profiles').delete().eq('id', staffId);
+      if (error) {
+        throw error;
       }
+      logAudit('Security', `Removed staff member ${staffId}.`);
+      await loadAllData();
     } catch (err) {
       console.error(err);
     }
@@ -1888,23 +2439,36 @@ export default function App() {
   const handleCreateCustomer = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch('/api/customers', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newCustomerRecord)
-      });
-      if (response.ok) {
-        setShowAddCustomerModal(false);
-        setNewCustomerRecord({ name: '', email: '', phone: '', company: '', status: 'Active' });
-        const newLog: AuditLog = {
-          id: `log-${Date.now()}`,
-          timestamp: new Date().toISOString().slice(0, 16).replace('T', ' '),
-          category: 'System',
-          message: `Added new CRM customer contact: ${newCustomerRecord.name}.`
-        };
-        setAuditLogs(prev => [newLog, ...prev]);
-        await loadAllData();
+      const activeBusinessId = getActiveBusinessId();
+      if (!activeBusinessId) {
+        throw new Error('Unable to determine active business for customer creation.');
       }
+
+      const { error } = await supabase.from('customers').insert({
+        business_id: activeBusinessId,
+        name: newCustomerRecord.name,
+        email: newCustomerRecord.email,
+        phone: newCustomerRecord.phone,
+        company: newCustomerRecord.company,
+        status: newCustomerRecord.status,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      setShowAddCustomerModal(false);
+      setNewCustomerRecord({ name: '', email: '', phone: '', company: '', status: 'Active' });
+      const newLog: AuditLog = {
+        id: `log-${Date.now()}`,
+        timestamp: new Date().toISOString().slice(0, 16).replace('T', ' '),
+        category: 'System',
+        message: `Added new CRM customer contact: ${newCustomerRecord.name}.`
+      };
+      setAuditLogs(prev => [newLog, ...prev]);
+      await loadAllData();
     } catch (err) {
       console.error(err);
     }
@@ -1933,14 +2497,24 @@ export default function App() {
     }
 
     try {
-      const response = await fetch('/api/suppliers', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(supplierDraft)
+      const activeBusinessId = getActiveBusinessId();
+      if (!activeBusinessId) {
+        throw new Error('Unable to determine active business for supplier creation.');
+      }
+
+      const { error } = await supabase.from('suppliers').insert({
+        business_id: activeBusinessId,
+        name: supplierDraft.name,
+        specialty: supplierDraft.specialty,
+        lead_time: supplierDraft.leadTime,
+        contact: supplierDraft.contact,
+        email: supplierDraft.email,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       });
 
-      if (!response.ok) {
-        throw new Error('Unable to save supplier.');
+      if (error) {
+        throw error;
       }
 
       setSupplierDraft({ name: '', specialty: 'Smart Devices & Security', leadTime: 5, contact: '', email: '' });
@@ -2513,6 +3087,18 @@ export default function App() {
         setAuthEmail={setAuthEmail}
         setAuthPassword={setAuthPassword}
         setAppMode={setAppMode}
+        onSubmit={handleAuthSubmit}
+        isLoading={authLoading}
+        authError={authError}
+        passwordVisible={passwordVisible}
+        setPasswordVisible={setPasswordVisible}
+        forgotPasswordMode={forgotPasswordMode}
+        setForgotPasswordMode={setForgotPasswordMode}
+        resetPasswordMessage={resetPasswordMessage}
+        resetPasswordError={resetPasswordError}
+        resetPasswordLoading={resetPasswordLoading}
+        resetPasswordCooldown={resetPasswordCooldown}
+        onResetPassword={handleResetPassword}
       />
     );
   }
@@ -2860,7 +3446,7 @@ export default function App() {
               {/* VIEW 1: DESK (DASHBOARD) */}
               {activeTab === 'desk' && (
                 <div className="space-y-4 p-4 sm:p-5 lg:p-6">
-                  <div className="relative rounded-[30px] border border-[#8EE5C2] bg-white/90 p-5 shadow-[0_24px_60px_rgba(16,63,38,0.12)] backdrop-blur-xl sm:p-6 lg:p-8">
+                  <div className="relative rounded-[30px] border border-[#8EE5C2] bg-white/90 p-5 shadow-[0_10px_30px_rgba(0,0,0,0.08)] backdrop-blur-xl sm:p-6 lg:p-8">
                       <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
                         <div>
                           <p className="text-[11px] uppercase tracking-[0.3em] text-neutral-500">{dashboardHeroLabel}</p>
@@ -3571,7 +4157,7 @@ export default function App() {
                                     <button
                                       key={item.id}
                                       type="button"
-                                      onClick={() => setTransactionDraft((prev) => ({ ...prev, inventoryId: item.id, inventoryName: item.name, purchasePrice: item.purchasePrice, sellingPrice: item.sellingPrice }))}
+                                      onClick={() => setTransactionDraft((prev) => ({ ...prev, inventoryId: item.id, inventoryName: item.name, purchasePrice: item.purchasePrice ?? 0, sellingPrice: item.sellingPrice ?? 0 }))}
                                       className={`rounded-[18px] border p-3 text-left ${transactionDraft.inventoryId === item.id ? 'border-[#8EE5C2] bg-[#F7FFF9]' : 'border-neutral-200 bg-white'}`}
                                     >
                                       <div className="flex items-center gap-3">
@@ -4015,7 +4601,7 @@ export default function App() {
                         <span className="rounded-full border border-[#8EE5C2]/25 bg-[#F7FFF9] px-3 py-1 text-xs font-medium text-black">{summary.lowStockCount} flagged</span>
                       </div>
                       <div className="mt-3 space-y-2">
-                        {products.filter(p => p.stock <= p.minStock).map(prod => (
+                        {products.filter(p => (p.stock ?? 0) <= (p.minStock ?? 0)).map(prod => (
                           <div key={prod.id} className="flex flex-col gap-2 rounded-[16px] border border-neutral-200 bg-neutral-50 px-3 py-3 sm:flex-row sm:items-center sm:justify-between">
                             <div>
                               <p className="font-semibold text-black">{prod.name}</p>
@@ -5063,7 +5649,7 @@ export default function App() {
                     type="button"
                     onClick={() => setNewOrder(prev => ({
                       ...prev,
-                      items: [...prev.items, { productId: '', quantity: 1 }]
+                      items: [...prev.items, { productId: '', productName: '', quantity: 1, price: 0 }]
                     }))}
                     className="text-sm font-semibold text-black underline"
                   >
@@ -5078,8 +5664,14 @@ export default function App() {
                         required
                         value={lineItem.productId}
                         onChange={(e) => {
+                          const selectedProduct = products.find((p) => p.id === e.target.value);
                           const updatedItems = [...newOrder.items];
-                          updatedItems[index].productId = e.target.value;
+                          updatedItems[index] = {
+                            ...updatedItems[index],
+                            productId: e.target.value,
+                            productName: selectedProduct?.name || '',
+                            price: selectedProduct?.price ?? 0
+                          };
                           setNewOrder(prev => ({ ...prev, items: updatedItems }));
                         }}
                         className="flex-1 bg-white border border-neutral-200 rounded px-2 py-1.5 text-sm text-black font-normal"
