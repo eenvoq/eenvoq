@@ -2801,50 +2801,6 @@ export default function App() {
 
   return (
     <div className={`min-h-screen bg-white text-sm font-normal text-black select-none transition-opacity duration-300 ${(splashActive || !startupComplete) && appMode === 'app' ? 'opacity-0' : 'opacity-100'}`}>
-        <div className="p-4 sm:p-5 lg:p-6">
-          <div className="space-y-4">
-            {/* Header skeleton */}
-            <div className="space-y-3">
-              <div className="h-4 w-32 animate-pulse rounded bg-neutral-200" />
-              <div className="h-8 w-48 animate-pulse rounded bg-neutral-200" />
-            </div>
-
-            {/* Stats grid skeleton */}
-            <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="rounded-[26px] border border-neutral-200 bg-white p-5">
-                  <div className="h-3 w-20 animate-pulse rounded bg-neutral-200" />
-                  <div className="mt-3 h-8 w-24 animate-pulse rounded bg-neutral-200" />
-                  <div className="mt-4 h-4 w-12 animate-pulse rounded bg-neutral-100" />
-                </div>
-              ))}
-            </div>
-
-            {/* Content skeleton */}
-            <div className="grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
-              <div className="rounded-[28px] border border-neutral-200 bg-white p-5">
-                <div className="space-y-4">
-                  <div className="h-3 w-32 animate-pulse rounded bg-neutral-200" />
-                  <div className="h-6 w-48 animate-pulse rounded bg-neutral-200" />
-                  <div className="space-y-3">
-                    {[...Array(3)].map((_, i) => (
-                      <div key={i} className="h-4 w-full animate-pulse rounded bg-neutral-100" />
-                    ))}
-                  </div>
-                </div>
-              </div>
-              <div className="rounded-[28px] border border-neutral-200 bg-white p-5">
-                <div className="space-y-3">
-                  <div className="h-3 w-24 animate-pulse rounded bg-neutral-200" />
-                  <div className="h-6 w-40 animate-pulse rounded bg-neutral-200" />
-                  <div className="h-4 w-full animate-pulse rounded bg-neutral-100" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className={`min-h-screen bg-white text-sm font-normal text-black select-none transition-opacity duration-300 ${(splashActive || !startupComplete) && appMode === 'app' ? 'opacity-0' : 'opacity-100'}`}>
       <div className="relative min-h-screen w-full overflow-hidden bg-white">
         {(menuOpen || isDesktop) && (
           <div className={`${isDesktop ? 'fixed inset-y-0 left-0 z-40 hidden w-72 flex-col border-r border-neutral-200 bg-white p-5 lg:flex' : 'fixed inset-0 z-50 flex bg-neutral-950/40 lg:hidden'}`}>
@@ -5046,7 +5002,7 @@ export default function App() {
                   </div>
                 </div>
               )}
-            </>
+            </div>
           )}
 
         </div>
@@ -5796,6 +5752,5 @@ export default function App() {
         </div>
       )}
     </div>
-  </>
   );
 }

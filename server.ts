@@ -943,7 +943,10 @@ app.post('/api/orders', (req, res) => {
 
   // CRM Update logic
   try {
-    const existingCust = customers.find(c => c.name.toLowerCase() === recipientDisplayName.toLowerCase() || c.company.toLowerCase() === recipientDisplayName.toLowerCase());
+    const existingCust = customers.find(c => 
+      (c.name || '').toLowerCase() === recipientDisplayName.toLowerCase() || 
+      (c.company || '').toLowerCase() === recipientDisplayName.toLowerCase()
+    );
     if (existingCust) {
       existingCust.totalSpent = parseFloat((existingCust.totalSpent + newOrder.totalAmount).toFixed(2));
       existingCust.ordersCount += 1;
@@ -1255,7 +1258,7 @@ app.get('/api/sales-summary', (req, res) => {
     // Only count processed/shipped/completed orders in revenue summaries
     order.items.forEach(item => {
       const product = products.find(p => p.id === item.productId);
-      const costPerUnit = product ? product.cost : 0;
+      const costPerUnit = product ? (product.cost ?? 0) : 0;
       const itemRevenue = item.price * item.quantity;
       const itemCost = costPerUnit * item.quantity;
 
@@ -1276,7 +1279,7 @@ app.get('/api/sales-summary', (req, res) => {
 
   const totalProfit = totalRevenue - totalCost;
   const totalProducts = products.length;
-  const lowStockCount = products.filter(p => p.stock <= p.minStock).length;
+  const lowStockCount = products.filter(p => (p.stock ?? 0) <= (p.minStock ?? 0)).length;
 
   // Format chart data arrays
   const topSelling = Object.entries(productSalesMap)
@@ -1419,7 +1422,7 @@ ${JSON.stringify(
     min_stock_alert_threshold: p.minStock,
     unit_price: p.price,
     unit_cost: p.cost,
-    status: p.stock === 0 ? 'Out of Stock' : p.stock <= p.minStock ? 'Low Stock' : 'Optimal'
+    status: (p.stock ?? 0) === 0 ? 'Out of Stock' : (p.stock ?? 0) <= (p.minStock ?? 0) ? 'Low Stock' : 'Optimal'
   })),
   null,
   2
@@ -1442,7 +1445,7 @@ ${JSON.stringify(
 === LOW STOCK WARNINGS ===
 ${
   lowStockItems.length > 0
-    ? lowStockItems.map(p => `- WARNING: "${p.name}" is low or out of stock! Current stock: ${p.stock} (Threshold: ${p.minStock})`).join('\n')
+    ? lowStockItems.map(p => `- WARNING: "${p.name}" is low or out of stock! Current stock: ${p.stock ?? 0} (Threshold: ${p.minStock ?? 0})`).join('\n')
     : 'None. All stock levels are currently optimal.'
 }
 
