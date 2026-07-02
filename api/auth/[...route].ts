@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import type { IncomingMessage, ServerResponse } from 'http';
 import { createClient } from '@supabase/supabase-js';
+import { performTransactionalRegistration } from '../../server/onboardingService';
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
@@ -159,50 +160,31 @@ export default async function handler(req: IncomingMessage & { method?: string; 
     }
 
     try {
-      const { data, error } = await supabaseAuth.auth.signUp({
+      const result = await performTransactionalRegistration({
         email: normalizedEmail,
         password: String(password),
-        options: {
-          data: {
-            full_name: String(fullName || '').trim() || 'Business Owner'
-          }
-        }
+        fullName: String(fullName || '').trim() || 'Business Owner',
+        organizationConfig,
+        role: normalizedRole,
+        pin: normalizedPin
       });
-
-      if (error) {
-        if (String(error.message || '').toLowerCase().includes('already registered')) {
-          return sendJson(res, 409, { error: 'An account with this email already exists. Please sign in instead.' });
-        }
-        return sendJson(res, 500, { error: error.message || 'Unable to create account.' });
-      }
-
-      const userId = data?.user?.id;
-      let businessId: string | null = null;
-      if (userId) {
-        businessId = await upsertBusinessProfile(userId, {
-          ...(organizationConfig || {}),
-          name: organizationConfig?.name || normalizedEmail.split('@')[0] || 'Your Business',
-          fullName: String(fullName || '').trim() || 'Business Owner',
-          email: normalizedEmail,
-          contactEmail: normalizedEmail,
-          currency: organizationConfig?.currency || 'USD ($)',
-          modules: organizationConfig?.modules || ['transactions', 'inventory', 'customers', 'staff', 'reports', 'ai']
-        }, normalizedRole);
-      }
 
       return sendJson(res, 200, {
         message: 'Account created successfully.',
-        user: data?.user || null,
-        profile: {
-          full_name: String(fullName || '').trim() || 'Business Owner',
-          email: normalizedEmail,
-          role: normalizedRole
-        },
-        business: businessId ? { id: businessId } : null
+        user: result.user,
+        profile: result.profile,
+        business: result.business
       });
     } catch (error: any) {
+      const message = error?.message || 'Unable to create account.';
       console.error('Vercel signup error', error);
-      return sendJson(res, 500, { error: error?.message || 'Unable to create account.' });
+      if (message.includes('already exists')) {
+        return sendJson(res, 409, { error: message });
+      }
+      if (message.includes('valid email') || message.includes('business name') || message.includes('industry') || message.includes('location') || message.includes('currency') || message.includes('account type')) {
+        return sendJson(res, 400, { error: message });
+      }
+      return sendJson(res, 500, { error: message });
     }
   }
 

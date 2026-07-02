@@ -1,4 +1,4 @@
-@import "tailwindcss";
+﻿@import "tailwindcss";
 
 :root {
   --primary-color: #0F172A;
@@ -60,11 +60,11 @@
 }
 
 .shadow-mint-glow {
-  box-shadow: 0 0 15px rgba(142, 229, 194, 0.45);
+  box-shadow: 0 0 15px rgba(199, 255, 77, 0.45);
 }
 
 .shadow-mint-glow-sm {
-  box-shadow: 0 0 8px rgba(142, 229, 194, 0.35);
+  box-shadow: 0 0 8px rgba(199, 255, 77, 0.35);
 }
 
 html, body, #root {
@@ -91,5 +91,6 @@ input:focus, select:focus, textarea:focus {
 input[type="checkbox"], input[type="radio"], input[type="range"] {
   accent-color: var(--accent-color);
 }
+
 
 

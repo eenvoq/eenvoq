@@ -5,6 +5,7 @@ import crypto from 'crypto';
 import dotenv from 'dotenv';
 import { GoogleGenAI } from '@google/genai';
 import { createClient } from '@supabase/supabase-js';
+import { performTransactionalRegistration } from './server/onboardingService';
 
 dotenv.config();
 
@@ -257,6 +258,7 @@ const supabaseAdmin = supabaseUrl && supabaseServiceRoleKey
   : null;
 
 const authRateLimits = new Map<string, { count: number; resetAt: number }>();
+const signupLocks = new Map<string, Promise<unknown>>();
 
 function getClientIp(req: express.Request) {
   const forwarded = req.get('x-forwarded-for');
@@ -291,6 +293,53 @@ function hashPassword(password: string) {
 function normalizeRole(role: unknown) {
   const normalized = String(role || '').trim().toLowerCase();
   return normalized === 'manager' || normalized === 'staff' || normalized === 'owner' ? normalized : 'owner';
+}
+
+async function checkEmailAvailability(email: string) {
+  const normalizedEmail = String(email || '').trim().toLowerCase();
+  if (!normalizedEmail) {
+    return false;
+  }
+
+  if (authUsers.some((user) => user.email === normalizedEmail)) {
+    return true;
+  }
+
+  if (!supabaseAdmin) {
+    return false;
+  }
+
+  try {
+    const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 1000 });
+    if (error) {
+      throw error;
+    }
+    return data?.users?.some((user) => user.email?.toLowerCase() === normalizedEmail) || false;
+  } catch (error: any) {
+    console.warn('Unable to verify email availability against Supabase auth.', error?.message || error);
+    return false;
+  }
+}
+
+async function runExclusiveSignup(email: string, operation: () => Promise<any>) {
+  const normalizedEmail = String(email || '').trim().toLowerCase();
+  const existing = signupLocks.get(normalizedEmail);
+  if (existing) {
+    await existing;
+    const exists = await checkEmailAvailability(normalizedEmail);
+    return exists ? { conflict: true, error: 'An account with this email address already exists. Please sign in using this email or register with a different email address.' } : { conflict: false };
+  }
+
+  const pending = (async () => {
+    try {
+      return await operation();
+    } finally {
+      signupLocks.delete(normalizedEmail);
+    }
+  })();
+
+  signupLocks.set(normalizedEmail, pending);
+  return pending;
 }
 
 function createLocalBusinessRecord(userId: string, config: Partial<OrganizationConfig> & { fullName?: string; email?: string } = {}) {
@@ -528,6 +577,22 @@ function getGemini(): GoogleGenAI {
 // API ROUTES
 // ----------------------------------------------------
 
+app.post('/api/auth/check-email', async (req, res) => {
+  try {
+    const { email } = req.body || {};
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required.' });
+    }
+
+    const normalizedEmail = String(email).trim().toLowerCase();
+    const exists = await checkEmailAvailability(normalizedEmail);
+    return res.json({ available: !exists });
+  } catch (error: any) {
+    console.error('Email availability check failed', error);
+    return res.status(500).json({ error: 'Unable to validate email address.' });
+  }
+});
+
 app.post('/api/auth/signup', async (req, res) => {
   try {
     const { email, password, fullName, organizationConfig: incomingConfig, role, pin } = req.body || {};
@@ -542,75 +607,42 @@ app.post('/api/auth/signup', async (req, res) => {
     if (normalizedRole !== 'owner' && normalizedPin.length < 4) {
       return res.status(400).json({ error: 'A 4-digit PIN is required for manager and staff accounts.' });
     }
+
     const key = `signup:${getClientIp(req)}:${normalizedEmail}`;
     const rateLimit = checkRateLimit(key, 5, 15 * 60 * 1000);
     if (!rateLimit.allowed) {
       return res.status(429).json({ error: 'Too many sign-up attempts. Please try again in a moment.' });
     }
 
-    if (!supabaseAdmin) {
-      const fallback = createLocalAuthAccount(normalizedEmail, String(password), String(fullName || '').trim() || 'Business Owner', incomingConfig as any, normalizedRole, normalizedPin);
-      if (fallback.conflict) {
-        return res.status(409).json({ error: 'An account with this email already exists. Please sign in instead.' });
-      }
-      clearRateLimit(key);
-      return res.json({
-        message: 'Account created successfully.',
-        user: fallback.user,
-        profile: fallback.profile,
-        business: fallback.business
-      });
-    }
+    const result = await performTransactionalRegistration({
+      email: normalizedEmail,
+      password: String(password),
+      fullName: String(fullName || '').trim() || 'Business Owner',
+      organizationConfig: incomingConfig as any,
+      role: normalizedRole,
+      pin: normalizedPin
+    });
 
-    try {
-      const { data: createdUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
-        email: normalizedEmail,
-        password: String(password),
-        email_confirm: true,
-        user_metadata: { full_name: String(fullName || '').trim() || 'Business Owner' }
-      });
-
-      if (createError || !createdUser?.user) {
-        if (createError?.message?.includes('already registered')) {
-          return res.status(409).json({ error: 'An account with this email already exists. Please sign in instead.' });
-        }
-        throw createError || new Error('Unable to create account');
-      }
-
-      const businessId = await upsertBusinessProfile(createdUser.user.id, {
-        ...incomingConfig,
-        name: incomingConfig?.name || normalizedEmail.split('@')[0] || 'Your Business',
-        fullName: String(fullName || '').trim() || 'Business Owner',
-        email: normalizedEmail,
-        contactEmail: normalizedEmail,
-        modules: incomingConfig?.modules || ['transactions', 'inventory', 'customers', 'staff', 'reports', 'ai']
-      }, normalizedRole, normalizedPin);
-
-      clearRateLimit(key);
-
-      return res.json({
-        message: 'Account created successfully.',
-        user: createdUser.user,
-        profile: { full_name: String(fullName || '').trim() || 'Business Owner', email: normalizedEmail, role: normalizedRole },
-        business: { id: businessId }
-      });
-    } catch (supabaseError: any) {
-      console.warn('Supabase signup failed, falling back to local auth', supabaseError?.message || supabaseError);
-      const fallback = createLocalAuthAccount(normalizedEmail, String(password), String(fullName || '').trim() || 'Business Owner', incomingConfig as any, normalizedRole, normalizedPin);
-      if (fallback.conflict) {
-        return res.status(409).json({ error: 'An account with this email already exists. Please sign in instead.' });
-      }
-      clearRateLimit(key);
-      return res.json({
-        message: 'Account created successfully.',
-        user: fallback.user,
-        profile: fallback.profile,
-        business: fallback.business
-      });
-    }
+    clearRateLimit(key);
+    return res.status(200).json({
+      message: 'Account created successfully.',
+      user: result.user,
+      profile: result.profile,
+      business: result.business
+    });
   } catch (error: any) {
+    const message = error?.message || 'Unable to create account.';
     console.error('Auth signup failed', error);
-    return res.status(500).json({ error: error?.message || 'Unable to create account.' });
+    if (message.includes('already exists')) {
+      return res.status(409).json({ error: message });
+    }
+    if (message.includes('valid email') || message.includes('business name') || message.includes('industry') || message.includes('location') || message.includes('currency') || message.includes('account type')) {
+      return res.status(400).json({ error: message });
+    }
+    if (message.includes('PIN')) {
+      return res.status(400).json({ error: message });
+    }
+    return res.status(500).json({ error: message });
   }
 });
 

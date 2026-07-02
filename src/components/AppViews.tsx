@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+﻿import React, { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { getOrganizationProfile, businessSubtypes, educationSubtypes, type ModuleKey, type OrganizationTypeKey } from '../organizationConfig';
@@ -93,7 +93,7 @@ function SidebarNavButton({ label, icon: Icon, active, onClick, badge }: { label
     <button
       onClick={onClick}
       className={`w-full flex items-center justify-between space-x-3 px-3 py-2 rounded-md text-left transition-colors ${
-        active ? 'bg-[#8EE5C2]/15 border-l-2 border-[#8EE5C2] font-semibold text-black pl-2.5 shadow-mint-glow-sm' : 'text-black hover:bg-neutral-50 font-normal'
+        active ? 'bg-[#a6ff00]/15 border-l-2 border-[#a6ff00] font-semibold text-black pl-2.5 shadow-mint-glow-sm' : 'text-black hover:bg-neutral-50 font-normal'
       }`}
     >
       <div className="flex items-center space-x-3">
@@ -101,7 +101,7 @@ function SidebarNavButton({ label, icon: Icon, active, onClick, badge }: { label
         <span>{label}</span>
       </div>
       {badge !== undefined && badge !== null && badge !== '' ? (
-        <span className="rounded-full bg-[#8EE5C2] px-2 py-0.5 text-[10px] font-semibold text-black">
+        <span className="rounded-full bg-[#a6ff00] px-2 py-0.5 text-[10px] font-semibold text-black">
           {badge}
         </span>
       ) : null}
@@ -155,7 +155,7 @@ function AppHeader({
 
   return (
     <>
-      <header className="sticky top-0 z-40 flex h-14 flex-shrink-0 items-center justify-between border-b border-neutral-100 bg-white/95 px-3 backdrop-blur sm:px-5">
+      <header className="fixed inset-x-0 top-0 z-50 flex h-14 flex-shrink-0 items-center justify-between border-b border-neutral-100 bg-white/95 px-3 backdrop-blur sm:px-5">
         <div className="flex items-center gap-2">
           {!isDesktop && (
             <button
@@ -213,7 +213,7 @@ function AppHeader({
             {onlineMembers.map((member) => (
               <div
                 key={member.id}
-                className={`flex h-7 w-7 items-center justify-center rounded-full border text-[10px] font-semibold text-black ${currentOperatorId === member.id ? 'border-black bg-black text-white' : 'border-[#8EE5C2] bg-[#F7FFF9]'}`}
+                className={`flex h-7 w-7 items-center justify-center rounded-full border text-[10px] font-semibold text-black ${currentOperatorId === member.id ? 'border-black bg-black text-white' : 'border-[#a6ff00] bg-[#a6ff00]'}`}
                 title={member.name}
               >
                 {member.name.split(' ').map((part) => part[0]).join('').slice(0, 2)}
@@ -238,7 +238,7 @@ function AppHeader({
             <MessageSquare className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Tag</span>
             {tagCount > 0 && (
-              <span className="ml-0.5 inline-flex min-w-5 items-center justify-center rounded-full bg-[#8EE5C2] px-1.5 py-0.5 text-[10px] font-semibold text-black">
+              <span className="ml-0.5 inline-flex min-w-5 items-center justify-center rounded-full bg-[#a6ff00] px-1.5 py-0.5 text-[10px] font-semibold text-black">
                 {tagCount}
               </span>
             )}
@@ -306,7 +306,7 @@ function AppHeader({
 function MetricCard({ label, value, accent = true }: { label: string; value: React.ReactNode; accent?: boolean }) {
   return (
     <div className="bg-white shadow-sm border border-neutral-200/60 rounded-lg p-3 relative overflow-hidden">
-      {accent && <div className="absolute top-0 left-0 bottom-0 w-[3px] bg-[#8EE5C2]"></div>}
+      {accent && <div className="absolute top-0 left-0 bottom-0 w-[3px] bg-[#a6ff00]"></div>}
       <p className="text-xs font-normal text-neutral-400 pl-1">{label}</p>
       <div className="text-sm font-semibold text-black pl-1">{value}</div>
     </div>
@@ -315,7 +315,7 @@ function MetricCard({ label, value, accent = true }: { label: string; value: Rea
 
 function HeroVisual() {
   return (
-    <div className="relative overflow-hidden rounded-[28px] border border-neutral-200 bg-[radial-gradient(circle_at_top_left,_rgba(142,229,194,0.18),_transparent_30%),linear-gradient(135deg,_#ffffff_0%,_#f6f7f7_100%)] p-6 shadow-[0_20px_70px_rgba(0,0,0,0.04)]">
+    <div className="relative overflow-hidden rounded-[28px] border border-neutral-200 bg-[radial-gradient(circle_at_top_left,_rgba(166,255,0,0.16),_transparent_30%),linear-gradient(135deg,_#ffffff_0%,_#f6f7f7_100%)] p-6 shadow-[0_20px_70px_rgba(0,0,0,0.04)]">
       <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent_0%,rgba(0,0,0,0.02)_50%,transparent_100%)]" />
       <div className="relative grid gap-3">
         <div className="rounded-[24px] border border-neutral-200 bg-white/90 p-4">
@@ -324,14 +324,14 @@ function HeroVisual() {
               <p className="text-[11px] uppercase tracking-[0.25em] text-neutral-400">Operations</p>
               <p className="mt-1 text-sm font-semibold text-black">Command Center</p>
             </div>
-            <div className="rounded-full border border-[#8EE5C2]/30 bg-[#8EE5C2]/10 px-3 py-1 text-[11px] font-medium text-neutral-700">Live</div>
+            <div className="rounded-full border border-[#a6ff00]/30 bg-[#a6ff00]/10 px-3 py-1 text-[11px] font-medium text-neutral-700">Live</div>
           </div>
           <div className="mt-4 grid gap-3 sm:grid-cols-3">
             {['Stock Ledger', 'Sales Orders', 'Eenvoq AI'].map((label) => (
               <div key={label} className="rounded-2xl border border-neutral-200 bg-neutral-50 p-3">
                 <p className="text-[11px] uppercase tracking-[0.2em] text-neutral-400">{label}</p>
                 <div className="mt-2 h-2 rounded-full bg-neutral-200">
-                  <div className="h-2 w-3/4 rounded-full bg-[#8EE5C2]" />
+                  <div className="h-2 w-3/4 rounded-full bg-[#a6ff00]" />
                 </div>
               </div>
             ))}
@@ -341,13 +341,13 @@ function HeroVisual() {
         <div className="grid gap-3 sm:grid-cols-[0.95fr_1.05fr]">
           <div className="rounded-[24px] border border-neutral-200 bg-white/90 p-4">
             <div className="flex items-center gap-3">
-              <div className="h-2.5 w-2.5 rounded-full bg-[#8EE5C2]" />
+              <div className="h-2.5 w-2.5 rounded-full bg-[#a6ff00]" />
               <p className="text-sm font-semibold text-black">Predictive demand flow</p>
             </div>
             <div className="mt-4 flex items-end gap-2">
               {[48, 72, 54, 84, 64].map((height, index) => (
                 <div key={index} className="flex-1 rounded-t-full bg-neutral-200" style={{ height: `${height}px` }}>
-                  <div className="rounded-t-full bg-[#8EE5C2]" style={{ height: `${height - 16}px` }} />
+                  <div className="rounded-t-full bg-[#a6ff00]" style={{ height: `${height - 16}px` }} />
                 </div>
               ))}
             </div>
@@ -363,12 +363,12 @@ function HeroVisual() {
             </div>
             <div className="mt-4 flex items-end justify-between gap-3">
               <div className="flex-1 rounded-[20px] border border-white/10 bg-white/10 p-3">
-                <div className="h-16 w-16 rounded-full border border-[#8EE5C2]/50 bg-[radial-gradient(circle_at_center,_#8EE5C2_0%,_#111_70%)]" />
+                <div className="h-16 w-16 rounded-full border border-[#a6ff00]/50 bg-[radial-gradient(circle_at_center,_#a6ff00_0%,_#111_70%)]" />
                 <p className="mt-3 text-sm font-semibold">Mina</p>
                 <p className="text-xs text-neutral-400">Operations Lead</p>
               </div>
               <div className="flex-1 rounded-[20px] border border-white/10 bg-white/10 p-3">
-                <div className="h-16 w-16 rounded-full border border-[#8EE5C2]/50 bg-[radial-gradient(circle_at_center,_#c8f5e1_0%,_#111_70%)]" />
+                <div className="h-16 w-16 rounded-full border border-[#a6ff00]/50 bg-[radial-gradient(circle_at_center,_#a6ff00_0%,_#111_70%)]" />
                 <p className="mt-3 text-sm font-semibold">Jules</p>
                 <p className="text-xs text-neutral-400">Inventory Ops</p>
               </div>
@@ -449,7 +449,7 @@ function LandingPage({ setAuthMode, setAppMode }: LandingPageProps) {
           <p className="mt-5 text-lg leading-8 text-neutral-700">Whether you run a retail store, school, warehouse, distribution business, or service company, Eenvoq helps you replace scattered records and manual processes with one connected space.</p>
           <div className="mt-6 flex flex-wrap gap-3">
             {['Easy setup', 'Friendly onboarding support', 'Secure cloud access', 'Built for growing organizations'].map((item) => (
-              <div key={item} className="rounded-full border border-[#E6ECEA] bg-[#F3FFF9] px-3 py-2 text-sm text-[#1d7a53]">✓ {item}</div>
+              <div key={item} className="rounded-full border border-[#E6ECEA] bg-[#a6ff00] px-3 py-2 text-sm text-[#111111]">âœ“ {item}</div>
             ))}
           </div>
         </div>
@@ -466,17 +466,17 @@ function LandingPage({ setAuthMode, setAppMode }: LandingPageProps) {
             <p className="mt-4 text-lg leading-8 text-neutral-700">The biggest threat to operational growth isn\'t lack of customers. It\'s lack of visibility.</p>
             <p className="mt-4 text-lg leading-8 text-neutral-700">When your information lives in different places, you spend more time managing records than managing the business itself.</p>
           </div>
-          <div className="rounded-[24px] border border-[#42E8B4]/20 bg-[linear-gradient(135deg,_#F3FFF9_0%,_#F8FAF9_100%)] p-6">
-            <p className="text-sm font-medium uppercase tracking-[0.25em] text-[#1d7a53]">Before Eenvoq</p>
+          <div className="rounded-[24px] border border-[#a6ff00]/20 bg-[linear-gradient(135deg,_#a6ff00_0%,_#F8FAF9_100%)] p-6">
+            <p className="text-sm font-medium uppercase tracking-[0.25em] text-[#111111]">Before Eenvoq</p>
             <ul className="mt-4 space-y-3 text-sm leading-7 text-neutral-700">
               {['Multiple spreadsheets', 'Paper records', 'Disconnected systems', 'Manual calculations', 'Endless searching', 'Delayed reporting'].map((item) => (
-                <li key={item} className="rounded-[14px] border border-[#E6ECEA] bg-white px-4 py-3">• {item}</li>
+                <li key={item} className="rounded-[14px] border border-[#E6ECEA] bg-white px-4 py-3">â€¢ {item}</li>
               ))}
             </ul>
-            <p className="mt-5 text-sm font-medium uppercase tracking-[0.25em] text-[#1d7a53]">After Eenvoq</p>
+            <p className="mt-5 text-sm font-medium uppercase tracking-[0.25em] text-[#111111]">After Eenvoq</p>
             <ul className="mt-3 space-y-3 text-sm leading-7 text-neutral-700">
               {['One platform', 'One source of truth', 'Real-time updates', 'Automated reporting', 'Instant visibility', 'Better decisions'].map((item) => (
-                <li key={item} className="rounded-[14px] border border-[#E6ECEA] bg-white px-4 py-3">• {item}</li>
+                <li key={item} className="rounded-[14px] border border-[#E6ECEA] bg-white px-4 py-3">â€¢ {item}</li>
               ))}
             </ul>
           </div>
@@ -494,11 +494,11 @@ function LandingPage({ setAuthMode, setAppMode }: LandingPageProps) {
               <p className="text-lg leading-8 text-neutral-700">Imagine making a sale and instantly seeing inventory update. Imagine receiving a payment and having reports refresh automatically. Imagine viewing a customer profile and immediately seeing their entire history.</p>
               <p className="mt-5 text-lg leading-8 text-neutral-700">That\'s how Eenvoq works.</p>
             </div>
-            <div className="rounded-[24px] border border-[#42E8B4]/20 bg-[linear-gradient(135deg,_#F3FFF9_0%,_#F8FAF9_100%)] p-6">
-              <p className="text-sm font-medium uppercase tracking-[0.25em] text-[#1d7a53]">What happens inside Eenvoq?</p>
+            <div className="rounded-[24px] border border-[#a6ff00]/20 bg-[linear-gradient(135deg,_#a6ff00_0%,_#F8FAF9_100%)] p-6">
+              <p className="text-sm font-medium uppercase tracking-[0.25em] text-[#111111]">What happens inside Eenvoq?</p>
               <ul className="mt-4 space-y-3 text-sm leading-7 text-neutral-700">
                 {['Sales update inventory', 'Inventory updates reporting', 'Payments update customer balances', 'Customer records update automatically', 'Reports generate in real time', 'Every action creates clarity across your organization'].map((item) => (
-                  <li key={item} className="rounded-[14px] border border-[#E6ECEA] bg-white px-4 py-3">• {item}</li>
+                  <li key={item} className="rounded-[14px] border border-[#E6ECEA] bg-white px-4 py-3">â€¢ {item}</li>
                 ))}
               </ul>
             </div>
@@ -517,11 +517,11 @@ function LandingPage({ setAuthMode, setAppMode }: LandingPageProps) {
               <p className="text-sm font-medium uppercase tracking-[0.25em] text-neutral-500">With Eenvoq you can</p>
               <ul className="mt-4 space-y-3 text-sm leading-7 text-neutral-700">
                 {['Track inventory quantities in real time', 'Monitor stock movement across locations', 'Receive automatic low-stock alerts', 'View complete product history', 'Track inventory valuation', 'Manage purchases more confidently'].map((item) => (
-                  <li key={item} className="rounded-[14px] border border-[#E6ECEA] bg-white px-4 py-3">• {item}</li>
+                  <li key={item} className="rounded-[14px] border border-[#E6ECEA] bg-white px-4 py-3">â€¢ {item}</li>
                 ))}
               </ul>
             </div>
-            <div className="rounded-[24px] border border-[#42E8B4]/20 bg-[linear-gradient(135deg,_#F3FFF9_0%,_#F8FAF9_100%)] p-6">
+            <div className="rounded-[24px] border border-[#a6ff00]/20 bg-[linear-gradient(135deg,_#a6ff00_0%,_#F8FAF9_100%)] p-6">
               <p className="text-lg leading-8 text-neutral-700">Instead of discovering shortages after customers complain, you\'ll know exactly when products are running low and what needs attention.</p>
               <p className="mt-5 text-lg leading-8 text-neutral-700">Better stock control. Better purchasing decisions. Better customer experiences.</p>
             </div>
@@ -540,11 +540,11 @@ function LandingPage({ setAuthMode, setAppMode }: LandingPageProps) {
               <p className="text-sm font-medium uppercase tracking-[0.25em] text-neutral-500">Record sales effortlessly</p>
               <ul className="mt-4 space-y-3 text-sm leading-7 text-neutral-700">
                 {['Process transactions quickly', 'Generate receipts instantly', 'Track sales performance in real time', 'Monitor revenue growth', 'View historical sales activity', 'Analyze top-performing products'].map((item) => (
-                  <li key={item} className="rounded-[14px] border border-[#E6ECEA] bg-white px-4 py-3">• {item}</li>
+                  <li key={item} className="rounded-[14px] border border-[#E6ECEA] bg-white px-4 py-3">â€¢ {item}</li>
                 ))}
               </ul>
             </div>
-            <div className="rounded-[24px] border border-[#42E8B4]/20 bg-[linear-gradient(135deg,_#F3FFF9_0%,_#F8FAF9_100%)] p-6">
+            <div className="rounded-[24px] border border-[#a6ff00]/20 bg-[linear-gradient(135deg,_#a6ff00_0%,_#F8FAF9_100%)] p-6">
               <p className="text-lg leading-8 text-neutral-700">See today\'s revenue. Track best-selling products. Monitor transaction volume. Identify trends early.</p>
               <p className="mt-5 text-lg leading-8 text-neutral-700">Sales information shouldn\'t be buried inside spreadsheets. It should be visible, understandable, and actionable.</p>
             </div>
@@ -563,11 +563,11 @@ function LandingPage({ setAuthMode, setAppMode }: LandingPageProps) {
               <p className="text-sm font-medium uppercase tracking-[0.25em] text-neutral-500">Create professional invoices in minutes</p>
               <ul className="mt-4 space-y-3 text-sm leading-7 text-neutral-700">
                 {['Generate invoices instantly', 'Customize billing details', 'Track payment status automatically', 'Record partial payments', 'Maintain complete payment histories', 'Keep all financial records organized and accessible'].map((item) => (
-                  <li key={item} className="rounded-[14px] border border-[#E6ECEA] bg-white px-4 py-3">• {item}</li>
+                  <li key={item} className="rounded-[14px] border border-[#E6ECEA] bg-white px-4 py-3">â€¢ {item}</li>
                 ))}
               </ul>
             </div>
-            <div className="rounded-[24px] border border-[#42E8B4]/20 bg-[linear-gradient(135deg,_#F3FFF9_0%,_#F8FAF9_100%)] p-6">
+            <div className="rounded-[24px] border border-[#a6ff00]/20 bg-[linear-gradient(135deg,_#a6ff00_0%,_#F8FAF9_100%)] p-6">
               <p className="text-lg leading-8 text-neutral-700">Instead of chasing information across notebooks, spreadsheets, and messages, you can instantly see who has paid, who still owes, and what is overdue.</p>
               <p className="mt-5 text-lg leading-8 text-neutral-700">Healthy cash flow keeps organizations moving forward.</p>
             </div>
@@ -586,11 +586,11 @@ function LandingPage({ setAuthMode, setAppMode }: LandingPageProps) {
               <p className="text-sm font-medium uppercase tracking-[0.25em] text-neutral-500">Keep everything connected</p>
               <ul className="mt-4 space-y-3 text-sm leading-7 text-neutral-700">
                 {['Contact information', 'Registration details', 'Payment history', 'Purchase records', 'Attendance information', 'Notes and activity logs', 'Outstanding balances', 'Historical interactions'].map((item) => (
-                  <li key={item} className="rounded-[14px] border border-[#E6ECEA] bg-white px-4 py-3">• {item}</li>
+                  <li key={item} className="rounded-[14px] border border-[#E6ECEA] bg-white px-4 py-3">â€¢ {item}</li>
                 ))}
               </ul>
             </div>
-            <div className="rounded-[24px] border border-[#42E8B4]/20 bg-[linear-gradient(135deg,_#F3FFF9_0%,_#F8FAF9_100%)] p-6">
+            <div className="rounded-[24px] border border-[#a6ff00]/20 bg-[linear-gradient(135deg,_#a6ff00_0%,_#F8FAF9_100%)] p-6">
               <p className="text-lg leading-8 text-neutral-700">Need to check a customer\'s payment history or a student\'s tuition records? Everything is available in seconds.</p>
               <p className="mt-5 text-lg leading-8 text-neutral-700">When information is organized, service improves and relationships become stronger.</p>
             </div>
@@ -608,10 +608,10 @@ function LandingPage({ setAuthMode, setAppMode }: LandingPageProps) {
             <p className="text-sm font-medium uppercase tracking-[0.25em] text-neutral-500">Ask questions naturally</p>
             <div className="mt-4 space-y-3 text-sm leading-7 text-neutral-700">
               {['Which products are running low?', 'Who still owes payments this month?', 'What were our best-selling products last week?', 'How much revenue did we generate this quarter?', 'What inventory should we reorder?'].map((item) => (
-                <div key={item} className="rounded-[14px] border border-[#E6ECEA] bg-white px-4 py-3">“{item}”</div>
+                <div key={item} className="rounded-[14px] border border-[#E6ECEA] bg-white px-4 py-3">â€œ{item}â€</div>
               ))}
             </div>
-            <p className="mt-5 text-lg leading-8 text-neutral-700">The assistant instantly reviews your records and provides simple, understandable answers—no formulas, no technical expertise required.</p>
+            <p className="mt-5 text-lg leading-8 text-neutral-700">The assistant instantly reviews your records and provides simple, understandable answersâ€”no formulas, no technical expertise required.</p>
           </div>
         </div>
       ),
@@ -627,11 +627,11 @@ function LandingPage({ setAuthMode, setAppMode }: LandingPageProps) {
               <p className="text-sm font-medium uppercase tracking-[0.25em] text-neutral-500">Monitor what matters most</p>
               <ul className="mt-4 space-y-3 text-sm leading-7 text-neutral-700">
                 {['Revenue growth', 'Sales performance', 'Inventory movement', 'Product performance', 'Payment collections', 'Outstanding balances', 'Customer activity', 'Operational trends'].map((item) => (
-                  <li key={item} className="rounded-[14px] border border-[#E6ECEA] bg-white px-4 py-3">• {item}</li>
+                  <li key={item} className="rounded-[14px] border border-[#E6ECEA] bg-white px-4 py-3">â€¢ {item}</li>
                 ))}
               </ul>
             </div>
-            <div className="rounded-[24px] border border-[#42E8B4]/20 bg-[linear-gradient(135deg,_#F3FFF9_0%,_#F8FAF9_100%)] p-6">
+            <div className="rounded-[24px] border border-[#a6ff00]/20 bg-[linear-gradient(135deg,_#a6ff00_0%,_#F8FAF9_100%)] p-6">
               <p className="text-lg leading-8 text-neutral-700">Instead of spending hours building reports manually, generate meaningful insights in seconds and make better strategic decisions.</p>
             </div>
           </div>
@@ -696,7 +696,7 @@ function LandingPage({ setAuthMode, setAppMode }: LandingPageProps) {
               <p className="text-base font-semibold text-black">{story.title}</p>
               <p className="mt-3 text-sm font-medium uppercase tracking-[0.25em] text-neutral-500">Before</p>
               <p className="mt-2 text-sm leading-7 text-neutral-700">{story.before}</p>
-              <p className="mt-5 text-sm font-medium uppercase tracking-[0.25em] text-[#1d7a53]">After</p>
+              <p className="mt-5 text-sm font-medium uppercase tracking-[0.25em] text-[#111111]">After</p>
               <p className="mt-2 text-sm leading-7 text-neutral-700">{story.after}</p>
               <p className="mt-5 text-sm font-semibold text-black">Result</p>
               <p className="mt-2 text-sm leading-7 text-neutral-700">{story.result}</p>
@@ -741,8 +741,8 @@ function LandingPage({ setAuthMode, setAppMode }: LandingPageProps) {
               ))}
             </div>
           </div>
-          <div className="rounded-[24px] border border-[#42E8B4]/20 bg-[linear-gradient(135deg,_#F3FFF9_0%,_#F8FAF9_100%)] p-6">
-            <p className="text-sm font-medium uppercase tracking-[0.25em] text-[#1d7a53]">Eenvoq</p>
+          <div className="rounded-[24px] border border-[#a6ff00]/20 bg-[linear-gradient(135deg,_#a6ff00_0%,_#F8FAF9_100%)] p-6">
+            <p className="text-sm font-medium uppercase tracking-[0.25em] text-[#111111]">Eenvoq</p>
             <div className="mt-4 space-y-3 text-sm text-neutral-700">
               {['Transforms data into actionable insights', 'Proactively highlights important issues', 'Automates repetitive processes and reduces workload', 'Connects sales, inventory, payments, customers, and reporting into one ecosystem', 'Designed for everyday teams, managers, administrators, and business owners'].map((item) => (
                 <div key={item} className="rounded-[14px] border border-[#E6ECEA] bg-white px-4 py-3">{item}</div>
@@ -818,7 +818,7 @@ function LandingPage({ setAuthMode, setAppMode }: LandingPageProps) {
             >
               <Menu className="h-5 w-5" />
             </button>
-            <button onClick={() => { setAuthMode('login'); setAppMode('auth'); }} className="hidden rounded-[4px] border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-black transition hover:border-[#4b7a6f] hover:text-[#1d7a53] sm:inline-flex">Log In</button>
+            <button onClick={() => { setAuthMode('login'); setAppMode('auth'); }} className="hidden rounded-[4px] border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-black transition hover:border-[#a6ff00] hover:text-[#111111] sm:inline-flex">Log In</button>
             <button onClick={() => { setAuthMode('signup'); setAppMode('auth'); }} className="rounded-[4px] bg-black px-4 py-2 text-sm font-medium text-white transition hover:bg-[#1f1f1f]">Get Started</button>
           </div>
         </div>
@@ -836,11 +836,11 @@ function LandingPage({ setAuthMode, setAppMode }: LandingPageProps) {
       </header>
 
       <main className="flex flex-col pb-20">
-        <section id="hero" ref={heroSectionRef} className="w-full border-b border-[#E6ECEA] bg-[radial-gradient(circle_at_top_left,_rgba(66,232,180,0.16),_transparent_38%),linear-gradient(135deg,_#FCFCFA_0%,_#F7FAF8_100%)] px-6 pt-4 pb-10 sm:px-8 sm:pt-8 sm:pb-14 lg:px-12 lg:py-24">
+        <section id="hero" ref={heroSectionRef} className="w-full border-b border-[#E6ECEA] bg-[radial-gradient(circle_at_top_left,_rgba(166,255,0,0.18),_transparent_38%),linear-gradient(135deg,_#FCFCFA_0%,_#F7FAF8_100%)] px-6 pt-4 pb-10 sm:px-8 sm:pt-8 sm:pb-14 lg:px-12 lg:py-24">
           <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1.02fr_0.98fr] lg:items-center">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#DCE8E4] bg-[#F3FFF9] px-3 py-1 text-sm text-[#1d7a53]">
-                <span className="h-2 w-2 rounded-full bg-[#42E8B4]" />
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#EDEFE6] bg-[#a6ff00] px-3 py-1 text-sm text-[#111111]">
+                <span className="h-2 w-2 rounded-full bg-[#a6ff00]" />
                 ALL-IN-ONE BUSINESS OPERATING SYSTEM
               </div>
               <h1 ref={heroTitleRef} className="mt-5 text-4xl font-semibold leading-[1.02] tracking-[-0.03em] text-black sm:text-5xl lg:text-6xl">
@@ -850,12 +850,12 @@ function LandingPage({ setAuthMode, setAppMode }: LandingPageProps) {
                 Whether you run a retail store, school, warehouse, distribution business, or service company, Eenvoq helps you replace scattered records, disconnected tools, and manual processes with one connected space.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
-                <button onClick={() => { setAuthMode('signup'); setAppMode('auth'); }} className="rounded-[4px] bg-[#42E8B4] px-5 py-2.75 text-sm font-semibold text-black transition hover:bg-[#2ddca8]">Start Free Trial</button>
-                <button onClick={() => { setAuthMode('login'); setAppMode('auth'); }} className="rounded-[4px] border border-[#E6ECEA] bg-white px-5 py-2.75 text-sm font-semibold text-neutral-700 transition hover:border-[#42E8B4]">Book a Demo</button>
+                <button onClick={() => { setAuthMode('signup'); setAppMode('auth'); }} className="rounded-[4px] bg-[#a6ff00] px-5 py-2.75 text-sm font-semibold text-black transition hover:bg-[#a6ff00]">Start Free Trial</button>
+                <button onClick={() => { setAuthMode('login'); setAppMode('auth'); }} className="rounded-[4px] border border-[#E6ECEA] bg-white px-5 py-2.75 text-sm font-semibold text-neutral-700 transition hover:border-[#a6ff00]">Book a Demo</button>
               </div>
               <div className="mt-7 flex flex-wrap gap-3 text-sm text-neutral-700">
                 {['No complicated setup', 'Friendly onboarding support', 'Secure cloud access', 'Built for growing organizations'].map((item) => (
-                  <div key={item} className="rounded-full border border-[#E6ECEA] bg-white/80 px-3 py-2">✓ {item}</div>
+                  <div key={item} className="rounded-full border border-[#E6ECEA] bg-white/80 px-3 py-2">âœ“ {item}</div>
                 ))}
               </div>
             </div>
@@ -865,7 +865,7 @@ function LandingPage({ setAuthMode, setAppMode }: LandingPageProps) {
                 <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80" alt="A calm workspace showing key operations modules" loading="lazy" decoding="async" className="h-44 w-full object-cover" />
               </div>
               <div className="grid gap-3 lg:grid-cols-[1.05fr_0.95fr]">
-                <div ref={(element) => { heroCardRefs.current[0] = element; }} className="rounded-[8px] border border-[#E6ECEA] bg-[#F3FFF9] p-5">
+                <div ref={(element) => { heroCardRefs.current[0] = element; }} className="rounded-[8px] border border-[#E6ECEA] bg-[#a6ff00] p-5">
                   <p className="text-[11px] uppercase tracking-[0.24em] text-neutral-500">Sales overview</p>
                   <div className="mt-4 rounded-[18px] border border-[#E6ECEA] bg-white p-4">
                     <p className="text-sm font-semibold text-black">Revenue this week</p>
@@ -877,11 +877,11 @@ function LandingPage({ setAuthMode, setAppMode }: LandingPageProps) {
                     <p className="text-[11px] uppercase tracking-[0.24em] text-neutral-500">Inventory status</p>
                     <div className="mt-3 flex items-center justify-between rounded-[6px] border border-[#E6ECEA] bg-white px-3 py-3 text-sm text-neutral-700">
                       <span>Low stock alerts</span>
-                      <span className="text-[#1d7a53]">3 items</span>
+                      <span className="text-[#111111]">3 items</span>
                     </div>
                   </div>
                   <div ref={(element) => { heroCardRefs.current[2] = element; }} className="rounded-[8px] border border-[#0D0D0D] bg-[#0D0D0D] p-5 text-white">
-                    <p className="text-[11px] uppercase tracking-[0.24em] text-[#42E8B4]">AI assistant</p>
+                    <p className="text-[11px] uppercase tracking-[0.24em] text-[#a6ff00]">AI assistant</p>
                     <div className="mt-3 rounded-[6px] border border-white/10 bg-white/10 px-3 py-3 text-sm text-neutral-300">Which products are running low?</div>
                   </div>
                 </div>
@@ -915,20 +915,20 @@ function LandingPage({ setAuthMode, setAppMode }: LandingPageProps) {
         })}
 
         <section ref={ctaRef} className="w-full px-6 py-16 sm:px-8 lg:px-12 lg:py-24">
-          <div className="mx-auto max-w-7xl rounded-[8px] border border-[#E6ECEA] bg-[linear-gradient(135deg,_#F3FFF9_0%,_#F9FCFA_100%)] p-8 shadow-[0_20px_70px_rgba(0,0,0,0.04)] lg:p-10">
+          <div className="mx-auto max-w-7xl rounded-[8px] border border-[#E6ECEA] bg-[linear-gradient(135deg,_#a6ff00_0%,_#F9FCFA_100%)] p-8 shadow-[0_20px_70px_rgba(0,0,0,0.04)] lg:p-10">
             <div className="mx-auto max-w-3xl text-center">
               <p className="text-sm font-medium uppercase tracking-[0.25em] text-neutral-500">READY TO SIMPLIFY OPERATIONS?</p>
               <h2 className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-black sm:text-4xl">Everything Your Organization Needs. One Connected Platform.</h2>
               <p className="mt-4 text-lg leading-8 text-neutral-600">Whether you manage a retail business, a school, a warehouse, a distribution company, or a growing service organization, Eenvoq gives your team the tools, visibility, and intelligence needed to operate with confidence.</p>
               <div data-section-body className="mt-8 flex flex-wrap justify-center gap-3">
-                <button onClick={() => { setAuthMode('signup'); setAppMode('auth'); }} className="rounded-[6px] bg-[#42E8B4] px-5 py-2.75 text-sm font-semibold text-black transition hover:bg-[#2ddca8]">Start Your Free Trial</button>
-                <button onClick={() => { setAuthMode('login'); setAppMode('auth'); }} className="rounded-[6px] border border-[#E6ECEA] bg-white px-5 py-2.75 text-sm font-semibold text-neutral-700 transition hover:border-[#42E8B4]">Book A Personalized Demo</button>
+                <button onClick={() => { setAuthMode('signup'); setAppMode('auth'); }} className="rounded-[6px] bg-[#a6ff00] px-5 py-2.75 text-sm font-semibold text-black transition hover:bg-[#a6ff00]">Start Your Free Trial</button>
+                <button onClick={() => { setAuthMode('login'); setAppMode('auth'); }} className="rounded-[6px] border border-[#E6ECEA] bg-white px-5 py-2.75 text-sm font-semibold text-neutral-700 transition hover:border-[#a6ff00]">Book A Personalized Demo</button>
               </div>
               <div data-section-body className="mt-8 flex flex-wrap justify-center gap-4 text-sm text-neutral-600">
-                <span>✓ Setup assistance included</span>
-                <span>✓ Secure cloud platform</span>
-                <span>✓ Friendly onboarding support</span>
-                <span>✓ No technical expertise required</span>
+                <span>âœ“ Setup assistance included</span>
+                <span>âœ“ Secure cloud platform</span>
+                <span>âœ“ Friendly onboarding support</span>
+                <span>âœ“ No technical expertise required</span>
               </div>
             </div>
           </div>
@@ -965,10 +965,10 @@ function LandingPage({ setAuthMode, setAppMode }: LandingPageProps) {
                   <p className="mt-3 text-sm leading-7 text-neutral-600">{plan.description}</p>
                   <ul className="mt-5 space-y-2 text-sm text-neutral-700">
                     {plan.features.map((feature) => (
-                      <li key={feature} className="flex gap-2"><CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-[#1d7a53]" />{feature}</li>
+                      <li key={feature} className="flex gap-2"><CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-[#111111]" />{feature}</li>
                     ))}
                   </ul>
-                  <button className="mt-6 rounded-[4px] bg-[#8EE5C2] px-4 py-2 text-sm font-semibold text-black transition hover:bg-[#74dcb1]">Choose {plan.name}</button>
+                  <button className="mt-6 rounded-[4px] bg-[#a6ff00] px-4 py-2 text-sm font-semibold text-black transition hover:bg-[#A8E83D]">Choose {plan.name}</button>
                 </div>
               ))}
             </div>
@@ -990,7 +990,7 @@ function LandingPage({ setAuthMode, setAppMode }: LandingPageProps) {
             <a href="#hero" className="transition hover:text-black">Home</a>
             <a href="#faq" className="transition hover:text-black">FAQ</a>
             <a href="#stories" className="transition hover:text-black">Stories</a>
-            <a href="#" className="transition hover:text-black">Contact</a>
+            <a href="https://eenvoq.com.ng" target="_blank" rel="noopener noreferrer" className="transition hover:text-black">Contact</a>
           </div>
         </div>
       </footer>
@@ -1050,14 +1050,14 @@ function AuthPage({ authMode, setAuthMode, authName, authEmail, authPassword, se
             <div>
               <label className="mb-2 block text-sm font-medium text-[var(--primary-color)]">Password</label>
               <div className="relative">
-                <input type={passwordVisible ? 'text' : 'password'} value={authPassword} onChange={(event) => setAuthPassword(event.target.value)} className="w-full rounded-2xl border border-[var(--border-color)] bg-[var(--white)] px-4 py-3 pr-12 text-sm text-[var(--primary-color)] focus:border-[var(--accent-color)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]/20" placeholder="••••••••" />
+                <input type={passwordVisible ? 'text' : 'password'} value={authPassword} onChange={(event) => setAuthPassword(event.target.value)} className="w-full rounded-2xl border border-[var(--border-color)] bg-[var(--white)] px-4 py-3 pr-12 text-sm text-[var(--primary-color)] focus:border-[var(--accent-color)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]/20" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" />
                 <button type="button" onClick={() => setPasswordVisible(!passwordVisible)} className="absolute inset-y-0 right-3 flex items-center text-[var(--text-color)] transition hover:text-[var(--primary-color)]" aria-label={passwordVisible ? 'Hide password' : 'Show password'}>
                   {passwordVisible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
             </div>
             {authError ? <p className="text-sm text-red-600">{authError}</p> : null}
-            <button type="submit" disabled={isLoading} className="w-full rounded-full bg-[var(--accent-color)] px-4 py-3 text-sm font-medium text-[var(--white)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70">{isLoading ? 'Please wait…' : authMode === 'signup' ? 'Create account' : 'Log in'}</button>
+            <button type="submit" disabled={isLoading} className="w-full rounded-full bg-[var(--accent-color)] px-4 py-3 text-sm font-medium text-[var(--white)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70">{isLoading ? 'Please waitâ€¦' : authMode === 'signup' ? 'Create account' : 'Log in'}</button>
           </form>
 
           <div className="mt-6 rounded-2xl border border-[var(--accent-color)]/30 bg-[var(--accent-color)]/10 p-4 text-sm text-[var(--primary-color)]">
@@ -1075,7 +1075,7 @@ function OnboardingWizard({ onComplete, setAppMode }: OnboardingWizardProps) {
   const [name, setName] = useState('Your Business');
   const [industry, setIndustry] = useState('Business');
   const [location, setLocation] = useState('Accra, Nigeria');
-  const [currency, setCurrency] = useState('NGN (₦)');
+  const [currency, setCurrency] = useState('NGN (â‚¦)');
   const [contactEmail, setContactEmail] = useState('support@yourbusiness.com');
   const [contactPhone, setContactPhone] = useState('');
   const [staffCount, setStaffCount] = useState(1);
@@ -1093,11 +1093,11 @@ function OnboardingWizard({ onComplete, setAppMode }: OnboardingWizardProps) {
     else setProfileType('business');
   }, [industry]);
   const currencyOptions = [
-    { value: 'NGN (₦)', label: 'NGN' },
-    { value: 'Ghana Cedis (₵)', label: 'Ghana cedis' },
+    { value: 'NGN (â‚¦)', label: 'NGN' },
+    { value: 'Ghana Cedis (â‚µ)', label: 'Ghana cedis' },
     { value: 'Kenyan Shillings (KSh)', label: 'Kenyan shillings' },
     { value: 'USD ($)', label: 'USD' },
-    { value: 'GBP (£)', label: 'GBP' }
+    { value: 'GBP (Â£)', label: 'GBP' }
   ];
 
   useEffect(() => {
@@ -1107,7 +1107,7 @@ function OnboardingWizard({ onComplete, setAppMode }: OnboardingWizardProps) {
 
   useEffect(() => {
     if (location.includes('Nigeria')) {
-      setCurrency('NGN (₦)');
+      setCurrency('NGN (â‚¦)');
     }
   }, [location]);
 
@@ -1275,3 +1275,4 @@ function OnboardingWizard({ onComplete, setAppMode }: OnboardingWizardProps) {
 }
 
 export { LandingPage, AuthPage, OnboardingWizard, SidebarNavButton, AppHeader, MetricCard };
+

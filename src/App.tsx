@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+﻿import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   Package,
   ShoppingCart,
@@ -292,7 +292,6 @@ const educationRecordCategories = [
   'Department',
   'Campus/Branch',
   'Library Book',
-  'Books/Library',
   'Examination',
   'Academic Session',
   'Term/Semester',
@@ -654,13 +653,6 @@ const educationCategoryFields: Record<EducationRecordCategory, FieldDefinition[]
     { key: 'price', label: 'Service Price', type: 'number' },
     { key: 'provider', label: 'Service Provider', type: 'text' }
   ],
-  'Library Book': [
-    { key: 'title', label: 'Book Title', type: 'text' },
-    { key: 'author', label: 'Author', type: 'text' },
-    { key: 'isbn', label: 'ISBN', type: 'text' },
-    { key: 'location', label: 'Library Location', type: 'text' },
-    { key: 'copiesAvailable', label: 'Copies Available', type: 'number' }
-  ],
   'Supplier/Vendor': [
     { key: 'vendorName', label: 'Vendor / Supplier Name', type: 'text' },
     { key: 'vendorCategory', label: 'Category', type: 'text' },
@@ -918,7 +910,8 @@ export default function App() {
     setMenuOpen(false);
     setActiveTab(item.tab as typeof activeTab);
   };
-  const [deskRange, setDeskRange] = useState<'Today' | 'This Week' | 'This Month' | 'This Quarter' | 'This Year'>('This Week');
+  const [deskRange, setDeskRange] = useState<'Today' | 'Last 7 Days' | 'Last 30 Days' | 'This Month' | 'Last Month' | 'This Year' | 'Custom Range'>('Last 7 Days');
+  const [showDashboardFilterMenu, setShowDashboardFilterMenu] = useState(false);
   const [selectedRecipientId, setSelectedRecipientId] = useState('cust-1');
   const [recipientQuery, setRecipientQuery] = useState('');
   const [productSearchQuery, setProductSearchQuery] = useState('');
@@ -1177,7 +1170,7 @@ export default function App() {
     };
 
     if (appMode === 'auth' || appMode === 'onboarding' || appMode === 'app') {
-      applyTheme('#8EE5C2');
+      applyTheme('#a6ff00');
     }
   }, [appMode]);
 
@@ -1282,6 +1275,23 @@ export default function App() {
     setAuthLoading(true);
 
     try {
+      if (mode === 'signup') {
+        const availabilityResponse = await fetch(`${import.meta.env.VITE_APP_URL || ''}/api/auth/check-email`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: authEmail.trim().toLowerCase() })
+        });
+
+        const availabilityPayload = await availabilityResponse.json().catch(() => ({}));
+        if (!availabilityResponse.ok) {
+          throw new Error(availabilityPayload.error || 'Unable to validate email address.');
+        }
+
+        if (!availabilityPayload.available) {
+          throw new Error('An account with this email address already exists. Please sign in using this email or register with a different email address.');
+        }
+      }
+
       const response = await fetch(`${import.meta.env.VITE_APP_URL || ''}/api/auth/${mode}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -2219,77 +2229,77 @@ export default function App() {
 
   const inventoryTableColumns = inventoryType === 'Products'
     ? [
-        { label: 'Name', render: (record: any) => <div className="flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#F7FFF9] text-sm font-semibold text-black">{record.name.charAt(0)}</div><div><p className="font-semibold text-black">{record.name}</p><p className="text-xs text-neutral-500">{record.subtitle}</p></div></div> },
+        { label: 'Name', render: (record: any) => <div className="flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#a6ff00] text-sm font-semibold text-black">{record.name.charAt(0)}</div><div><p className="font-semibold text-black">{record.name}</p><p className="text-xs text-neutral-500">{record.subtitle}</p></div></div> },
         { label: 'Category', render: (record: any) => <span className="text-sm text-neutral-600">{record.category}</span> },
         { label: 'Stock', render: (record: any) => <span className="text-sm text-neutral-600">{record.stock ?? record.primaryMetric}</span> },
         { label: 'Unit Price', render: (record: any) => <span className="text-sm text-neutral-600">{record.unitPrice ? formatCurrency(record.unitPrice) : '—'}</span> },
         { label: 'Value', render: (record: any) => <span className="text-sm text-neutral-600">{record.value ? formatCurrency(record.value) : '—'}</span> },
-        { label: 'Status', render: (record: any) => <span className={`rounded-full border px-2.5 py-1 text-xs font-medium ${record.status === 'Healthy' || record.status === 'Active' ? 'border-[#8EE5C2] bg-[#F7FFF9] text-black' : record.status === 'Low Stock' || record.status === 'Needs Attention' || record.status === 'Follow-Up Required' || record.status === 'Out of Stock' ? 'border-amber-300 bg-amber-50 text-amber-700' : 'border-neutral-200 bg-white text-neutral-600'}`}>{record.status}</span> },
+        { label: 'Status', render: (record: any) => <span className={`rounded-full border px-2.5 py-1 text-xs font-medium ${record.status === 'Healthy' || record.status === 'Active' ? 'border-[#a6ff00] bg-[#a6ff00] text-black' : record.status === 'Low Stock' || record.status === 'Needs Attention' || record.status === 'Follow-Up Required' || record.status === 'Out of Stock' ? 'border-amber-300 bg-amber-50 text-amber-700' : 'border-neutral-200 bg-white text-neutral-600'}`}>{record.status}</span> },
         { label: 'Owner/Assigned To', render: (record: any) => <span className="text-sm text-neutral-600">{record.owner || record.assignedTo || '—'}</span> },
         { label: 'Last Updated', render: (record: any) => <span className="text-sm text-neutral-600">{record.lastUpdated || record.updated || '—'}</span> },
         { label: 'Actions', render: (record: any) => <button type="button" onClick={(event) => { event.stopPropagation(); setSelectedInventoryRecord(record); }} className="rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-xs font-semibold text-black">View</button> }
       ]
     : inventoryType === 'Students'
       ? [
-          { label: 'Name', render: (record: any) => <div className="flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#F7FFF9] text-sm font-semibold text-black">{record.name.charAt(0)}</div><div><p className="font-semibold text-black">{record.name}</p><p className="text-xs text-neutral-500">{record.subtitle}</p></div></div> },
+          { label: 'Name', render: (record: any) => <div className="flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#a6ff00] text-sm font-semibold text-black">{record.name.charAt(0)}</div><div><p className="font-semibold text-black">{record.name}</p><p className="text-xs text-neutral-500">{record.subtitle}</p></div></div> },
           { label: 'Category', render: (record: any) => <span className="text-sm text-neutral-600">{record.category}</span> },
           { label: 'Class', render: (record: any) => <span className="text-sm text-neutral-600">{record.details?.Class || '—'}</span> },
           { label: 'Fee Status', render: (record: any) => <span className="text-sm text-neutral-600">{record.secondaryMetric}</span> },
           { label: 'Attendance', render: (record: any) => <span className="text-sm text-neutral-600">{record.primaryMetric}</span> },
-          { label: 'Status', render: (record: any) => <span className={`rounded-full border px-2.5 py-1 text-xs font-medium ${record.status === 'Active' ? 'border-[#8EE5C2] bg-[#F7FFF9] text-black' : 'border-amber-300 bg-amber-50 text-amber-700'}`}>{record.status}</span> },
+          { label: 'Status', render: (record: any) => <span className={`rounded-full border px-2.5 py-1 text-xs font-medium ${record.status === 'Active' ? 'border-[#a6ff00] bg-[#a6ff00] text-black' : 'border-amber-300 bg-amber-50 text-amber-700'}`}>{record.status}</span> },
           { label: 'Owner/Assigned To', render: (record: any) => <span className="text-sm text-neutral-600">{record.owner || 'Guardian'}</span> },
           { label: 'Last Updated', render: (record: any) => <span className="text-sm text-neutral-600">{record.lastUpdated || record.updated || '—'}</span> },
           { label: 'Actions', render: (record: any) => <button type="button" onClick={(event) => { event.stopPropagation(); setSelectedInventoryRecord(record); }} className="rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-xs font-semibold text-black">View</button> }
         ]
       : inventoryType === 'Members'
         ? [
-            { label: 'Name', render: (record: any) => <div className="flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#F7FFF9] text-sm font-semibold text-black">{record.name.charAt(0)}</div><div><p className="font-semibold text-black">{record.name}</p><p className="text-xs text-neutral-500">{record.subtitle}</p></div></div> },
+            { label: 'Name', render: (record: any) => <div className="flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#a6ff00] text-sm font-semibold text-black">{record.name.charAt(0)}</div><div><p className="font-semibold text-black">{record.name}</p><p className="text-xs text-neutral-500">{record.subtitle}</p></div></div> },
             { label: 'Category', render: (record: any) => <span className="text-sm text-neutral-600">{record.category}</span> },
             { label: 'Group', render: (record: any) => <span className="text-sm text-neutral-600">{record.details?.Type || '—'}</span> },
             { label: 'Last Attendance', render: (record: any) => <span className="text-sm text-neutral-600">{record.timeline?.[1]?.detail || '—'}</span> },
             { label: 'Contributions', render: (record: any) => <span className="text-sm text-neutral-600">{record.secondaryMetric}</span> },
-            { label: 'Status', render: (record: any) => <span className={`rounded-full border px-2.5 py-1 text-xs font-medium ${record.status === 'Active' ? 'border-[#8EE5C2] bg-[#F7FFF9] text-black' : 'border-amber-300 bg-amber-50 text-amber-700'}`}>{record.status}</span> },
+            { label: 'Status', render: (record: any) => <span className={`rounded-full border px-2.5 py-1 text-xs font-medium ${record.status === 'Active' ? 'border-[#a6ff00] bg-[#a6ff00] text-black' : 'border-amber-300 bg-amber-50 text-amber-700'}`}>{record.status}</span> },
             { label: 'Owner/Assigned To', render: (record: any) => <span className="text-sm text-neutral-600">{record.owner || '—'}</span> },
             { label: 'Last Updated', render: (record: any) => <span className="text-sm text-neutral-600">{record.lastUpdated || record.updated || '—'}</span> },
             { label: 'Actions', render: (record: any) => <button type="button" onClick={(event) => { event.stopPropagation(); setSelectedInventoryRecord(record); }} className="rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-xs font-semibold text-black">View</button> }
           ]
         : inventoryType === 'Patients'
           ? [
-              { label: 'Name', render: (record: any) => <div className="flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#F7FFF9] text-sm font-semibold text-black">{record.name.charAt(0)}</div><div><p className="font-semibold text-black">{record.name}</p><p className="text-xs text-neutral-500">{record.subtitle}</p></div></div> },
+              { label: 'Name', render: (record: any) => <div className="flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#a6ff00] text-sm font-semibold text-black">{record.name.charAt(0)}</div><div><p className="font-semibold text-black">{record.name}</p><p className="text-xs text-neutral-500">{record.subtitle}</p></div></div> },
               { label: 'Category', render: (record: any) => <span className="text-sm text-neutral-600">{record.category}</span> },
               { label: 'Last Visit', render: (record: any) => <span className="text-sm text-neutral-600">{record.primaryMetric}</span> },
               { label: 'Balance', render: (record: any) => <span className="text-sm text-neutral-600">{record.secondaryMetric}</span> },
-              { label: 'Status', render: (record: any) => <span className={`rounded-full border px-2.5 py-1 text-xs font-medium ${record.status === 'Active' ? 'border-[#8EE5C2] bg-[#F7FFF9] text-black' : 'border-amber-300 bg-amber-50 text-amber-700'}`}>{record.status}</span> },
+              { label: 'Status', render: (record: any) => <span className={`rounded-full border px-2.5 py-1 text-xs font-medium ${record.status === 'Active' ? 'border-[#a6ff00] bg-[#a6ff00] text-black' : 'border-amber-300 bg-amber-50 text-amber-700'}`}>{record.status}</span> },
               { label: 'Owner/Assigned To', render: (record: any) => <span className="text-sm text-neutral-600">{record.owner || '—'}</span> },
               { label: 'Last Updated', render: (record: any) => <span className="text-sm text-neutral-600">{record.lastUpdated || record.updated || '—'}</span> },
               { label: 'Actions', render: (record: any) => <button type="button" onClick={(event) => { event.stopPropagation(); setSelectedInventoryRecord(record); }} className="rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-xs font-semibold text-black">View</button> }
             ]
           : inventoryType === 'Assets'
             ? [
-                { label: 'Name', render: (record: any) => <div className="flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#F7FFF9] text-sm font-semibold text-black">{record.name.charAt(0)}</div><div><p className="font-semibold text-black">{record.name}</p><p className="text-xs text-neutral-500">{record.subtitle}</p></div></div> },
+                { label: 'Name', render: (record: any) => <div className="flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#a6ff00] text-sm font-semibold text-black">{record.name.charAt(0)}</div><div><p className="font-semibold text-black">{record.name}</p><p className="text-xs text-neutral-500">{record.subtitle}</p></div></div> },
                 { label: 'Category', render: (record: any) => <span className="text-sm text-neutral-600">{record.category}</span> },
                 { label: 'Location', render: (record: any) => <span className="text-sm text-neutral-600">{record.details?.Location || '—'}</span> },
                 { label: 'Assigned To', render: (record: any) => <span className="text-sm text-neutral-600">{record.owner || '—'}</span> },
                 { label: 'Value', render: (record: any) => <span className="text-sm text-neutral-600">{record.details?.Value || '—'}</span> },
-                { label: 'Status', render: (record: any) => <span className={`rounded-full border px-2.5 py-1 text-xs font-medium ${record.status === 'Healthy' ? 'border-[#8EE5C2] bg-[#F7FFF9] text-black' : 'border-amber-300 bg-amber-50 text-amber-700'}`}>{record.status}</span> },
+                { label: 'Status', render: (record: any) => <span className={`rounded-full border px-2.5 py-1 text-xs font-medium ${record.status === 'Healthy' ? 'border-[#a6ff00] bg-[#a6ff00] text-black' : 'border-amber-300 bg-amber-50 text-amber-700'}`}>{record.status}</span> },
                 { label: 'Last Updated', render: (record: any) => <span className="text-sm text-neutral-600">{record.lastUpdated || record.updated || '—'}</span> },
                 { label: 'Actions', render: (record: any) => <button type="button" onClick={(event) => { event.stopPropagation(); setSelectedInventoryRecord(record); }} className="rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-xs font-semibold text-black">View</button> }
               ]
             : inventoryType === 'Equipment'
               ? [
-                  { label: 'Name', render: (record: any) => <div className="flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#F7FFF9] text-sm font-semibold text-black">{record.name.charAt(0)}</div><div><p className="font-semibold text-black">{record.name}</p><p className="text-xs text-neutral-500">{record.subtitle}</p></div></div> },
+                  { label: 'Name', render: (record: any) => <div className="flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#a6ff00] text-sm font-semibold text-black">{record.name.charAt(0)}</div><div><p className="font-semibold text-black">{record.name}</p><p className="text-xs text-neutral-500">{record.subtitle}</p></div></div> },
                   { label: 'Category', render: (record: any) => <span className="text-sm text-neutral-600">{record.category}</span> },
                   { label: 'Location', render: (record: any) => <span className="text-sm text-neutral-600">{record.details?.Location || '—'}</span> },
                   { label: 'Assigned To', render: (record: any) => <span className="text-sm text-neutral-600">{record.owner || '—'}</span> },
-                  { label: 'Status', render: (record: any) => <span className={`rounded-full border px-2.5 py-1 text-xs font-medium ${record.status === 'Healthy' ? 'border-[#8EE5C2] bg-[#F7FFF9] text-black' : 'border-amber-300 bg-amber-50 text-amber-700'}`}>{record.status}</span> },
+                  { label: 'Status', render: (record: any) => <span className={`rounded-full border px-2.5 py-1 text-xs font-medium ${record.status === 'Healthy' ? 'border-[#a6ff00] bg-[#a6ff00] text-black' : 'border-amber-300 bg-amber-50 text-amber-700'}`}>{record.status}</span> },
                   { label: 'Owner/Assigned To', render: (record: any) => <span className="text-sm text-neutral-600">{record.owner || '—'}</span> },
                   { label: 'Last Updated', render: (record: any) => <span className="text-sm text-neutral-600">{record.lastUpdated || record.updated || '—'}</span> },
                   { label: 'Actions', render: (record: any) => <button type="button" onClick={(event) => { event.stopPropagation(); setSelectedInventoryRecord(record); }} className="rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-xs font-semibold text-black">View</button> }
                 ]
               : [
-                  { label: 'Name', render: (record: any) => <div className="flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#F7FFF9] text-sm font-semibold text-black">{record.name.charAt(0)}</div><div><p className="font-semibold text-black">{record.name}</p><p className="text-xs text-neutral-500">{record.subtitle}</p></div></div> },
+                  { label: 'Name', render: (record: any) => <div className="flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#a6ff00] text-sm font-semibold text-black">{record.name.charAt(0)}</div><div><p className="font-semibold text-black">{record.name}</p><p className="text-xs text-neutral-500">{record.subtitle}</p></div></div> },
                   { label: 'Category', render: (record: any) => <span className="text-sm text-neutral-600">{record.category}</span> },
-                  { label: 'Status', render: (record: any) => <span className={`rounded-full border px-2.5 py-1 text-xs font-medium ${record.status === 'Active' ? 'border-[#8EE5C2] bg-[#F7FFF9] text-black' : 'border-amber-300 bg-amber-50 text-amber-700'}`}>{record.status}</span> },
+                  { label: 'Status', render: (record: any) => <span className={`rounded-full border px-2.5 py-1 text-xs font-medium ${record.status === 'Active' ? 'border-[#a6ff00] bg-[#a6ff00] text-black' : 'border-amber-300 bg-amber-50 text-amber-700'}`}>{record.status}</span> },
                   { label: 'Owner/Assigned To', render: (record: any) => <span className="text-sm text-neutral-600">{record.owner || '—'}</span> },
                   { label: 'Last Updated', render: (record: any) => <span className="text-sm text-neutral-600">{record.lastUpdated || record.updated || '—'}</span> },
                   { label: 'Actions', render: (record: any) => <button type="button" onClick={(event) => { event.stopPropagation(); setSelectedInventoryRecord(record); }} className="rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-xs font-semibold text-black">View</button> }
@@ -2432,8 +2442,8 @@ export default function App() {
     });
   }
 
-  const primaryActionClasses = 'inline-flex items-center justify-center gap-2 rounded-[12px] border border-black bg-[#8EE5C2] px-4 py-2.5 text-sm font-semibold text-black transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#7fe2bf] focus:outline-none focus:ring-2 focus:ring-[#bff7e4]';
-  const secondaryActionClasses = 'inline-flex items-center justify-center gap-2 rounded-[12px] border border-black bg-white px-4 py-2.5 text-sm font-semibold text-black transition-all duration-200 hover:-translate-y-0.5 hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-[#bff7e4]';
+  const primaryActionClasses = 'inline-flex items-center justify-center gap-2 rounded-[12px] border border-black bg-[#a6ff00] px-4 py-2.5 text-sm font-semibold text-black transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#a6ff00] focus:outline-none focus:ring-2 focus:ring-[#a6ff00]';
+  const secondaryActionClasses = 'inline-flex items-center justify-center gap-2 rounded-[12px] border border-black bg-white px-4 py-2.5 text-sm font-semibold text-black transition-all duration-200 hover:-translate-y-0.5 hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-[#a6ff00]';
 
   const dashboardMetrics = activeOrganizationProfile.dashboardMetrics.length > 0 ? activeOrganizationProfile.dashboardMetrics : [
     { label: 'Revenue', value: `$${summary.revenue.toLocaleString()}`, hint: 'Healthy momentum' },
@@ -2473,78 +2483,254 @@ export default function App() {
       dateObj: new Date(order.date)
     }));
 
-    const asDayCount = (date: Date) => normalizedOrders.filter((order) => {
-      const d = order.dateObj;
-      return d.getFullYear() === date.getFullYear() && d.getMonth() === date.getMonth() && d.getDate() === date.getDate();
-    }).length;
+    const asRangePoints = () => {
+      if (deskRange === 'Today') {
+        const hours = [8, 10, 12, 14, 16];
+        return hours.map((hour) => ({
+          name: `${hour.toString().padStart(2, '0')}:00`,
+          value: normalizedOrders.filter((order) => {
+            const d = order.dateObj;
+            return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate() && d.getHours() >= hour && d.getHours() < hour + 2;
+          }).length
+        }));
+      }
 
-    const asWeekCount = (weekday: number) => normalizedOrders.filter((order) => {
-      const d = order.dateObj;
-      const currentWeekStart = new Date(now);
-      currentWeekStart.setDate(now.getDate() - now.getDay());
-      currentWeekStart.setHours(0, 0, 0, 0);
-      const diff = Math.floor((d.getTime() - currentWeekStart.getTime()) / 86400000);
-      return diff >= 0 && diff < 7 && d.getDay() === weekday;
-    }).length;
+      if (deskRange === 'Last 7 Days' || deskRange === 'Last 30 Days') {
+        const length = deskRange === 'Last 7 Days' ? 7 : 30;
+        return Array.from({ length }, (_, index) => {
+          const day = new Date(now);
+          day.setDate(now.getDate() - (length - 1 - index));
+          return {
+            name: day.toLocaleDateString('en', { month: 'short', day: 'numeric' }),
+            value: normalizedOrders.filter((order) => {
+              const d = order.dateObj;
+              return d.getFullYear() === day.getFullYear() && d.getMonth() === day.getMonth() && d.getDate() === day.getDate();
+            }).length
+          };
+        });
+      }
 
-    const asMonthWeekCount = (weekIndex: number) => normalizedOrders.filter((order) => {
-      const d = order.dateObj;
-      const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-      const weekStart = new Date(firstOfMonth);
-      weekStart.setDate(firstOfMonth.getDate() + weekIndex * 7);
-      const weekEnd = new Date(weekStart);
-      weekEnd.setDate(weekStart.getDate() + 7);
-      return d >= weekStart && d < weekEnd && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-    }).length;
+      if (deskRange === 'This Month' || deskRange === 'Last Month') {
+        const targetMonth = deskRange === 'This Month' ? now.getMonth() : (now.getMonth() + 11) % 12;
+        const targetYear = deskRange === 'This Month' ? now.getFullYear() : (now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear());
+        return Array.from({ length: 5 }, (_, index) => ({
+          name: `W${index + 1}`,
+          value: normalizedOrders.filter((order) => {
+            const d = order.dateObj;
+            const start = new Date(targetYear, targetMonth, 1);
+            const weekStart = new Date(start);
+            weekStart.setDate(start.getDate() + index * 7);
+            const weekEnd = new Date(weekStart);
+            weekEnd.setDate(weekStart.getDate() + 7);
+            return d >= weekStart && d < weekEnd && d.getMonth() === targetMonth && d.getFullYear() === targetYear;
+          }).length
+        }));
+      }
 
-    const asQuarterMonthCount = (monthIndex: number) => normalizedOrders.filter((order) => {
-      const d = order.dateObj;
-      return d.getFullYear() === now.getFullYear() && d.getMonth() === monthIndex;
-    }).length;
+      if (deskRange === 'This Year') {
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        return months.map((month, index) => ({
+          name: month,
+          value: normalizedOrders.filter((order) => {
+            const d = order.dateObj;
+            return d.getFullYear() === now.getFullYear() && d.getMonth() === index;
+          }).length
+        }));
+      }
 
-    if (deskRange === 'Today') {
-      const hours = [8, 10, 12, 14, 16];
-      return hours.map((hour) => ({
-        name: `${hour.toString().padStart(2, '0')}:00`,
-        value: normalizedOrders.filter((order) => {
-          const d = order.dateObj;
-          return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate() && d.getHours() >= hour && d.getHours() < hour + 2;
-        }).length
-      }));
-    }
-
-    if (deskRange === 'This Week') {
-      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-      return days.map((label, index) => ({ name: label, value: asWeekCount(index) }));
-    }
-
-    if (deskRange === 'This Month') {
       return [
-        { name: 'W1', value: asMonthWeekCount(0) },
-        { name: 'W2', value: asMonthWeekCount(1) },
-        { name: 'W3', value: asMonthWeekCount(2) },
-        { name: 'W4', value: asMonthWeekCount(3) }
+        { name: 'W1', value: normalizedOrders.length },
+        { name: 'W2', value: 0 },
+        { name: 'W3', value: 0 },
+        { name: 'W4', value: 0 }
       ];
-    }
+    };
 
-    if (deskRange === 'This Quarter') {
-      const quarterStartMonth = Math.floor(now.getMonth() / 3) * 3;
-      return [
-        { name: 'M1', value: asQuarterMonthCount(quarterStartMonth) },
-        { name: 'M2', value: asQuarterMonthCount(quarterStartMonth + 1) },
-        { name: 'M3', value: asQuarterMonthCount(quarterStartMonth + 2) }
-      ];
-    }
-
-    const quarterly = [
-      { name: 'Q1', value: asQuarterMonthCount(0) + asQuarterMonthCount(1) + asQuarterMonthCount(2) },
-      { name: 'Q2', value: asQuarterMonthCount(3) + asQuarterMonthCount(4) + asQuarterMonthCount(5) },
-      { name: 'Q3', value: asQuarterMonthCount(6) + asQuarterMonthCount(7) + asQuarterMonthCount(8) },
-      { name: 'Q4', value: asQuarterMonthCount(9) + asQuarterMonthCount(10) + asQuarterMonthCount(11) }
-    ];
-
-    return quarterly;
+    return asRangePoints();
   })();
+
+  const dashboardFilterOptions: Array<{ value: typeof deskRange; label: string }> = [
+    { value: 'Today', label: 'Today' },
+    { value: 'Last 7 Days', label: 'Last 7 Days' },
+    { value: 'Last 30 Days', label: 'Last 30 Days' },
+    { value: 'This Month', label: 'This Month' },
+    { value: 'Last Month', label: 'Last Month' },
+    { value: 'This Year', label: 'This Year' },
+    { value: 'Custom Range', label: 'Custom Range' }
+  ];
+
+  const dashboardStats = useMemo(() => {
+    const now = new Date();
+    const startDate = (() => {
+      switch (deskRange) {
+        case 'Today':
+          return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+        case 'Last 7 Days':
+          return new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6, 0, 0, 0, 0);
+        case 'Last 30 Days':
+          return new Date(now.getFullYear(), now.getMonth(), now.getDate() - 29, 0, 0, 0, 0);
+        case 'This Month':
+          return new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
+        case 'Last Month':
+          return new Date(now.getFullYear(), now.getMonth() - 1, 1, 0, 0, 0, 0);
+        case 'This Year':
+          return new Date(now.getFullYear(), 0, 1, 0, 0, 0, 0);
+        default:
+          return new Date(now.getFullYear(), now.getMonth(), now.getDate() - 29, 0, 0, 0, 0);
+      }
+    })();
+
+    const endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+
+    const previousStart = (() => {
+      switch (deskRange) {
+        case 'Today':
+          return new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 0, 0, 0, 0);
+        case 'Last 7 Days':
+          return new Date(now.getFullYear(), now.getMonth(), now.getDate() - 13, 0, 0, 0, 0);
+        case 'Last 30 Days':
+          return new Date(now.getFullYear(), now.getMonth(), now.getDate() - 59, 0, 0, 0, 0);
+        case 'This Month':
+          return new Date(now.getFullYear(), now.getMonth() - 1, 1, 0, 0, 0, 0);
+        case 'Last Month':
+          return new Date(now.getFullYear(), now.getMonth() - 2, 1, 0, 0, 0, 0);
+        case 'This Year':
+          return new Date(now.getFullYear() - 1, 0, 1, 0, 0, 0, 0);
+        default:
+          return new Date(now.getFullYear(), now.getMonth(), now.getDate() - 59, 0, 0, 0, 0);
+      }
+    })();
+
+    const previousEnd = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate() - 1, 23, 59, 59, 999);
+
+    const inRange = (date: string | Date) => {
+      const itemDate = new Date(date);
+      return itemDate >= startDate && itemDate <= endDate;
+    };
+
+    const inPreviousRange = (date: string | Date) => {
+      const itemDate = new Date(date);
+      return itemDate >= previousStart && itemDate <= previousEnd;
+    };
+
+    const currentOrders = orders.filter((order) => order.status === 'Completed' && inRange(order.date));
+    const previousOrders = orders.filter((order) => order.status === 'Completed' && inPreviousRange(order.date));
+    const currentRevenue = currentOrders.reduce((sum, order) => sum + Number(order.totalAmount || 0), 0);
+    const previousRevenue = previousOrders.reduce((sum, order) => sum + Number(order.totalAmount || 0), 0);
+    const trendValue = previousRevenue > 0 ? ((currentRevenue - previousRevenue) / previousRevenue) * 100 : currentRevenue > 0 ? 100 : 0;
+    const currentExpenses = expenses.filter((expense) => inRange(expense.date)).reduce((sum, expense) => sum + Number(expense.amount || 0), 0);
+    const previousExpenses = expenses.filter((expense) => inPreviousRange(expense.date)).reduce((sum, expense) => sum + Number(expense.amount || 0), 0);
+    const lowStockCount = products.filter((product) => Number(product.stock || 0) <= Number(product.minStock || 0)).length;
+    const outOfStockCount = products.filter((product) => Number(product.stock || 0) <= 0).length;
+    const serviceOrders = orders.filter((order) => order.items.some((item) => String(item.category || '').toLowerCase().includes('service') || String(item.transactionType || '').toLowerCase().includes('service')));
+    const productAndServiceCount = products.length + Math.max(serviceTemplates.length, serviceOrders.length > 0 ? 1 : 0);
+    const outstandingBalance = orders.filter((order) => order.status !== 'Completed' || Number(order.balanceDue || 0) > 0).reduce((sum, order) => sum + Number(order.balanceDue || order.totalAmount || 0), 0);
+    const aiScore = Math.max(62, Math.min(98, 72 + (currentRevenue > previousRevenue ? 8 : -2) - lowStockCount * 3 + (outstandingBalance > 0 ? -4 : 5) + (currentExpenses > 0 ? 2 : 0)));
+    const aiInsight = currentRevenue >= previousRevenue && lowStockCount <= 2
+      ? 'Momentum is healthy and stock risk is contained. Keep the top revenue streams active and review premium offers this week.'
+      : currentRevenue < previousRevenue
+        ? 'Revenue softened versus the previous period. Tighten follow-up on active leads and review pricing or service mix.'
+        : 'Cash conversion is stable, but a few low-stock items and open balances deserve attention this cycle.';
+
+    return [
+      {
+        id: 'revenue',
+        label: 'Revenue',
+        value: formatCurrencyValue(currentRevenue, organizationSetup.currency || 'NGN (₦)'),
+        detail: `${trendValue >= 0 ? '+' : ''}${trendValue.toFixed(1)}% vs prior window`,
+        accent: 'from-[#a6ff00] to-[#a6ff00]',
+        iconBg: 'bg-[#a6ff00]',
+        iconTint: 'text-[#a6ff00]',
+        icon: TrendingUp,
+        page: 'analytics' as const,
+        description: 'Revenue pulse'
+      },
+      {
+        id: 'products-services',
+        label: 'Products & Services',
+        value: `${productAndServiceCount} active`,
+        detail: products.length > 0 ? `${products.length} products • ${serviceTemplates.length} service templates` : 'Service-led setup with no stock items',
+        accent: 'from-[#F4F8FF] to-[#EAF2FF]',
+        iconBg: 'bg-[#DCEBFF]',
+        iconTint: 'text-[#3E63E6]',
+        icon: Package,
+        page: 'stock' as const,
+        description: 'Offer mix'
+      },
+      {
+        id: 'transactions',
+        label: 'Transactions',
+        value: `${currentOrders.length} completed`,
+        detail: `${currentOrders.length >= previousOrders.length ? '+' : ''}${Math.max(0, currentOrders.length - previousOrders.length)} vs prior window`,
+        accent: 'from-[#F5FBFF] to-[#E7F5FF]',
+        iconBg: 'bg-[#D9F1FF]',
+        iconTint: 'text-[#0F6C9E]',
+        icon: ShoppingCart,
+        page: 'orders' as const,
+        description: 'Sales activity'
+      },
+      {
+        id: 'customers',
+        label: 'Customers',
+        value: `${customers.length} total`,
+        detail: `${customers.filter((customer) => customer.status === 'Follow Up' || customer.status === 'Contacted').length} in review`,
+        accent: 'from-[#F8F7FF] to-[#EEEAFE]',
+        iconBg: 'bg-[#E4DCFF]',
+        iconTint: 'text-[#5B4BE3]',
+        icon: Users,
+        page: 'crm' as const,
+        description: 'Customer base'
+      },
+      {
+        id: 'inventory',
+        label: 'Inventory Health',
+        value: products.length === 0 ? 'Service-led' : `${Math.max(0, products.length - lowStockCount - outOfStockCount)} healthy`,
+        detail: products.length === 0 ? 'No physical stock to monitor' : `${lowStockCount} low • ${outOfStockCount} out`,
+        accent: 'from-[#FFF9ED] to-[#FFF3D9]',
+        iconBg: 'bg-[#FDE8BF]',
+        iconTint: 'text-[#A96B00]',
+        icon: AlertTriangle,
+        page: 'stock' as const,
+        description: 'Stock resilience'
+      },
+      {
+        id: 'cash-flow',
+        label: 'Cash Flow',
+        value: `${formatCurrencyValue(currentRevenue, organizationSetup.currency || 'NGN (₦)')} / ${formatCurrencyValue(currentExpenses, organizationSetup.currency || 'NGN (₦)')}`,
+        detail: `Net ${formatCurrencyValue(currentRevenue - currentExpenses, organizationSetup.currency || 'NGN (₦)')}`,
+        accent: 'from-[#F2FFF9] to-[#E0F8ED]',
+        iconBg: 'bg-[#a6ff00]',
+        iconTint: 'text-[#a6ff00]',
+        icon: Activity,
+        page: 'analytics' as const,
+        description: 'Liquidity'
+      },
+      {
+        id: 'payments',
+        label: 'Outstanding Payments',
+        value: formatCurrencyValue(outstandingBalance, organizationSetup.currency || 'NGN (₦)') ,
+        detail: `${orders.filter((order) => Number(order.balanceDue || 0) > 0).length} balances open`,
+        accent: 'from-[#FFF4F2] to-[#FFE9E3]',
+        iconBg: 'bg-[#FFD8CF]',
+        iconTint: 'text-[#C9533A]',
+        icon: Clock3,
+        page: 'orders' as const,
+        description: 'Receivables'
+      },
+      {
+        id: 'ai-score',
+        label: 'AI Business Score',
+        value: `${aiScore}/100`,
+        detail: aiInsight,
+        accent: 'from-[#F3FFF9] via-[#E4FAEE] to-[#DDF5F0]',
+        iconBg: 'bg-[#a6ff00]',
+        iconTint: 'text-[#a6ff00]',
+        icon: Sparkles,
+        page: 'ai' as const,
+        description: 'AI health insight'
+      }
+    ];
+  }, [orders, products, customers, expenses, deskRange, organizationSetup.currency, serviceTemplates]);
 
   const briefingActions = activeOrganizationProfile.dashboardActions.length > 0 ? activeOrganizationProfile.dashboardActions.map((action) => ({
     title: action.title,
@@ -2660,9 +2846,9 @@ export default function App() {
         </div>
       </div>
       <div className={`min-h-screen bg-white text-sm font-normal text-black select-none transition-opacity duration-300 ${(splashActive || !startupComplete) && appMode === 'app' ? 'opacity-0' : 'opacity-100'}`}>
-      <div className="relative flex min-h-screen w-full flex-col overflow-hidden bg-white lg:flex-row">
+      <div className="relative min-h-screen w-full overflow-hidden bg-white">
         {(menuOpen || isDesktop) && (
-          <div className={`${isDesktop ? 'hidden w-72 flex-col border-r border-neutral-200 bg-white p-5 lg:flex' : 'absolute inset-0 z-50 flex bg-neutral-950/40 lg:hidden'}`}>
+          <div className={`${isDesktop ? 'fixed inset-y-0 left-0 z-40 hidden w-72 flex-col border-r border-neutral-200 bg-white p-5 lg:flex' : 'fixed inset-0 z-50 flex bg-neutral-950/40 lg:hidden'}`}>
             <div className={`${isDesktop ? 'flex h-full w-full flex-col justify-between' : 'w-[280px] h-full flex flex-col border-r border-neutral-200 shadow-2xl p-5 justify-between bg-white animate-in slide-in-from-left duration-200'}`}>
               <div className="space-y-5">
                 
@@ -2688,7 +2874,7 @@ export default function App() {
                   <img 
                     src={profilePic} 
                     alt={ownerName} 
-                    className="w-10 h-10 rounded-full object-cover border-2 border-[#8EE5C2] shadow-mint-glow-sm"
+                    className="w-10 h-10 rounded-full object-cover border-2 border-[#a6ff00] shadow-mint-glow-sm"
                     referrerPolicy="no-referrer"
                   />
                   <div>
@@ -2775,7 +2961,10 @@ export default function App() {
                     label="Visit Website"
                     icon={ArrowRight}
                     active={false}
-                    onClick={() => { setAppMode('onboarding'); setMenuOpen(false); }}
+                    onClick={() => {
+                      window.open('https://eenvoq.com.ng', '_blank', 'noopener,noreferrer');
+                      setMenuOpen(false);
+                    }}
                   />
                 </div>
 
@@ -2793,7 +2982,7 @@ export default function App() {
           </div>
         )}
 
-        <div className="flex min-h-screen flex-1 flex-col">
+        <div className="min-h-screen flex-1 bg-white pt-14 lg:pl-72">
           {/* Top App Header */}
           <AppHeader
             ownerName={ownerName}
@@ -2815,7 +3004,7 @@ export default function App() {
           />
 
         {/* Dynamic App Content Box */}
-        <div className="flex-1 overflow-y-auto bg-white pb-20 lg:pb-0">
+        <div className="min-h-screen overflow-y-auto bg-white pb-20 lg:pb-0">
           {loading ? (
             <div className="p-5 space-y-4 animate-pulse">
               <div className="h-28 bg-neutral-100 rounded-lg"></div>
@@ -2836,7 +3025,7 @@ export default function App() {
                         <h2 className="text-lg font-semibold text-black">Tag yourself and leave requests for your team</h2>
                         <p className="mt-1 text-sm text-neutral-600">Use tags for stock checks, sales follow-ups, and operating requests that need another teammate to act on.</p>
                       </div>
-                      <button type="button" onClick={() => setShowTagComposer(true)} className="inline-flex items-center justify-center gap-2 rounded-2xl border border-black bg-[#8EE5C2] px-3 py-2 text-sm font-semibold text-black">
+                      <button type="button" onClick={() => setShowTagComposer(true)} className="inline-flex items-center justify-center gap-2 rounded-2xl border border-black bg-[#a6ff00] px-3 py-2 text-sm font-semibold text-black">
                         <Plus className="h-4 w-4" />
                         New tag
                       </button>
@@ -2910,7 +3099,7 @@ export default function App() {
                               setTagDraft({ recipientId: tagDraft.recipientId, message: '', context: tagDraft.context, note: '' });
                               setShowTagComposer(false);
                             }}
-                            className="inline-flex items-center justify-center gap-2 rounded-full border border-black bg-[#8EE5C2] px-3 py-2 text-sm font-semibold text-black"
+                            className="inline-flex items-center justify-center gap-2 rounded-full border border-black bg-[#a6ff00] px-3 py-2 text-sm font-semibold text-black"
                           >
                             <Send className="h-4 w-4" />
                             Send tag
@@ -2926,11 +3115,11 @@ export default function App() {
                         <div>
                           <p className="text-[11px] uppercase tracking-[0.25em] text-neutral-500">Tagged requests</p>
                         </div>
-                        <div className="rounded-full border border-[#8EE5C2] bg-[#F7FFF9] px-2.5 py-1 text-[11px] font-semibold text-black">{tagThreads.length} active</div>
+                        <div className="rounded-full border border-[#a6ff00] bg-[#a6ff00] px-2.5 py-1 text-[11px] font-semibold text-black">{tagThreads.length} active</div>
                       </div>
                       <div className="mt-3 space-y-3">
                         {tagThreads.map((thread) => (
-                          <div key={thread.id} className="rounded-[18px] border border-neutral-200 bg-[#F9FFFC] p-3">
+                          <div key={thread.id} className="rounded-[18px] border border-neutral-200 bg-[#a6ff00] p-3">
                             <div className="flex items-center justify-between gap-2">
                               <p className="text-sm font-semibold text-black">{thread.recipientName}</p>
                               <span className="text-[11px] uppercase tracking-[0.2em] text-neutral-500">{thread.createdAt}</span>
@@ -2956,7 +3145,7 @@ export default function App() {
               {/* VIEW 1: DESK (DASHBOARD) */}
               {activeTab === 'desk' && (
                 <div className="space-y-4 p-4 sm:p-5 lg:p-6">
-                  <div className="relative rounded-[30px] border border-[#8EE5C2] bg-white/90 p-5 shadow-[0_24px_60px_rgba(16,63,38,0.12)] backdrop-blur-xl sm:p-6 lg:p-8">
+                  <div className="relative rounded-[30px] border border-[#a6ff00] bg-white/90 p-5 backdrop-blur-xl sm:p-6 lg:p-8">
                       <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
                         <div>
                           <p className="text-[11px] uppercase tracking-[0.3em] text-neutral-500">{dashboardHeroLabel}</p>
@@ -2971,65 +3160,65 @@ export default function App() {
                       </div>
                     </div>
 
-                  <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
-                    {[
-                      { label: 'Revenue', value: `$${summary.revenue.toLocaleString()}`, trend: '+12.4%' },
-                      organizationType === 'school'
-                        ? { label: 'Fee Collection', value: '82%', trend: '+8.1%' }
-                        : { label: 'Transactions', value: `${summary.pendingOrdersCount} logged`, trend: '+8.1%' },
-                      organizationType === 'school'
-                        ? { label: 'Outstanding Fees', value: '27 overdue', trend: '-3.2%' }
-                        : { label: 'Inventory Health', value: `${summary.lowStockCount} alerts`, trend: '-3.2%' },
-                      organizationType === 'school'
-                        ? { label: 'Attendance Rate', value: '91%', trend: '+5.6%' }
-                        : { label: 'Verified Sales', value: '92%', trend: '+5.6%' }
-                    ].map((card) => (
-                      <div key={card.label} className="group relative overflow-hidden rounded-[26px] border border-neutral-200 bg-white p-5 shadow-[0_10px_30px_rgba(0,0,0,0.08)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_50px_rgba(0,0,0,0.14)]">
-                        <p className="text-[11px] uppercase tracking-[0.27em] text-neutral-500">{card.label}</p>
-                        <p className="mt-3 text-2xl font-semibold leading-tight text-black">{card.value}</p>
-                        <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-[#8EE5C2]/25 bg-[#F7FFF9] px-3 py-2 text-xs font-semibold text-black">
-                          <TrendingUp className="h-4 w-4 text-[#2a8d5b]" />
-                          <span>{card.trend}</span>
-                        </div>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-[11px] uppercase tracking-[0.28em] text-neutral-500">Dashboard statistics</p>
+                        <h3 className="mt-1 text-lg font-semibold text-black">A premium snapshot of the business</h3>
                       </div>
-                    ))}
-                  </div>
-
-                  <div className="grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
-                    <div className="rounded-[28px] border border-neutral-200 bg-white p-5 shadow-[0_16px_60px_rgba(0,0,0,0.03)]">
-                      <div className="flex items-center justify-between gap-3">
-                        <div>
-                          <p className="text-[11px] uppercase tracking-[0.25em] text-neutral-500">Organization health score</p>
-                          <h3 className="mt-1 text-lg font-semibold text-black">Health Score</h3>
-                        </div>
-                        <div className="rounded-full border border-[#8EE5C2]/25 bg-[#F7FFF9] px-3 py-1 text-sm font-medium text-black">Healthy</div>
-                      </div>
-                      <div className="mt-4 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-                        <div>
-                          <p className="text-4xl font-semibold tracking-[-0.03em] text-black">87 / 100</p>
-                          <p className="mt-2 max-w-md text-sm leading-7 text-neutral-600">Fee recovery and engagement continue to improve while inventory risk remains tightly controlled.</p>
-                        </div>
-                        <div className="flex h-24 w-24 items-center justify-center rounded-full border-[10px] border-[#8EE5C2] bg-neutral-50 text-lg font-semibold text-black">87</div>
-                      </div>
-                      <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                        <button type="button" onClick={() => { setActiveTab('orders'); setTransactionReviewMode('standard'); }} className={primaryActionClasses}>Record {transactionLabel}</button>
-                        <button type="button" onClick={() => { setActiveTab('stock'); setInventoryType('Products'); setInventoryAlertFilter('Low'); setInventoryStatusFilter('All'); }} className={secondaryActionClasses}>Add {inventoryLabel}</button>
+                      <div className="relative">
+                        <button
+                          type="button"
+                          onClick={() => setShowDashboardFilterMenu((value) => !value)}
+                          className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-neutral-200 bg-white text-black shadow-[0_10px_30px_rgba(0,0,0,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_18px_45px_rgba(0,0,0,0.12)]"
+                          aria-label="Filter dashboard stats"
+                        >
+                          <Sliders className="h-5 w-5" />
+                        </button>
+                        {showDashboardFilterMenu && (
+                          <div className="absolute right-0 z-20 mt-2 w-48 rounded-[18px] border border-neutral-200 bg-white p-2 shadow-[0_16px_45px_rgba(0,0,0,0.12)]">
+                            {dashboardFilterOptions.map((option) => (
+                              <button
+                                key={option.value}
+                                type="button"
+                                onClick={() => {
+                                  setDeskRange(option.value);
+                                  setShowDashboardFilterMenu(false);
+                                }}
+                                className={`flex w-full items-center justify-between rounded-[12px] px-3 py-2 text-sm font-medium text-left ${deskRange === option.value ? 'bg-[#a6ff00] text-black' : 'text-neutral-700 hover:bg-neutral-50'}`}
+                              >
+                                <span>{option.label}</span>
+                                {deskRange === option.value && <CheckCircle className="h-4 w-4 text-[#a6ff00]" />}
+                              </button>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </div>
 
-                    <div className="rounded-[28px] border border-neutral-200 bg-white p-5 shadow-[0_16px_60px_rgba(0,0,0,0.03)]">
-                      <p className="text-[11px] uppercase tracking-[0.25em] text-neutral-500">AI action center</p>
-                      <div className="mt-3 space-y-2">
-                        {briefingActions.map((action) => (
-                          <button key={action.title} type="button" onClick={action.action} className="flex w-full items-center justify-between rounded-[18px] border border-neutral-200 bg-neutral-50 px-3 py-3 text-left transition hover:border-[#8EE5C2] hover:bg-[#F7FFF9]">
-                            <div className="pr-3">
-                              <p className="text-sm font-semibold text-black">{action.title}</p>
-                              <p className="mt-1 text-sm text-neutral-600">{action.detail}</p>
+                    <div className="flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory">
+                      {dashboardStats.map((card) => {
+                        const Icon = card.icon;
+                        return (
+                          <button
+                            key={card.id}
+                            type="button"
+                            onClick={() => setActiveTab(card.page)}
+                            className="group min-h-[220px] w-[260px] shrink-0 snap-start rounded-[28px] border border-neutral-200 bg-white p-5 text-left shadow-[0_16px_45px_rgba(0,0,0,0.06)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_65px_rgba(0,0,0,0.12)] active:scale-[0.98]"
+                            style={{ fontFamily: 'Manrope, ui-sans-serif, system-ui, sans-serif' }}
+                          >
+                            <div className={`inline-flex rounded-2xl ${card.iconBg} p-3 ${card.iconTint}`}>
+                              <Icon className="h-5 w-5" />
                             </div>
-                            <ArrowRight className="h-4 w-4 shrink-0 text-black" />
+                            <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.28em] text-neutral-500">{card.label}</p>
+                            <p className="mt-3 text-2xl font-semibold leading-tight text-black">{card.value}</p>
+                            <p className="mt-3 text-sm leading-6 text-neutral-600">{card.detail}</p>
+                            <div className={`mt-4 inline-flex rounded-full bg-gradient-to-r ${card.accent} px-3 py-1.5 text-xs font-semibold text-black`}>
+                              {card.description}
+                            </div>
                           </button>
-                        ))}
-                      </div>
+                        );
+                      })}
                     </div>
                   </div>
 
@@ -3039,12 +3228,8 @@ export default function App() {
                         <p className="text-[11px] uppercase tracking-[0.25em] text-neutral-500">Performance overview</p>
                         <h3 className="mt-1 text-lg font-semibold text-black">A calm view of momentum</h3>
                       </div>
-                      <div className="flex flex-wrap gap-2">
-                        {(['Today', 'This Week', 'This Month', 'This Quarter', 'This Year'] as const).map((range) => (
-                          <button key={range} type="button" onClick={() => setDeskRange(range)} className={`rounded-full border px-3 py-1.5 text-sm ${deskRange === range ? 'border-[#8EE5C2] bg-[#F7FFF9] text-black' : 'border-neutral-200 bg-white text-neutral-600'}`}>
-                            {range}
-                          </button>
-                        ))}
+                      <div className="rounded-full border border-[#a6ff00]/30 bg-[#a6ff00] px-3 py-1.5 text-sm font-medium text-black">
+                        {deskRange}
                       </div>
                     </div>
                     <div className="mt-4 h-56">
@@ -3052,15 +3237,15 @@ export default function App() {
                         <AreaChart data={deskChartData} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
                           <defs>
                             <linearGradient id="deskGradient" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="0%" stopColor="#8EE5C2" stopOpacity={0.32} />
-                              <stop offset="100%" stopColor="#8EE5C2" stopOpacity={0.04} />
+                              <stop offset="0%" stopColor="#a6ff00" stopOpacity={0.32} />
+                              <stop offset="100%" stopColor="#a6ff00" stopOpacity={0.04} />
                             </linearGradient>
                           </defs>
                           <CartesianGrid stroke="#ececec" vertical={false} strokeDasharray="3 3" />
                           <XAxis dataKey="name" stroke="#737373" fontSize={12} tickLine={false} axisLine={false} />
                           <YAxis stroke="#737373" fontSize={12} tickLine={false} axisLine={false} />
                           <Tooltip />
-                          <Area type="monotone" dataKey="value" stroke="#8EE5C2" strokeWidth={2.5} fill="url(#deskGradient)" />
+                          <Area type="monotone" dataKey="value" stroke="#a6ff00" strokeWidth={2.5} fill="url(#deskGradient)" />
                         </AreaChart>
                       </ResponsiveContainer>
                     </div>
@@ -3105,7 +3290,7 @@ export default function App() {
                           <div key={log.id} className="rounded-[18px] border border-neutral-200 bg-neutral-50 px-3 py-3">
                             <div className="flex items-center justify-between gap-3">
                               <p className="text-sm font-semibold text-black">{log.message}</p>
-                              <span className="rounded-full border border-[#8EE5C2]/25 bg-[#F7FFF9] px-2.5 py-1 text-xs font-semibold text-black">{log.category}</span>
+                              <span className="rounded-full border border-[#a6ff00]/25 bg-[#a6ff00] px-2.5 py-1 text-xs font-semibold text-black">{log.category}</span>
                             </div>
                             <p className="mt-1 text-sm text-neutral-600">{log.timestamp}</p>
                           </div>
@@ -3138,7 +3323,7 @@ export default function App() {
 
                     <div className="rounded-[28px] border border-neutral-200 bg-white p-5 shadow-[0_16px_60px_rgba(0,0,0,0.03)]">
                       <p className="text-[11px] uppercase tracking-[0.25em] text-neutral-500">Verified transactions</p>
-                      <div className="mt-3 rounded-[22px] border border-[#8EE5C2]/20 bg-[#F7FFF9] p-4">
+                      <div className="mt-3 rounded-[22px] border border-[#a6ff00]/20 bg-[#a6ff00] p-4">
                         <p className="text-4xl font-semibold tracking-[-0.03em] text-black">{orders.length > 0 ? `${Math.round((orders.filter((order) => order.status === 'Completed').length / orders.length) * 100)}%` : '0%'}</p>
                         <p className="mt-2 text-sm text-neutral-600">Completed order ratio based on current transaction activity.</p>
                       </div>
@@ -3152,9 +3337,9 @@ export default function App() {
                       <input
                         type="text"
                         placeholder="What should I focus on today?"
-                        className="flex-1 rounded-[18px] border border-neutral-200 bg-neutral-50 px-3 py-3 text-sm text-black outline-none focus:border-[#8EE5C2]"
+                        className="flex-1 rounded-[18px] border border-neutral-200 bg-neutral-50 px-3 py-3 text-sm text-black outline-none focus:border-[#a6ff00]"
                       />
-                      <button type="button" onClick={() => { setActiveTab('ai'); handleSendPrompt('Summarize the most urgent priorities for my organization today.'); }} className="rounded-[18px] border border-black bg-[#8EE5C2] px-4 py-3 text-sm font-semibold text-black">Ask</button>
+                      <button type="button" onClick={() => { setActiveTab('ai'); handleSendPrompt('Summarize the most urgent priorities for my organization today.'); }} className="rounded-[18px] border border-black bg-[#a6ff00] px-4 py-3 text-sm font-semibold text-black">Ask</button>
                     </div>
                   </div>
                 </div>
@@ -3172,7 +3357,7 @@ export default function App() {
                     <button
                       type="button"
                       onClick={openInventoryComposer}
-                      className="inline-flex items-center justify-center gap-2 rounded-2xl border border-black bg-[#8EE5C2] px-3 py-2 text-sm font-semibold text-black transition hover:bg-[#7EE7C1]"
+                      className="inline-flex items-center justify-center gap-2 rounded-2xl border border-black bg-[#a6ff00] px-3 py-2 text-sm font-semibold text-black transition hover:bg-[#a6ff00]"
                     >
                       <Plus className="h-4 w-4" />
                       <span>Add Record</span>
@@ -3191,7 +3376,7 @@ export default function App() {
                             key={option.id}
                             type="button"
                             onClick={() => setInventoryType(option.id)}
-                            className={`rounded-full border px-3 py-2 text-sm font-medium transition ${inventoryType === option.id ? 'border-[#8EE5C2] bg-[#F7FFF9] text-black' : 'border-neutral-200 bg-white text-neutral-600 hover:border-neutral-300'}`}
+                            className={`rounded-full border px-3 py-2 text-sm font-medium transition ${inventoryType === option.id ? 'border-[#a6ff00] bg-[#a6ff00] text-black' : 'border-neutral-200 bg-white text-neutral-600 hover:border-neutral-300'}`}
                           >
                             {option.label}
                           </button>
@@ -3210,14 +3395,14 @@ export default function App() {
                     ))}
                   </div>
 
-                  <div className="rounded-[24px] border border-[#8EE5C2]/25 bg-[#F7FFF9] p-4 shadow-[0_12px_40px_rgba(0,0,0,0.025)]">
+                  <div className="rounded-[24px] border border-[#a6ff00]/25 bg-[#a6ff00] p-4 shadow-[0_12px_40px_rgba(0,0,0,0.025)]">
                     <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                       <div>
                         <p className="text-[11px] uppercase tracking-[0.3em] text-neutral-500">AI intelligence</p>
                         <p className="mt-1 text-sm font-semibold text-black">{aiInsightText}</p>
                       </div>
-                      <div className="inline-flex items-center gap-2 rounded-full border border-[#8EE5C2]/30 bg-white px-3 py-2 text-sm font-medium text-black">
-                        <Sparkles className="h-4 w-4 text-[#8EE5C2]" />
+                      <div className="inline-flex items-center gap-2 rounded-full border border-[#a6ff00]/30 bg-white px-3 py-2 text-sm font-medium text-black">
+                        <Sparkles className="h-4 w-4 text-[#a6ff00]" />
                         <span>Always explain what needs attention and why</span>
                       </div>
                     </div>
@@ -3232,7 +3417,7 @@ export default function App() {
                           value={inventorySearch}
                           onChange={(event) => setInventorySearch(event.target.value)}
                           placeholder={`Search ${inventoryType.toLowerCase()} by name, id, SKU, tag, or custom field...`}
-                          className="w-full rounded-2xl border border-neutral-200 bg-neutral-50 px-3 py-2.5 pl-9 text-sm text-black outline-none focus:border-[#8EE5C2]"
+                          className="w-full rounded-2xl border border-neutral-200 bg-neutral-50 px-3 py-2.5 pl-9 text-sm text-black outline-none focus:border-[#a6ff00]"
                         />
                       </div>
                       <div className="flex flex-wrap gap-2">
@@ -3241,7 +3426,7 @@ export default function App() {
                             key={category}
                             type="button"
                             onClick={() => setInventoryCategoryFilter(category)}
-                            className={`rounded-full border px-3 py-1.5 text-sm ${inventoryCategoryFilter === category ? 'border-[#8EE5C2] bg-[#F7FFF9] text-black' : 'border-neutral-200 bg-white text-neutral-600'}`}
+                            className={`rounded-full border px-3 py-1.5 text-sm ${inventoryCategoryFilter === category ? 'border-[#a6ff00] bg-[#a6ff00] text-black' : 'border-neutral-200 bg-white text-neutral-600'}`}
                           >
                             {category}
                           </button>
@@ -3255,7 +3440,7 @@ export default function App() {
                           key={option}
                           type="button"
                           onClick={() => setInventoryStatusFilter(option)}
-                          className={`rounded-full border px-3 py-1.5 text-sm ${inventoryStatusFilter === option ? 'border-[#8EE5C2] bg-[#F7FFF9] text-black' : 'border-neutral-200 bg-white text-neutral-600'}`}
+                          className={`rounded-full border px-3 py-1.5 text-sm ${inventoryStatusFilter === option ? 'border-[#a6ff00] bg-[#a6ff00] text-black' : 'border-neutral-200 bg-white text-neutral-600'}`}
                         >
                           {option}
                         </button>
@@ -3301,11 +3486,11 @@ export default function App() {
                           <p className="text-[11px] uppercase tracking-[0.25em] text-neutral-500">Detail drawer</p>
                           <h3 className="mt-1 text-base font-semibold text-black">{selectedInventoryRecord ? selectedInventoryRecord.name : 'Open a record for full context'}</h3>
                         </div>
-                        <div className="rounded-full border border-[#8EE5C2]/30 bg-[#F7FFF9] px-3 py-1 text-xs font-medium text-black">Smart view</div>
+                        <div className="rounded-full border border-[#a6ff00]/30 bg-[#a6ff00] px-3 py-1 text-xs font-medium text-black">Smart view</div>
                       </div>
                       {selectedInventoryRecord ? (
                         <div className="mt-4 space-y-3">
-                          <div className="rounded-[18px] border border-neutral-200 bg-[#F9FFFC] p-3 text-sm text-neutral-700">
+                          <div className="rounded-[18px] border border-neutral-200 bg-[#a6ff00] p-3 text-sm text-neutral-700">
                             <p className="font-semibold text-black">{selectedInventoryRecord.aiInsight || 'AI insight ready.'}</p>
                           </div>
                           <div className="rounded-[18px] border border-neutral-200 bg-neutral-50 p-3 text-sm text-neutral-700">
@@ -3375,7 +3560,7 @@ export default function App() {
                                 <td className="px-4 py-3 text-neutral-600">{record.stock ?? record.primaryMetric ?? '—'}</td>
                                 <td className="px-4 py-3 text-neutral-600">{record.unitPrice ? formatCurrency(record.unitPrice) : '—'}</td>
                                 <td className="px-4 py-3">
-                                  <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${record.status === 'Healthy' || record.status === 'Active' ? 'bg-[#F7FFF9] text-black border border-[#8EE5C2]' : 'bg-amber-50 text-amber-700 border border-amber-200'}`}>
+                                  <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${record.status === 'Healthy' || record.status === 'Active' ? 'bg-[#a6ff00] text-black border border-[#a6ff00]' : 'bg-amber-50 text-amber-700 border border-amber-200'}`}>
                                     {record.status}
                                   </span>
                                 </td>
@@ -3484,7 +3669,7 @@ export default function App() {
                   </div>
 
                   {transactionNotice && (
-                    <div className="rounded-[16px] border border-[#8EE5C2]/30 bg-[#F7FFF9] px-4 py-3 text-sm text-neutral-700">
+                    <div className="rounded-[16px] border border-[#a6ff00]/30 bg-[#a6ff00] px-4 py-3 text-sm text-neutral-700">
                       {transactionNotice}
                     </div>
                   )}
@@ -3498,7 +3683,7 @@ export default function App() {
                               <p className="text-[11px] uppercase tracking-[0.3em] text-neutral-500">Guided flow</p>
                               <h3 className="mt-1 text-base font-semibold text-black">Create a transaction in minutes</h3>
                             </div>
-                            <div className="rounded-full border border-[#8EE5C2]/30 bg-[#F7FFF9] px-3 py-1 text-xs font-medium text-black">
+                            <div className="rounded-full border border-[#a6ff00]/30 bg-[#a6ff00] px-3 py-1 text-xs font-medium text-black">
                               {canManageTransactions ? 'Owner / Manager' : 'Operator'}
                             </div>
                           </div>
@@ -3571,7 +3756,7 @@ export default function App() {
                             <div>• Review profit, loss, and balance due before submitting.</div>
                             <div>• Only owner and manager roles can edit or delete completed sales.</div>
                           </div>
-                          <div className="mt-4 rounded-[18px] border border-[#8EE5C2]/30 bg-[#F7FFF9] p-3 text-sm text-neutral-700">
+                          <div className="mt-4 rounded-[18px] border border-[#a6ff00]/30 bg-[#a6ff00] p-3 text-sm text-neutral-700">
                             Currency defaults to the value saved in settings: <span className="font-semibold text-black">{businessCurrency || organizationSetup.currency || 'NGN (₦)'}</span>
                           </div>
                         </div>
@@ -3668,7 +3853,7 @@ export default function App() {
                                       key={item.id}
                                       type="button"
                                       onClick={() => setTransactionDraft((prev) => ({ ...prev, inventoryId: item.id, inventoryName: item.name, purchasePrice: item.purchasePrice, sellingPrice: item.sellingPrice }))}
-                                      className={`rounded-[18px] border p-3 text-left ${transactionDraft.inventoryId === item.id ? 'border-[#8EE5C2] bg-[#F7FFF9]' : 'border-neutral-200 bg-white'}`}
+                                      className={`rounded-[18px] border p-3 text-left ${transactionDraft.inventoryId === item.id ? 'border-[#a6ff00] bg-[#a6ff00]' : 'border-neutral-200 bg-white'}`}
                                     >
                                       <div className="flex items-center gap-3">
                                         <div className="flex h-11 w-11 items-center justify-center rounded-full bg-neutral-100 text-sm font-semibold text-black">
@@ -3751,7 +3936,7 @@ export default function App() {
                             </div>
                           ) : (
                             <div className="mt-4 space-y-4">
-                              <div className="rounded-[20px] border border-[#8EE5C2]/30 bg-[#F7FFF9] p-4 text-sm text-neutral-700">
+                              <div className="rounded-[20px] border border-[#a6ff00]/30 bg-[#a6ff00] p-4 text-sm text-neutral-700">
                                 Please review the transaction carefully. You can return to edit anything before submitting it.
                               </div>
                               <div className="rounded-[20px] border border-neutral-200 bg-neutral-50 p-4">
@@ -3875,7 +4060,7 @@ export default function App() {
                                     <td className="px-4 py-3 text-neutral-600">{order.items.reduce((sum, item) => sum + (item.quantity || 0), 0)}</td>
                                     <td className="px-4 py-3 text-neutral-900 font-semibold">{formatCurrency(order.totalAmount)}</td>
                                     <td className="px-4 py-3">
-                                      <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${order.status === 'Completed' ? 'bg-[#F7FFF9] text-black border border-[#8EE5C2]' : 'bg-amber-50 text-amber-700 border border-amber-200'}`}>
+                                      <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${order.status === 'Completed' ? 'bg-[#a6ff00] text-black border border-[#a6ff00]' : 'bg-amber-50 text-amber-700 border border-amber-200'}`}>
                                         {order.status}
                                       </span>
                                     </td>
@@ -4014,15 +4199,15 @@ export default function App() {
                           <p className="text-[11px] uppercase tracking-[0.3em] text-neutral-500">Month trend</p>
                           <h3 className="mt-1 text-base font-semibold text-black">Income vs operating costs</h3>
                         </div>
-                        <div className="rounded-full border border-[#8EE5C2]/30 bg-[#F7FFF9] px-3 py-1 text-xs font-medium text-black">Rolling 6 months</div>
+                        <div className="rounded-full border border-[#a6ff00]/30 bg-[#a6ff00] px-3 py-1 text-xs font-medium text-black">Rolling 6 months</div>
                       </div>
                       <div className="mt-4 h-56">
                         <ResponsiveContainer width="100%" height="100%">
                           <AreaChart data={financeSummary.monthlyTrend.length > 0 ? financeSummary.monthlyTrend : [{ month: 'Jan', income: 0, expenses: 0 }] } margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
                             <defs>
                               <linearGradient id="incomeGradient" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%" stopColor="#8EE5C2" stopOpacity={0.28} />
-                                <stop offset="100%" stopColor="#8EE5C2" stopOpacity={0.02} />
+                                <stop offset="0%" stopColor="#a6ff00" stopOpacity={0.28} />
+                                <stop offset="100%" stopColor="#a6ff00" stopOpacity={0.02} />
                               </linearGradient>
                             </defs>
                             <CartesianGrid stroke="#ececec" vertical={false} strokeDasharray="3 3" />
@@ -4052,7 +4237,7 @@ export default function App() {
                               <span className="font-semibold text-black">{formatCurrencyValue(item.value)}</span>
                             </div>
                             <div className="mt-2 h-2 overflow-hidden rounded-full bg-neutral-200">
-                              <div className="h-2 rounded-full bg-[#8EE5C2]" style={{ width: `${Math.max(8, (item.value / Math.max(financeSummary.expensesTotal, 1)) * 100)}%` }} />
+                              <div className="h-2 rounded-full bg-[#a6ff00]" style={{ width: `${Math.max(8, (item.value / Math.max(financeSummary.expensesTotal, 1)) * 100)}%` }} />
                             </div>
                           </div>
                         )) : <div className="rounded-[16px] border border-dashed border-neutral-200 bg-neutral-50 p-4 text-sm text-neutral-600">No expense categories recorded yet.</div>}
@@ -4094,7 +4279,7 @@ export default function App() {
                     </div>
                     <button 
                       onClick={() => setShowAddSupplierModal(true)}
-                      className="inline-flex items-center gap-2 rounded-[12px] border border-black bg-[#8EE5C2] px-3 py-2 text-sm font-semibold text-black transition-all hover:-translate-y-0.5"
+                      className="inline-flex items-center gap-2 rounded-[12px] border border-black bg-[#a6ff00] px-3 py-2 text-sm font-semibold text-black transition-all hover:-translate-y-0.5"
                     >
                       <Plus className="h-4 w-4" />
                       <span>Register partner</span>
@@ -4108,7 +4293,7 @@ export default function App() {
                           <p className="text-[11px] uppercase tracking-[0.25em] text-neutral-500">Replenishment alerts</p>
                           <h3 className="mt-1 text-base font-semibold text-black">Low stock items need attention</h3>
                         </div>
-                        <span className="rounded-full border border-[#8EE5C2]/25 bg-[#F7FFF9] px-3 py-1 text-xs font-medium text-black">{summary.lowStockCount} flagged</span>
+                        <span className="rounded-full border border-[#a6ff00]/25 bg-[#a6ff00] px-3 py-1 text-xs font-medium text-black">{summary.lowStockCount} flagged</span>
                       </div>
                       <div className="mt-3 space-y-2">
                         {products.filter(p => p.stock <= p.minStock).map(prod => (
@@ -4155,7 +4340,7 @@ export default function App() {
                                 <h4 className="text-sm font-semibold text-black">{sup.name}</h4>
                                 <p className="mt-1 text-sm text-neutral-600">{sup.specialty}</p>
                               </div>
-                              <span className="rounded-full border border-[#8EE5C2]/25 bg-[#F7FFF9] px-2.5 py-1 text-[11px] font-semibold text-black">{sup.leadTime} days</span>
+                              <span className="rounded-full border border-[#a6ff00]/25 bg-[#a6ff00] px-2.5 py-1 text-[11px] font-semibold text-black">{sup.leadTime} days</span>
                             </div>
                             <div className="mt-3 grid gap-2 border-t border-neutral-200/60 pt-3 text-sm text-black sm:grid-cols-2">
                               <div>
@@ -4232,7 +4417,7 @@ export default function App() {
                           setAuditLogs(prev => [newLog, ...prev]);
                           setNewAuditMessage('');
                         }}
-                        className="rounded-[14px] border border-black bg-[#8EE5C2] px-3 py-2.5 text-sm font-semibold text-black"
+                        className="rounded-[14px] border border-black bg-[#a6ff00] px-3 py-2.5 text-sm font-semibold text-black"
                       >
                         Log event
                       </button>
@@ -4268,7 +4453,7 @@ export default function App() {
                   </div>
 
                   {currentOperatorId === 'owner' && (
-                    <div className="rounded-[16px] border border-[#8EE5C2]/25 bg-[#F7FFF9] p-3 text-sm text-neutral-700">
+                    <div className="rounded-[16px] border border-[#a6ff00]/25 bg-[#a6ff00] p-3 text-sm text-neutral-700">
                       <p className="font-semibold text-black">Need help with account edits?</p>
                       <p className="mt-1">If you need support updating your profile or business details, email support@eenvoq.com.ng and our team will assist you.</p>
                     </div>
@@ -4551,7 +4736,7 @@ export default function App() {
                       disabled={currentOperatorId !== 'owner'}
                       className={`inline-flex items-center gap-2 rounded-[12px] border px-3 py-2 text-sm font-semibold transition-all ${
                         currentOperatorId === 'owner'
-                          ? 'border-black bg-[#8EE5C2] text-black hover:-translate-y-0.5 hover:bg-[#7fe2bf]'
+                          ? 'border-black bg-[#a6ff00] text-black hover:-translate-y-0.5 hover:bg-[#a6ff00]'
                           : 'cursor-not-allowed border-neutral-200 bg-neutral-100 text-neutral-400'
                       }`}
                     >
@@ -4564,44 +4749,119 @@ export default function App() {
                     <div className="rounded-[28px] border border-neutral-200 bg-white p-5 shadow-[0_16px_60px_rgba(0,0,0,0.03)]">
                       <div className="flex items-center justify-between gap-3">
                         <div>
-                          <p className="text-[11px] uppercase tracking-[0.25em] text-neutral-500">Workforce overview</p>
-                          <h3 className="mt-1 text-lg font-semibold text-black">Accountability at a glance</h3>
+                          <p className="text-[11px] uppercase tracking-[0.25em] text-neutral-500">Directory</p>
+                          <h3 className="mt-1 text-lg font-semibold text-black">Roster & access</h3>
                         </div>
-                        <div className="rounded-full border border-[#8EE5C2]/25 bg-[#F7FFF9] px-3 py-1 text-sm font-medium text-black">
-                          {staff.filter((member) => member.online).length + 1} active
-                        </div>
+                        <span className="text-sm font-medium text-neutral-600">{staff.length + 1} people</span>
                       </div>
-                      <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                        {[
-                          { label: 'People under oversight', value: `${staff.length + 1}` },
-                          { label: 'Verified roles', value: '3 core' },
-                          { label: 'Open approvals', value: '2 pending' }
-                        ].map((item) => (
-                          <div key={item.label} className="rounded-[18px] border border-neutral-200 bg-neutral-50 p-3">
-                            <p className="text-[11px] uppercase tracking-[0.2em] text-neutral-500">{item.label}</p>
-                            <p className="mt-2 text-lg font-semibold text-black">{item.value}</p>
+
+                      <div className="mt-4 space-y-3">
+                        <div className="rounded-[20px] border border-neutral-200 bg-neutral-50 p-3.5">
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-3">
+                              <span className="h-2.5 w-2.5 rounded-full bg-black animate-pulse" title="Online" />
+                              <div>
+                                <h4 className="text-sm font-semibold text-black">{ownerName}</h4>
+                                <p className="text-xs text-neutral-500">Managing Director • Owner</p>
+                              </div>
+                            </div>
+                            <span className="rounded-full border border-neutral-200 bg-white px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-black">
+                              Primary
+                            </span>
                           </div>
-                        ))}
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            <span className="rounded-full border border-[#a6ff00]/25 bg-[#a6ff00] px-2.5 py-1 text-[11px] font-medium text-black">Full control</span>
+                            <span className="rounded-full border border-neutral-200 bg-white px-2.5 py-1 text-[11px] font-medium text-neutral-600">Approvals</span>
+                            <span className="rounded-full border border-neutral-200 bg-white px-2.5 py-1 text-[11px] font-medium text-neutral-600">Audit visibility</span>
+                          </div>
+                        </div>
+
+                        {staff.length === 0 ? (
+                          <p className="rounded-[18px] border border-dashed border-neutral-200 bg-neutral-50 p-4 text-center text-sm text-neutral-500">No staff members registered.</p>
+                        ) : (
+                          staff.map((member) => (
+                            <div key={member.id} className="rounded-[20px] border border-neutral-200 bg-neutral-50 p-3.5">
+                              <div className="flex items-start justify-between gap-3">
+                                <div className="flex items-center gap-3">
+                                  <span className={`h-2.5 w-2.5 rounded-full ${member.online ? 'bg-black animate-pulse' : 'bg-neutral-350'}`} title={member.online ? 'Online' : 'Offline'} />
+                                  <div>
+                                    <h4 className="text-sm font-semibold text-black">{member.name}</h4>
+                                    <p className="text-xs text-neutral-500">{member.role}</p>
+                                  </div>
+                                </div>
+                                <span className="rounded-full border border-neutral-200 bg-white px-2.5 py-1 text-[11px] font-medium text-neutral-600">
+                                  {member.online ? 'Online' : 'Offline'}
+                                </span>
+                              </div>
+                              <div className="mt-3 flex flex-wrap gap-2">
+                                <span className="rounded-full border border-neutral-200 bg-white px-2.5 py-1 text-[11px] font-medium text-neutral-600">Can record {transactionLabel.toLowerCase()}s</span>
+                                <span className="rounded-full border border-neutral-200 bg-white px-2.5 py-1 text-[11px] font-medium text-neutral-600">View inventory</span>
+                              </div>
+                              <div className="mt-3 flex items-center justify-between border-t border-neutral-200/60 pt-2">
+                                <span className="text-[11px] text-neutral-500">Last active: {member.lastActive}</span>
+                                {currentOperatorId === 'owner' ? (
+                                  <div className="flex gap-2">
+                                    <button
+                                      onClick={() => handleToggleStaffOnline(member.id, member.online)}
+                                      className="rounded border border-neutral-300 bg-white px-2 py-1 text-[11px] font-medium text-black transition hover:bg-neutral-100"
+                                    >
+                                      Toggle Status
+                                    </button>
+                                    <button
+                                      onClick={() => handleDeleteStaff(member.id)}
+                                      className="text-[11px] font-medium text-neutral-500 transition hover:text-black"
+                                    >
+                                      Remove
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <span className="text-[11px] italic text-neutral-400">Protected</span>
+                                )}
+                              </div>
+                            </div>
+                          ))
+                        )}
                       </div>
                     </div>
 
-                    <div className="rounded-[28px] border border-neutral-200 bg-white p-5 shadow-[0_16px_60px_rgba(0,0,0,0.03)]">
-                      <p className="text-[11px] uppercase tracking-[0.25em] text-neutral-500">Security posture</p>
-                      <div className="mt-4 rounded-[22px] border border-[#8EE5C2]/20 bg-[#F7FFF9] p-4">
-                        <div className="flex items-center gap-2">
-                          <ShieldCheck className="h-4 w-4 text-black" />
-                          <p className="text-sm font-semibold text-black">Primary owner session verified</p>
+                    <div className="space-y-4">
+                      <div className="rounded-[28px] border border-neutral-200 bg-white p-5 shadow-[0_16px_60px_rgba(0,0,0,0.03)]">
+                        <p className="text-[11px] uppercase tracking-[0.25em] text-neutral-500">Active sessions</p>
+                        <div className="mt-3 space-y-2">
+                          {staffSessions.map((session) => (
+                            <div key={session.id} className="rounded-[18px] border border-neutral-200 bg-neutral-50 px-3 py-3">
+                              <div className="flex items-center justify-between gap-3">
+                                <div>
+                                  <p className="text-sm font-semibold text-black">{session.name}</p>
+                                  <p className="text-sm text-neutral-600">{session.role} • {session.device}</p>
+                                </div>
+                                <span className="rounded-full border border-neutral-200 bg-white px-2.5 py-1 text-[11px] font-medium text-neutral-600">
+                                  {session.status}
+                                </span>
+                              </div>
+                            </div>
+                          ))}
                         </div>
-                        <p className="mt-2 text-sm leading-7 text-neutral-600">
-                          {currentOperatorId === 'owner'
-                            ? 'You are operating in administrator mode with unrestricted workflow access and full visibility into audit events.'
-                            : 'Current access is restricted to read-only governance controls until the owner reactivates a privileged session.'}
-                        </p>
+                      </div>
+
+                      <div className="rounded-[28px] border border-neutral-200 bg-white p-5 shadow-[0_16px_60px_rgba(0,0,0,0.03)]">
+                        <p className="text-[11px] uppercase tracking-[0.25em] text-neutral-500">Security posture</p>
+                        <div className="mt-4 rounded-[22px] border border-[#a6ff00]/20 bg-[#a6ff00] p-4">
+                          <div className="flex items-center gap-2">
+                            <ShieldCheck className="h-4 w-4 text-black" />
+                            <p className="text-sm font-semibold text-black">Primary owner session verified</p>
+                          </div>
+                          <p className="mt-2 text-sm leading-7 text-neutral-600">
+                            {currentOperatorId === 'owner'
+                              ? 'You are operating in administrator mode with unrestricted workflow access and full visibility into audit events.'
+                              : 'Current access is restricted to read-only governance controls until the owner reactivates a privileged session.'}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
+                  <div className="grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
                     <div className="rounded-[28px] border border-neutral-200 bg-white p-5 shadow-[0_16px_60px_rgba(0,0,0,0.03)]">
                       <div className="flex items-center justify-between gap-3">
                         <div>
@@ -4626,7 +4886,7 @@ export default function App() {
                             </span>
                           </div>
                           <div className="mt-3 flex flex-wrap gap-2">
-                            <span className="rounded-full border border-[#8EE5C2]/25 bg-[#F7FFF9] px-2.5 py-1 text-[11px] font-medium text-black">Full control</span>
+                            <span className="rounded-full border border-[#a6ff00]/25 bg-[#a6ff00] px-2.5 py-1 text-[11px] font-medium text-black">Full control</span>
                             <span className="rounded-full border border-neutral-200 bg-white px-2.5 py-1 text-[11px] font-medium text-neutral-600">Approvals</span>
                             <span className="rounded-full border border-neutral-200 bg-white px-2.5 py-1 text-[11px] font-medium text-neutral-600">Audit visibility</span>
                           </div>
@@ -4764,7 +5024,7 @@ export default function App() {
                       <button
                         type="button"
                         onClick={() => setActiveTab('ai')}
-                        className="mt-4 inline-flex items-center gap-2 rounded-[12px] border border-black bg-[#8EE5C2] px-4 py-2.5 text-sm font-semibold text-black transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#7fe2bf]"
+                        className="mt-4 inline-flex items-center gap-2 rounded-[12px] border border-black bg-[#a6ff00] px-4 py-2.5 text-sm font-semibold text-black transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#a6ff00]"
                       >
                         <Sparkles className="h-4 w-4" />
                         <span>Open advisor</span>
@@ -4842,7 +5102,7 @@ export default function App() {
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-neutral-900/45 p-4">
           <div className="w-full max-w-md rounded-[24px] border border-neutral-200 bg-white p-5 shadow-[0_24px_90px_rgba(0,0,0,0.16)]">
             <div className="flex items-center gap-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#F7FFF9] text-black">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#a6ff00] text-black">
                 <ShieldCheck className="h-5 w-5" />
               </div>
               <div>
@@ -4852,7 +5112,7 @@ export default function App() {
             </div>
             <div className="mt-5 flex justify-end gap-2">
               <button type="button" onClick={() => setConfirmAction(null)} className="rounded-full border border-neutral-200 bg-white px-3 py-2 text-sm font-medium text-black">Cancel</button>
-              <button type="button" onClick={() => { confirmAction.onConfirm(); setConfirmAction(null); }} className="rounded-full border border-black bg-[#8EE5C2] px-3 py-2 text-sm font-semibold text-black">Continue</button>
+              <button type="button" onClick={() => { confirmAction.onConfirm(); setConfirmAction(null); }} className="rounded-full border border-black bg-[#a6ff00] px-3 py-2 text-sm font-semibold text-black">Continue</button>
             </div>
           </div>
         </div>
@@ -4961,7 +5221,7 @@ export default function App() {
                 </>
               ) : (
                 <div className="space-y-4">
-                  <div className="rounded-[16px] border border-[#8EE5C2]/30 bg-[#F7FFF9] p-4 text-sm text-neutral-700">
+                  <div className="rounded-[16px] border border-[#a6ff00]/30 bg-[#a6ff00] p-4 text-sm text-neutral-700">
                     Please review everything before saving. You can return to edit the details if needed.
                   </div>
                   <div className="rounded-[16px] border border-neutral-200 bg-neutral-50 p-4 text-sm text-neutral-700">

@@ -53,6 +53,94 @@ create table if not exists profiles (
   unique (business_id, email)
 );
 
+-- Business settings and defaults used during onboarding
+create table if not exists business_settings (
+  id uuid primary key default gen_random_uuid(),
+  business_id uuid references businesses(id) on delete cascade,
+  timezone text not null default 'UTC',
+  currency text not null default 'USD ($)',
+  locale text not null default 'en-US',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (business_id)
+);
+
+create table if not exists application_preferences (
+  id uuid primary key default gen_random_uuid(),
+  business_id uuid references businesses(id) on delete cascade,
+  theme text not null default 'light',
+  language text not null default 'en',
+  default_view text not null default 'dashboard',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (business_id)
+);
+
+create table if not exists dashboard_configurations (
+  id uuid primary key default gen_random_uuid(),
+  business_id uuid references businesses(id) on delete cascade,
+  layout text not null default 'default',
+  widgets jsonb not null default '[]'::jsonb,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (business_id)
+);
+
+create table if not exists default_categories (
+  id uuid primary key default gen_random_uuid(),
+  business_id uuid references businesses(id) on delete cascade,
+  name text not null,
+  category_type text not null default 'custom',
+  sort_order int not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists operator_roles (
+  id uuid primary key default gen_random_uuid(),
+  business_id uuid references businesses(id) on delete cascade,
+  name text not null,
+  description text,
+  is_system_default boolean not null default false,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (business_id, name)
+);
+
+create table if not exists permissions (
+  id uuid primary key default gen_random_uuid(),
+  business_id uuid references businesses(id) on delete cascade,
+  role_id uuid references operator_roles(id) on delete cascade,
+  feature text not null,
+  action text not null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (business_id, role_id, feature, action)
+);
+
+create table if not exists ai_configurations (
+  id uuid primary key default gen_random_uuid(),
+  business_id uuid references businesses(id) on delete cascade,
+  provider text not null default 'openai',
+  model text not null default 'gpt-4o-mini',
+  enabled boolean not null default true,
+  default_prompt text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (business_id)
+);
+
+create table if not exists notification_preferences (
+  id uuid primary key default gen_random_uuid(),
+  business_id uuid references businesses(id) on delete cascade,
+  email_enabled boolean not null default true,
+  push_enabled boolean not null default true,
+  sms_enabled boolean not null default false,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (business_id)
+);
+
 -- Inventory / product catalogue
 create table if not exists products (
   id uuid primary key default gen_random_uuid(),
@@ -252,6 +340,86 @@ create policy "Authenticated users can update audit logs for their business" on 
   for update using (false);
 create policy "Authenticated users can delete audit logs for their business" on audit_logs
   for delete using (false);
+
+alter table business_settings enable row level security;
+create policy "Authenticated users can select business settings" on business_settings
+  for select using (business_id in (select business_id from profiles where user_id = auth.uid()));
+create policy "Authenticated users can insert business settings" on business_settings
+  for insert with check (business_id in (select business_id from profiles where user_id = auth.uid()));
+create policy "Authenticated users can update business settings" on business_settings
+  for update using (business_id in (select business_id from profiles where user_id = auth.uid())) with check (business_id in (select business_id from profiles where user_id = auth.uid()));
+create policy "Authenticated users can delete business settings" on business_settings
+  for delete using (business_id in (select business_id from profiles where user_id = auth.uid()));
+
+alter table application_preferences enable row level security;
+create policy "Authenticated users can select application preferences" on application_preferences
+  for select using (business_id in (select business_id from profiles where user_id = auth.uid()));
+create policy "Authenticated users can insert application preferences" on application_preferences
+  for insert with check (business_id in (select business_id from profiles where user_id = auth.uid()));
+create policy "Authenticated users can update application preferences" on application_preferences
+  for update using (business_id in (select business_id from profiles where user_id = auth.uid())) with check (business_id in (select business_id from profiles where user_id = auth.uid()));
+create policy "Authenticated users can delete application preferences" on application_preferences
+  for delete using (business_id in (select business_id from profiles where user_id = auth.uid()));
+
+alter table dashboard_configurations enable row level security;
+create policy "Authenticated users can select dashboard configurations" on dashboard_configurations
+  for select using (business_id in (select business_id from profiles where user_id = auth.uid()));
+create policy "Authenticated users can insert dashboard configurations" on dashboard_configurations
+  for insert with check (business_id in (select business_id from profiles where user_id = auth.uid()));
+create policy "Authenticated users can update dashboard configurations" on dashboard_configurations
+  for update using (business_id in (select business_id from profiles where user_id = auth.uid())) with check (business_id in (select business_id from profiles where user_id = auth.uid()));
+create policy "Authenticated users can delete dashboard configurations" on dashboard_configurations
+  for delete using (business_id in (select business_id from profiles where user_id = auth.uid()));
+
+alter table default_categories enable row level security;
+create policy "Authenticated users can select default categories" on default_categories
+  for select using (business_id in (select business_id from profiles where user_id = auth.uid()));
+create policy "Authenticated users can insert default categories" on default_categories
+  for insert with check (business_id in (select business_id from profiles where user_id = auth.uid()));
+create policy "Authenticated users can update default categories" on default_categories
+  for update using (business_id in (select business_id from profiles where user_id = auth.uid())) with check (business_id in (select business_id from profiles where user_id = auth.uid()));
+create policy "Authenticated users can delete default categories" on default_categories
+  for delete using (business_id in (select business_id from profiles where user_id = auth.uid()));
+
+alter table operator_roles enable row level security;
+create policy "Authenticated users can select operator roles" on operator_roles
+  for select using (business_id in (select business_id from profiles where user_id = auth.uid()));
+create policy "Authenticated users can insert operator roles" on operator_roles
+  for insert with check (business_id in (select business_id from profiles where user_id = auth.uid()));
+create policy "Authenticated users can update operator roles" on operator_roles
+  for update using (business_id in (select business_id from profiles where user_id = auth.uid())) with check (business_id in (select business_id from profiles where user_id = auth.uid()));
+create policy "Authenticated users can delete operator roles" on operator_roles
+  for delete using (business_id in (select business_id from profiles where user_id = auth.uid()));
+
+alter table permissions enable row level security;
+create policy "Authenticated users can select permissions" on permissions
+  for select using (business_id in (select business_id from profiles where user_id = auth.uid()));
+create policy "Authenticated users can insert permissions" on permissions
+  for insert with check (business_id in (select business_id from profiles where user_id = auth.uid()));
+create policy "Authenticated users can update permissions" on permissions
+  for update using (business_id in (select business_id from profiles where user_id = auth.uid())) with check (business_id in (select business_id from profiles where user_id = auth.uid()));
+create policy "Authenticated users can delete permissions" on permissions
+  for delete using (business_id in (select business_id from profiles where user_id = auth.uid()));
+
+alter table ai_configurations enable row level security;
+create policy "Authenticated users can select ai configurations" on ai_configurations
+  for select using (business_id in (select business_id from profiles where user_id = auth.uid()));
+create policy "Authenticated users can insert ai configurations" on ai_configurations
+  for insert with check (business_id in (select business_id from profiles where user_id = auth.uid()));
+create policy "Authenticated users can update ai configurations" on ai_configurations
+  for update using (business_id in (select business_id from profiles where user_id = auth.uid())) with check (business_id in (select business_id from profiles where user_id = auth.uid()));
+create policy "Authenticated users can delete ai configurations" on ai_configurations
+  for delete using (business_id in (select business_id from profiles where user_id = auth.uid()));
+
+alter table notification_preferences enable row level security;
+create policy "Authenticated users can select notification preferences" on notification_preferences
+  for select using (business_id in (select business_id from profiles where user_id = auth.uid()));
+create policy "Authenticated users can insert notification preferences" on notification_preferences
+  for insert with check (business_id in (select business_id from profiles where user_id = auth.uid()));
+create policy "Authenticated users can update notification preferences" on notification_preferences
+  for update using (business_id in (select business_id from profiles where user_id = auth.uid())) with check (business_id in (select business_id from profiles where user_id = auth.uid()));
+create policy "Authenticated users can delete notification preferences" on notification_preferences
+  for delete using (business_id in (select business_id from profiles where user_id = auth.uid()));
 
 -- Trigger functions to update timestamps
 create or replace function update_updated_at()
