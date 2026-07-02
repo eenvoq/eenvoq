@@ -1418,8 +1418,8 @@ ${JSON.stringify(
     name: p.name,
     sku: p.sku,
     category: p.category,
-    stock_remaining: p.stock,
-    min_stock_alert_threshold: p.minStock,
+    stock_remaining: p.stock ?? 0,
+    min_stock_alert_threshold: p.minStock ?? 0,
     unit_price: p.price,
     unit_cost: p.cost,
     status: (p.stock ?? 0) === 0 ? 'Out of Stock' : (p.stock ?? 0) <= (p.minStock ?? 0) ? 'Low Stock' : 'Optimal'
