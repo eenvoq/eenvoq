@@ -30,7 +30,9 @@ import {
   ChevronRight,
   ChevronDown,
   Truck,
-  History
+  History,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 
 interface LandingPageProps {
@@ -48,6 +50,11 @@ interface AuthPageProps {
   setAuthEmail: (value: string) => void;
   setAuthPassword: (value: string) => void;
   setAppMode: (mode: 'auth' | 'app' | 'onboarding') => void;
+  onSubmit: (mode: 'login' | 'signup') => Promise<void>;
+  isLoading: boolean;
+  authError?: string;
+  passwordVisible: boolean;
+  setPasswordVisible: (value: boolean) => void;
 }
 
 interface OnboardingWizardProps {
@@ -991,7 +998,7 @@ function LandingPage({ setAuthMode, setAppMode }: LandingPageProps) {
   );
 }
 
-function AuthPage({ authMode, setAuthMode, authName, authEmail, authPassword, setAuthName, setAuthEmail, setAuthPassword, setAppMode }: AuthPageProps) {
+function AuthPage({ authMode, setAuthMode, authName, authEmail, authPassword, setAuthName, setAuthEmail, setAuthPassword, setAppMode, onSubmit, isLoading, authError, passwordVisible, setPasswordVisible }: AuthPageProps) {
   return (
     <div className="flex min-h-screen items-start justify-center bg-neutral-50 px-4 py-4 sm:px-6 sm:py-10 lg:items-center lg:px-8">
       <div className="grid w-full max-w-5xl gap-4 rounded-[24px] border border-neutral-200 bg-white p-4 shadow-[0_12px_40px_rgba(0,0,0,0.03)] lg:grid-cols-[0.95fr_1.05fr] lg:p-6">
@@ -1029,7 +1036,7 @@ function AuthPage({ authMode, setAuthMode, authName, authEmail, authPassword, se
             <button onClick={() => setAuthMode('login')} className={`flex-1 rounded-full px-4 py-2 text-sm font-medium transition ${authMode === 'login' ? 'bg-black text-white' : 'text-neutral-600'}`}>Log in</button>
           </div>
 
-          <form className="mt-6 space-y-4" onSubmit={(event) => { event.preventDefault(); setAppMode(authMode === 'signup' ? 'onboarding' : 'app'); }}>
+          <form className="mt-6 space-y-4" onSubmit={(event) => { event.preventDefault(); void onSubmit(authMode); }}>
             {authMode === 'signup' && (
               <div>
                 <label className="mb-2 block text-sm font-medium text-black">Full name</label>
@@ -1042,9 +1049,15 @@ function AuthPage({ authMode, setAuthMode, authName, authEmail, authPassword, se
             </div>
             <div>
               <label className="mb-2 block text-sm font-medium text-black">Password</label>
-              <input type="password" value={authPassword} onChange={(event) => setAuthPassword(event.target.value)} className="w-full rounded-2xl border border-neutral-300 bg-white px-4 py-3 text-sm text-black focus:border-[#8EE5C2] focus:outline-none focus:ring-2 focus:ring-[#8EE5C2]/20" placeholder="••••••••" />
+              <div className="relative">
+                <input type={passwordVisible ? 'text' : 'password'} value={authPassword} onChange={(event) => setAuthPassword(event.target.value)} className="w-full rounded-2xl border border-neutral-300 bg-white px-4 py-3 pr-12 text-sm text-black focus:border-[#8EE5C2] focus:outline-none focus:ring-2 focus:ring-[#8EE5C2]/20" placeholder="••••••••" />
+                <button type="button" onClick={() => setPasswordVisible(!passwordVisible)} className="absolute inset-y-0 right-3 flex items-center text-neutral-500 transition hover:text-black" aria-label={passwordVisible ? 'Hide password' : 'Show password'}>
+                  {passwordVisible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
             </div>
-            <button type="submit" className="w-full rounded-full bg-black px-4 py-3 text-sm font-medium text-white transition hover:shadow-[0_0_22px_rgba(142,229,194,0.25)]">{authMode === 'signup' ? 'Create account' : 'Log in'}</button>
+            {authError ? <p className="text-sm text-red-600">{authError}</p> : null}
+            <button type="submit" disabled={isLoading} className="w-full rounded-full bg-black px-4 py-3 text-sm font-medium text-white transition hover:shadow-[0_0_22px_rgba(142,229,194,0.25)] disabled:cursor-not-allowed disabled:opacity-70">{isLoading ? 'Please wait…' : authMode === 'signup' ? 'Create account' : 'Log in'}</button>
           </form>
 
           <div className="mt-6 rounded-2xl border border-[#8EE5C2]/30 bg-[#8EE5C2]/10 p-4 text-sm text-neutral-700">

@@ -697,6 +697,10 @@ export default function App() {
   const [authName, setAuthName] = useState('');
   const [authEmail, setAuthEmail] = useState('');
   const [authPassword, setAuthPassword] = useState('');
+  const [authError, setAuthError] = useState('');
+  const [authLoading, setAuthLoading] = useState(false);
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [authUserId, setAuthUserId] = useState<string | null>(null);
 
   // Dynamic Data States
   const [products, setProducts] = useState<Product[]>([]);
@@ -763,6 +767,7 @@ export default function App() {
 
   // UI States
   const [loading, setLoading] = useState(true);
+  const [startupComplete, setStartupComplete] = useState(false);
   const [splashActive, setSplashActive] = useState(false);
   const [logoVisible, setLogoVisible] = useState(false);
   const [glowVisible, setGlowVisible] = useState(false);
@@ -1117,11 +1122,14 @@ export default function App() {
     const sessionData = localStorage.getItem('eenvoq-session');
     if (sessionData) {
       try {
-        const savedSession = JSON.parse(sessionData) as { isLoggedIn: boolean; appMode: AppMode; activeTab: typeof activeTab; authMode: 'login' | 'signup' };
+        const savedSession = JSON.parse(sessionData) as { isLoggedIn: boolean; appMode: AppMode; activeTab: typeof activeTab; authMode: 'login' | 'signup'; userId?: string | null };
         if (savedSession.isLoggedIn) {
-          setAppMode('app');
+          setAppMode(savedSession.appMode || 'app');
           setActiveTab(savedSession.activeTab);
           setAuthMode(savedSession.authMode);
+          if (savedSession.userId) {
+            setAuthUserId(savedSession.userId);
+          }
         } else {
           setAppMode('auth');
           setAuthMode(savedSession.authMode || 'login');
@@ -1179,6 +1187,7 @@ export default function App() {
       setLogoVisible(false);
       setGlowVisible(false);
       setSplashMessageIndex(0);
+      setStartupComplete(true);
       return;
     }
 
@@ -1186,6 +1195,7 @@ export default function App() {
     setLogoVisible(false);
     setGlowVisible(false);
     setSplashMessageIndex(0);
+    setStartupComplete(false);
 
     const logoTimer = window.setTimeout(() => setLogoVisible(true), 40);
     const glowTimer = window.setTimeout(() => setGlowVisible(true), 560);
@@ -1193,14 +1203,12 @@ export default function App() {
     const messageTimer = window.setInterval(() => {
       setSplashMessageIndex((currentIndex) => (currentIndex + 1) % splashMessages.length);
     }, 800);
-    const completionTimer = window.setTimeout(() => setSplashActive(false), 1800);
 
     return () => {
       window.clearTimeout(logoTimer);
       window.clearTimeout(glowTimer);
       window.clearTimeout(glowFadeTimer);
       window.clearInterval(messageTimer);
-      window.clearTimeout(completionTimer);
     };
   }, [appMode, splashMessages.length]);
 
@@ -1235,9 +1243,32 @@ export default function App() {
   };
 
   useEffect(() => {
-    loadAllData();
-    loadOrganizationConfig();
-  }, []);
+    let cancelled = false;
+
+    const initializeApp = async () => {
+      if (appMode !== 'app') {
+        setStartupComplete(true);
+        return;
+      }
+
+      try {
+        await Promise.allSettled([loadAllData(), loadOrganizationConfig()]);
+      } catch (error) {
+        console.error('Unable to initialize app data', error);
+      } finally {
+        if (!cancelled) {
+          setStartupComplete(true);
+          setSplashActive(false);
+        }
+      }
+    };
+
+    initializeApp();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [appMode]);
 
   // Helper: Active Session User Name
   const getOperatorName = () => {
@@ -1246,16 +1277,76 @@ export default function App() {
     return found ? found.name : ownerName;
   };
 
+  const handleAuthSubmit = async (mode: 'login' | 'signup') => {
+    setAuthError('');
+    setAuthLoading(true);
+
+    try {
+      const response = await fetch(`/api/auth/${mode}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: authEmail.trim().toLowerCase(),
+          password: authPassword,
+          fullName: authName.trim(),
+          organizationConfig: {
+            ...organizationSetup,
+            name: businessName,
+            contactEmail: authEmail.trim().toLowerCase(),
+            currency: businessCurrency
+          }
+        })
+      });
+
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(payload.error || 'Authentication failed.');
+      }
+
+      setAuthUserId(payload.user?.id || null);
+      setOwnerName(payload.profile?.full_name || authName.trim() || ownerName);
+      setOwnerEmail(payload.profile?.email || authEmail.trim().toLowerCase());
+      setAuthPassword('');
+      setPasswordVisible(false);
+
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('eenvoq-session', JSON.stringify({
+          isLoggedIn: true,
+          appMode: mode === 'signup' ? 'onboarding' : 'app',
+          activeTab: 'desk',
+          authMode: 'login',
+          userId: payload.user?.id || null
+        }));
+      }
+
+      if (mode === 'signup') {
+        setAppMode('onboarding');
+        setActiveTab('desk');
+        setAuthMode('login');
+      } else {
+        setAppMode('app');
+        setActiveTab('desk');
+        setAuthMode('login');
+      }
+    } catch (error) {
+      setAuthError(error instanceof Error ? error.message : 'Authentication failed.');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
   const handleLogout = () => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('eenvoq-session');
     }
     setAppMode('onboarding');
     setActiveTab('desk');
-    setAuthMode('signup');
+    setAuthMode('login');
     setAuthName('');
     setAuthEmail('');
     setAuthPassword('');
+    setAuthError('');
+    setPasswordVisible(false);
   };
 
   const getGreeting = () => {
@@ -1296,7 +1387,7 @@ export default function App() {
         await fetch('/api/organization-config', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(config)
+          body: JSON.stringify({ ...config, userId: authUserId })
         });
       } catch (error) {
         console.error('Unable to persist organization config', error);
@@ -2513,13 +2604,18 @@ export default function App() {
         setAuthEmail={setAuthEmail}
         setAuthPassword={setAuthPassword}
         setAppMode={setAppMode}
+        onSubmit={handleAuthSubmit}
+        isLoading={authLoading}
+        authError={authError}
+        passwordVisible={passwordVisible}
+        setPasswordVisible={setPasswordVisible}
       />
     );
   }
 
   return (
     <>
-      <div className={`fixed inset-0 z-[120] flex min-h-screen flex-col overflow-hidden bg-white transition-opacity duration-300 ${splashActive ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+      <div className={`fixed inset-0 z-[120] flex min-h-screen flex-col overflow-hidden bg-white transition-opacity duration-300 ${(splashActive || !startupComplete) && appMode === 'app' ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
         <div className="p-4 sm:p-5 lg:p-6">
           <div className="space-y-4">
             {/* Header skeleton */}
@@ -2563,7 +2659,7 @@ export default function App() {
           </div>
         </div>
       </div>
-      <div className={`min-h-screen bg-white text-sm font-normal text-black select-none transition-opacity duration-300 ${splashActive ? 'opacity-0' : 'opacity-100'}`}>
+      <div className={`min-h-screen bg-white text-sm font-normal text-black select-none transition-opacity duration-300 ${(splashActive || !startupComplete) && appMode === 'app' ? 'opacity-0' : 'opacity-100'}`}>
       <div className="relative flex min-h-screen w-full flex-col overflow-hidden bg-white lg:flex-row">
         {(menuOpen || isDesktop) && (
           <div className={`${isDesktop ? 'hidden w-72 flex-col border-r border-neutral-200 bg-white p-5 lg:flex' : 'absolute inset-0 z-50 flex bg-neutral-950/40 lg:hidden'}`}>

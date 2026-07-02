@@ -3,6 +3,8 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 import {defineConfig} from 'vite';
 
+const apiTarget = process.env.VITE_API_TARGET || process.env.API_TARGET || 'http://localhost:3001';
+
 export default defineConfig(() => {
   return {
     plugins: [react(), tailwindcss()],
@@ -19,13 +21,16 @@ export default defineConfig(() => {
       watch: process.env.DISABLE_HMR === 'true' ? null : {},      // Proxy API requests to backend server
       proxy: {
         '/api': {
-          target: 'http://localhost:3001',
+          target: apiTarget,
           changeOrigin: true,
+          secure: false,
         },
         '/gemini': {
-          target: 'http://localhost:3001',
+          target: apiTarget,
           changeOrigin: true,
+          secure: false,
         },
-      },    },
+      },
+    },
   };
 });

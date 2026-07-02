@@ -1,8 +1,10 @@
 import express from 'express';
 import path from 'path';
 import fs from 'fs';
+import crypto from 'crypto';
 import dotenv from 'dotenv';
 import { GoogleGenAI } from '@google/genai';
+import { createClient } from '@supabase/supabase-js';
 
 dotenv.config();
 
@@ -134,6 +136,46 @@ interface Expense {
   recordedBy?: string;
 }
 
+interface LocalAuthUser {
+  id: string;
+  email: string;
+  passwordHash: string;
+  fullName: string;
+  createdAt: string;
+}
+
+interface LocalBusinessRecord {
+  id: string;
+  userId: string;
+  name: string;
+  industry: string;
+  subtype: string;
+  location: string;
+  currency: string;
+  contactEmail: string;
+  contactPhone: string;
+  modules: string[];
+  logoUrl: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface LocalProfileRecord {
+  id: string;
+  userId: string;
+  businessId: string;
+  fullName: string;
+  email: string;
+  role: string;
+  pinHash?: string;
+  profilePic?: string;
+  online: boolean;
+  lastActive?: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 const DEFAULT_PRODUCTS: Product[] = [];
 
 const DEFAULT_ORDERS: Order[] = [];
@@ -148,6 +190,9 @@ let staff: Staff[] = [...DEFAULT_STAFF];
 let customers: Customer[] = [...DEFAULT_CUSTOMERS];
 let suppliers: Supplier[] = [];
 let expenses: Expense[] = [];
+let authUsers: LocalAuthUser[] = [];
+let localBusinesses: LocalBusinessRecord[] = [];
+let localProfiles: LocalProfileRecord[] = [];
 let organizationConfig: OrganizationConfig = {
   profileType: 'business',
   name: 'Your Business',
@@ -172,6 +217,9 @@ function loadData() {
       if (Array.isArray(data.customers)) customers = data.customers;
       if (Array.isArray(data.suppliers)) suppliers = data.suppliers;
       if (Array.isArray(data.expenses)) expenses = data.expenses;
+      if (Array.isArray(data.authUsers)) authUsers = data.authUsers;
+      if (Array.isArray(data.localBusinesses)) localBusinesses = data.localBusinesses;
+      if (Array.isArray(data.localProfiles)) localProfiles = data.localProfiles;
       if (data.organizationConfig) organizationConfig = data.organizationConfig;
       console.log('Database loaded successfully from data.json');
     } catch (e) {
@@ -184,13 +232,258 @@ function loadData() {
 
 function saveData() {
   try {
-    fs.writeFileSync(DATA_FILE, JSON.stringify({ products, orders, staff, customers, suppliers, expenses, organizationConfig }, null, 2));
+    fs.writeFileSync(DATA_FILE, JSON.stringify({ products, orders, staff, customers, suppliers, expenses, authUsers, localBusinesses, localProfiles, organizationConfig }, null, 2));
   } catch (e) {
     console.error('Error writing to data.json', e);
   }
 }
 
 loadData();
+
+const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
+const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE;
+
+const supabaseAuth = supabaseUrl && supabaseAnonKey
+  ? createClient(supabaseUrl, supabaseAnonKey, {
+      auth: { persistSession: false, autoRefreshToken: false }
+    })
+  : null;
+
+const supabaseAdmin = supabaseUrl && supabaseServiceRoleKey
+  ? createClient(supabaseUrl, supabaseServiceRoleKey, {
+      auth: { persistSession: false, autoRefreshToken: false }
+    })
+  : null;
+
+const authRateLimits = new Map<string, { count: number; resetAt: number }>();
+
+function getClientIp(req: express.Request) {
+  const forwarded = req.get('x-forwarded-for');
+  return forwarded ? forwarded.split(',')[0].trim() : req.socket.remoteAddress || 'unknown';
+}
+
+function checkRateLimit(key: string, maxAttempts = 8, windowMs = 10 * 60 * 1000) {
+  const now = Date.now();
+  const existing = authRateLimits.get(key);
+
+  if (existing && existing.resetAt > now) {
+    if (existing.count >= maxAttempts) {
+      return { allowed: false, retryAfterMs: existing.resetAt - now };
+    }
+
+    existing.count += 1;
+    return { allowed: true, retryAfterMs: existing.resetAt - now };
+  }
+
+  authRateLimits.set(key, { count: 1, resetAt: now + windowMs });
+  return { allowed: true, retryAfterMs: windowMs };
+}
+
+function clearRateLimit(key: string) {
+  authRateLimits.delete(key);
+}
+
+function hashPassword(password: string) {
+  return crypto.createHash('sha256').update(password).digest('hex');
+}
+
+function normalizeRole(role: unknown) {
+  const normalized = String(role || '').trim().toLowerCase();
+  return normalized === 'manager' || normalized === 'staff' || normalized === 'owner' ? normalized : 'owner';
+}
+
+function createLocalBusinessRecord(userId: string, config: Partial<OrganizationConfig> & { fullName?: string; email?: string } = {}) {
+  const now = new Date().toISOString();
+  const businessId = `local-business-${Date.now()}`;
+  const businessRecord: LocalBusinessRecord = {
+    id: businessId,
+    userId,
+    name: config.name || 'Your Business',
+    industry: config.industry || 'Business',
+    subtype: (config as any).subtype || '',
+    location: config.location || '',
+    currency: config.currency || 'USD ($)',
+    contactEmail: config.contactEmail || config.email || '',
+    contactPhone: config.contactPhone || '',
+    modules: config.modules || ['transactions', 'inventory', 'customers', 'staff', 'reports', 'ai'],
+    logoUrl: config.logoUrl || '',
+    createdAt: now,
+    updatedAt: now
+  };
+  localBusinesses.push(businessRecord);
+  return businessRecord;
+}
+
+function createLocalProfileRecord(userId: string, businessId: string, fullName: string, email: string, role = 'owner', pin = '') {
+  const now = new Date().toISOString();
+  const profileRecord: LocalProfileRecord = {
+    id: `local-profile-${Date.now()}`,
+    userId,
+    businessId,
+    fullName,
+    email,
+    role: normalizeRole(role),
+    pinHash: pin ? hashPassword(pin) : undefined,
+    online: true,
+    lastActive: now,
+    isActive: true,
+    createdAt: now,
+    updatedAt: now
+  };
+  localProfiles.push(profileRecord);
+  return profileRecord;
+}
+
+async function ensureProfileRecord(userId: string, businessId: string, fullName: string, email: string, role = 'owner', pin = '') {
+  if (!supabaseAdmin) return null;
+
+  const { data: existingProfile } = await supabaseAdmin
+    .from('profiles')
+    .select('id')
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  if (existingProfile?.id) {
+    return existingProfile;
+  }
+
+  const { data, error } = await supabaseAdmin
+    .from('profiles')
+    .insert({
+      user_id: userId,
+      business_id: businessId,
+      full_name: fullName,
+      email,
+      role: normalizeRole(role),
+      pin_hash: pin ? hashPassword(pin) : null,
+      online: true,
+      last_active: new Date().toISOString(),
+      is_active: true
+    })
+    .select('id')
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+}
+
+function createLocalAuthAccount(email: string, password: string, fullName: string, config: Partial<OrganizationConfig> & { fullName?: string; email?: string } = {}, role = 'owner', pin = '') {
+  const normalizedEmail = String(email).trim().toLowerCase();
+  const existing = authUsers.find((user) => user.email === normalizedEmail);
+  if (existing) {
+    return { conflict: true as const, user: null, profile: null, business: null };
+  }
+
+  const normalizedRole = normalizeRole(role);
+  const userId = `local-user-${Date.now()}`;
+  const businessRecord = createLocalBusinessRecord(userId, {
+    ...config,
+    name: config.name || `${normalizedEmail.split('@')[0] || 'your-business'}`,
+    fullName: String(fullName || '').trim() || 'Business Owner',
+    email: normalizedEmail,
+    contactEmail: normalizedEmail,
+    modules: config.modules || ['transactions', 'inventory', 'customers', 'staff', 'reports', 'ai']
+  });
+  const profileRecord = createLocalProfileRecord(userId, businessRecord.id, String(fullName || '').trim() || 'Business Owner', normalizedEmail, normalizedRole, pin);
+
+  authUsers.push({
+    id: userId,
+    email: normalizedEmail,
+    passwordHash: hashPassword(password),
+    fullName: String(fullName || '').trim() || 'Business Owner',
+    createdAt: new Date().toISOString()
+  });
+
+  saveData();
+
+  return {
+    conflict: false as const,
+    user: { id: userId, email: normalizedEmail, user_metadata: { full_name: profileRecord.fullName } },
+    profile: profileRecord,
+    business: businessRecord
+  };
+}
+
+function signInLocalAuthAccount(email: string, password: string, requestedRole = 'owner', pin = '') {
+  const normalizedEmail = String(email).trim().toLowerCase();
+  const authUser = authUsers.find((user) => user.email === normalizedEmail);
+  if (!authUser || authUser.passwordHash !== hashPassword(password)) {
+    return null;
+  }
+
+  const normalizedRole = normalizeRole(requestedRole);
+  const profileRecord = localProfiles.find((profile) => profile.userId === authUser.id);
+  const businessRecord = localBusinesses.find((business) => business.userId === authUser.id);
+
+  if (normalizedRole !== 'owner') {
+    const normalizedPin = String(pin || '').trim();
+    if (!normalizedPin || !profileRecord?.pinHash || profileRecord.pinHash !== hashPassword(normalizedPin)) {
+      return null;
+    }
+  }
+
+  return {
+    user: { id: authUser.id, email: authUser.email, user_metadata: { full_name: authUser.fullName } },
+    profile: profileRecord || {
+      id: `local-profile-${Date.now()}`,
+      userId: authUser.id,
+      businessId: businessRecord?.id || `local-business-${Date.now()}`,
+      fullName: authUser.fullName,
+      email: authUser.email,
+      role: normalizedRole,
+      online: true,
+      lastActive: new Date().toISOString(),
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    },
+    business: businessRecord || null
+  };
+}
+
+async function upsertBusinessProfile(userId: string, config: Partial<OrganizationConfig> & { fullName?: string; email?: string }, role = 'owner', pin = '') {
+  if (!supabaseAdmin) return null;
+
+  const businessPayload = {
+    name: config.name || 'Your Business',
+    industry: config.industry || 'Business',
+    subtype: (config as any).subtype || '',
+    location: config.location || '',
+    currency: config.currency || 'USD ($)',
+    contact_email: config.contactEmail || config.email || '',
+    contact_phone: config.contactPhone || '',
+    modules: config.modules || ['transactions', 'inventory', 'customers', 'staff', 'reports', 'ai'],
+    logo_url: config.logoUrl || ''
+  };
+
+  const { data: profileData } = await supabaseAdmin
+    .from('profiles')
+    .select('business_id')
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  if (profileData?.business_id) {
+    await supabaseAdmin.from('businesses').update(businessPayload).eq('id', profileData.business_id);
+    return profileData.business_id;
+  }
+
+  const { data: businessData, error: businessError } = await supabaseAdmin
+    .from('businesses')
+    .insert(businessPayload)
+    .select('id')
+    .single();
+
+  if (businessError) {
+    throw businessError;
+  }
+
+  await ensureProfileRecord(userId, businessData.id, config.fullName || 'Business Owner', config.email || '', role, pin);
+  return businessData.id;
+}
 
 // Lazy initialize Gemini API client to prevent startup crash if API key is missing
 let aiClient: GoogleGenAI | null = null;
@@ -216,13 +509,207 @@ function getGemini(): GoogleGenAI {
 // API ROUTES
 // ----------------------------------------------------
 
+app.post('/api/auth/signup', async (req, res) => {
+  try {
+    const { email, password, fullName, organizationConfig: incomingConfig, role, pin } = req.body || {};
+
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required.' });
+    }
+
+    const normalizedEmail = String(email).trim().toLowerCase();
+    const normalizedRole = normalizeRole(role);
+    const normalizedPin = String(pin || '').trim();
+    if (normalizedRole !== 'owner' && normalizedPin.length < 4) {
+      return res.status(400).json({ error: 'A 4-digit PIN is required for manager and staff accounts.' });
+    }
+    const key = `signup:${getClientIp(req)}:${normalizedEmail}`;
+    const rateLimit = checkRateLimit(key, 5, 15 * 60 * 1000);
+    if (!rateLimit.allowed) {
+      return res.status(429).json({ error: 'Too many sign-up attempts. Please try again in a moment.' });
+    }
+
+    if (!supabaseAdmin) {
+      const fallback = createLocalAuthAccount(normalizedEmail, String(password), String(fullName || '').trim() || 'Business Owner', incomingConfig as any, normalizedRole, normalizedPin);
+      if (fallback.conflict) {
+        return res.status(409).json({ error: 'An account with this email already exists. Please sign in instead.' });
+      }
+      clearRateLimit(key);
+      return res.json({
+        message: 'Account created successfully.',
+        user: fallback.user,
+        profile: fallback.profile,
+        business: fallback.business
+      });
+    }
+
+    try {
+      const { data: createdUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
+        email: normalizedEmail,
+        password: String(password),
+        email_confirm: true,
+        user_metadata: { full_name: String(fullName || '').trim() || 'Business Owner' }
+      });
+
+      if (createError || !createdUser?.user) {
+        if (createError?.message?.includes('already registered')) {
+          return res.status(409).json({ error: 'An account with this email already exists. Please sign in instead.' });
+        }
+        throw createError || new Error('Unable to create account');
+      }
+
+      const businessId = await upsertBusinessProfile(createdUser.user.id, {
+        ...incomingConfig,
+        name: incomingConfig?.name || normalizedEmail.split('@')[0] || 'Your Business',
+        fullName: String(fullName || '').trim() || 'Business Owner',
+        email: normalizedEmail,
+        contactEmail: normalizedEmail,
+        modules: incomingConfig?.modules || ['transactions', 'inventory', 'customers', 'staff', 'reports', 'ai']
+      }, normalizedRole, normalizedPin);
+
+      clearRateLimit(key);
+
+      return res.json({
+        message: 'Account created successfully.',
+        user: createdUser.user,
+        profile: { full_name: String(fullName || '').trim() || 'Business Owner', email: normalizedEmail, role: normalizedRole },
+        business: { id: businessId }
+      });
+    } catch (supabaseError: any) {
+      console.warn('Supabase signup failed, falling back to local auth', supabaseError?.message || supabaseError);
+      const fallback = createLocalAuthAccount(normalizedEmail, String(password), String(fullName || '').trim() || 'Business Owner', incomingConfig as any, normalizedRole, normalizedPin);
+      if (fallback.conflict) {
+        return res.status(409).json({ error: 'An account with this email already exists. Please sign in instead.' });
+      }
+      clearRateLimit(key);
+      return res.json({
+        message: 'Account created successfully.',
+        user: fallback.user,
+        profile: fallback.profile,
+        business: fallback.business
+      });
+    }
+  } catch (error: any) {
+    console.error('Auth signup failed', error);
+    return res.status(500).json({ error: error?.message || 'Unable to create account.' });
+  }
+});
+
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { email, password, role, pin } = req.body || {};
+
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required.' });
+    }
+
+    const normalizedEmail = String(email).trim().toLowerCase();
+    const normalizedRole = normalizeRole(role);
+    const normalizedPin = String(pin || '').trim();
+    const key = `login:${getClientIp(req)}:${normalizedEmail}`;
+    const rateLimit = checkRateLimit(key, 10, 10 * 60 * 1000);
+    if (!rateLimit.allowed) {
+      return res.status(429).json({ error: 'Too many sign-in attempts. Please try again soon.' });
+    }
+
+    if (normalizedRole !== 'owner' && normalizedPin.length < 4) {
+      return res.status(401).json({ error: 'A 4-digit PIN is required for manager and staff accounts.' });
+    }
+
+    if (!supabaseAuth) {
+      const fallback = signInLocalAuthAccount(normalizedEmail, String(password), normalizedRole, normalizedPin);
+      if (!fallback) {
+        return res.status(401).json({ error: 'Incorrect email or password.' });
+      }
+      clearRateLimit(key);
+      return res.json({
+        message: 'Signed in successfully.',
+        user: fallback.user,
+        profile: fallback.profile,
+        business: fallback.business
+      });
+    }
+
+    try {
+      const { data, error } = await supabaseAuth.auth.signInWithPassword({
+        email: normalizedEmail,
+        password: String(password)
+      });
+
+      if (error || !data.user) {
+        throw error || new Error('Unable to sign in.');
+      }
+
+      clearRateLimit(key);
+
+      let businessId: string | null = null;
+      const { data: profileData } = await supabaseAdmin?.from('profiles').select('business_id, full_name, email, role').eq('user_id', data.user.id).maybeSingle() || { data: null };
+
+      if (profileData?.business_id) {
+        businessId = profileData.business_id;
+      } else if (supabaseAdmin) {
+        const { data: businessData } = await supabaseAdmin.from('businesses').insert({
+          name: 'Your Business',
+          industry: 'Business',
+          subtype: '',
+          location: '',
+          currency: 'USD ($)',
+          contact_email: normalizedEmail,
+          contact_phone: '',
+          modules: ['transactions', 'inventory', 'customers', 'staff', 'reports', 'ai'],
+          logo_url: ''
+        }).select('id').single();
+
+        if (businessData?.id) {
+          businessId = businessData.id;
+          await ensureProfileRecord(data.user.id, businessData.id, data.user.user_metadata?.full_name || 'Business Owner', normalizedEmail, normalizedRole, normalizedPin);
+        }
+      }
+
+      return res.json({
+        message: 'Signed in successfully.',
+        user: data.user,
+        session: data.session,
+        profile: profileData || { full_name: data.user.user_metadata?.full_name || 'Business Owner', email: normalizedEmail, role: normalizedRole },
+        business: businessId ? { id: businessId } : null
+      });
+    } catch (supabaseError: any) {
+      const fallback = signInLocalAuthAccount(normalizedEmail, String(password), normalizedRole, normalizedPin);
+      if (!fallback) {
+        console.error('Auth login failed', supabaseError);
+        return res.status(401).json({ error: supabaseError?.message || 'Incorrect email or password.' });
+      }
+      clearRateLimit(key);
+      return res.json({
+        message: 'Signed in successfully.',
+        user: fallback.user,
+        profile: fallback.profile,
+        business: fallback.business
+      });
+    }
+  } catch (error: any) {
+    console.error('Auth login failed', error);
+    return res.status(401).json({ error: error?.message || 'Incorrect email or password.' });
+  }
+});
+
 app.get('/api/organization-config', (req, res) => {
   res.json(organizationConfig);
 });
 
-app.put('/api/organization-config', (req, res) => {
-  organizationConfig = { ...organizationConfig, ...req.body };
+app.put('/api/organization-config', async (req, res) => {
+  const { userId, ...rest } = req.body || {};
+  organizationConfig = { ...organizationConfig, ...rest };
   saveData();
+
+  if (supabaseAdmin && userId) {
+    try {
+      await upsertBusinessProfile(userId, { ...rest, email: organizationConfig.contactEmail || '' });
+    } catch (error) {
+      console.error('Unable to sync organization config with Supabase', error);
+    }
+  }
+
   res.json(organizationConfig);
 });
 

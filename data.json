@@ -5,16 +5,121 @@
   "customers": [],
   "suppliers": [],
   "expenses": [],
+  "authUsers": [
+    {
+      "id": "local-user-1782983300944",
+      "email": "test@example.com",
+      "passwordHash": "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92",
+      "fullName": "Business Owner",
+      "createdAt": "2026-07-02T09:08:20.945Z"
+    },
+    {
+      "id": "local-user-1782983799850",
+      "email": "parafinix29@gmail.com",
+      "passwordHash": "dc4695ad2368f46f6c1ab77fa905d8bcd8d3dd44039bea9a42be16bdb17799ba",
+      "fullName": "Prince Dike",
+      "createdAt": "2026-07-02T09:16:39.850Z"
+    }
+  ],
+  "localBusinesses": [
+    {
+      "id": "local-business-1782983300944",
+      "userId": "local-user-1782983300944",
+      "name": "test",
+      "industry": "Business",
+      "subtype": "",
+      "location": "",
+      "currency": "USD ($)",
+      "contactEmail": "test@example.com",
+      "contactPhone": "",
+      "modules": [
+        "transactions",
+        "inventory",
+        "customers",
+        "staff",
+        "reports",
+        "ai"
+      ],
+      "logoUrl": "",
+      "createdAt": "2026-07-02T09:08:20.944Z",
+      "updatedAt": "2026-07-02T09:08:20.944Z"
+    },
+    {
+      "id": "local-business-1782983799850",
+      "userId": "local-user-1782983799850",
+      "name": "Your Business",
+      "industry": "Technology",
+      "subtype": "Retail Store",
+      "location": "Lagos, Nigeria",
+      "currency": "NGN (₦)",
+      "contactEmail": "parafinix29@gmail.com",
+      "contactPhone": "",
+      "modules": [
+        "transactions",
+        "inventory",
+        "customers",
+        "staff",
+        "reports",
+        "ai"
+      ],
+      "logoUrl": "",
+      "createdAt": "2026-07-02T09:16:39.850Z",
+      "updatedAt": "2026-07-02T09:16:39.850Z"
+    }
+  ],
+  "localProfiles": [
+    {
+      "id": "local-profile-1782983300945",
+      "userId": "local-user-1782983300944",
+      "businessId": "local-business-1782983300944",
+      "fullName": "Business Owner",
+      "email": "test@example.com",
+      "role": "owner",
+      "online": true,
+      "lastActive": "2026-07-02T09:08:20.945Z",
+      "isActive": true,
+      "createdAt": "2026-07-02T09:08:20.945Z",
+      "updatedAt": "2026-07-02T09:08:20.945Z"
+    },
+    {
+      "id": "local-profile-1782983799850",
+      "userId": "local-user-1782983799850",
+      "businessId": "local-business-1782983799850",
+      "fullName": "Prince Dike",
+      "email": "parafinix29@gmail.com",
+      "role": "owner",
+      "online": true,
+      "lastActive": "2026-07-02T09:16:39.850Z",
+      "isActive": true,
+      "createdAt": "2026-07-02T09:16:39.850Z",
+      "updatedAt": "2026-07-02T09:16:39.850Z"
+    }
+  ],
   "organizationConfig": {
     "profileType": "business",
-    "name": "Your Business",
-    "industry": "",
-    "location": "",
-    "currency": "USD ($)",
-    "contactEmail": "",
-    "contactPhone": "",
-    "staffCount": 0,
-    "modules": ["transactions", "inventory", "customers", "staff", "reports", "ai"],
-    "logoUrl": ""
+    "name": "Prawnboxa",
+    "industry": "Business",
+    "location": "Accra, Nigeria",
+    "currency": "NGN (₦)",
+    "contactEmail": "support@yourbusiness.com",
+    "contactPhone": "09027231243",
+    "staffCount": 1,
+    "modules": [
+      "transactions",
+      "inventory",
+      "staff",
+      "reports",
+      "ai",
+      "customers",
+      "suppliers",
+      "purchases",
+      "expenses",
+      "debtors",
+      "cash",
+      "bank",
+      "assets"
+    ],
+    "logoUrl": "",
+    "subtype": "Professional Services"
   }
 }
