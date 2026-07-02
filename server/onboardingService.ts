@@ -125,7 +125,8 @@ async function checkEmailAvailability(email: string) {
     throw error;
   }
 
-  return data?.users?.some((user) => user.email?.toLowerCase() === email.toLowerCase()) || false;
+  const users = data?.users as Array<{ email?: string }> | undefined;
+  return users?.some((user) => user.email?.toLowerCase() === email.toLowerCase()) || false;
 }
 
 function getUserClient(accessToken?: string | null): SupabaseClient {
@@ -214,7 +215,8 @@ async function insertInitializationRecords(
   resources.dashboardConfigId = dashboardConfigData?.id || null;
 
   const categoryNames = ['General', 'Operations', 'Sales', 'Inventory'];
-  for (const [index, categoryName] of categoryNames.entries()) {
+  for (let index = 0; index < categoryNames.length; index += 1) {
+    const categoryName = categoryNames[index];
     const { data: categoryData, error: categoryError } = await client
       .from('default_categories')
       .insert({
@@ -555,10 +557,10 @@ export async function performTransactionalRegistration(
     await insertInitializationRecords(userClient, resources.businessId, resources.profileId, normalizedEmail, fullName, resources);
 
     return {
-      user: authenticatedUser as Record<string, unknown>,
-      session: signupData.session as Record<string, unknown> | null,
-      profile: profileData as Record<string, unknown> | null,
-      business: businessData as Record<string, unknown> | null
+      user: authenticatedUser as unknown as Record<string, unknown>,
+      session: signupData.session as unknown as Record<string, unknown> | null,
+      profile: profileData as unknown as Record<string, unknown> | null,
+      business: businessData as unknown as Record<string, unknown> | null
     };
   } catch (error) {
     await rollbackResources(resources);

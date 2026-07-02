@@ -1057,12 +1057,11 @@ function AuthPage({ authMode, setAuthMode, authName, authEmail, authPassword, se
               </div>
             </div>
             {authError ? <p className="text-sm text-red-600">{authError}</p> : null}
-            <button type="submit" disabled={isLoading} className="w-full rounded-full bg-[var(--accent-color)] px-4 py-3 text-sm font-medium text-[var(--white)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70">{isLoading ? 'Please waitâ€¦' : authMode === 'signup' ? 'Create account' : 'Log in'}</button>
+            <button type="submit" disabled={isLoading} className="w-full rounded-full bg-[var(--accent-color)] px-4 py-3 text-sm font-medium text-[var(--white)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70">{isLoading ? 'Please wait...' : authMode === 'signup' ? 'Create account' : 'Log in'}</button>
           </form>
 
-          <div className="mt-6 rounded-2xl border border-[var(--accent-color)]/30 bg-[var(--accent-color)]/10 p-4 text-sm text-[var(--primary-color)]">
-            <div className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-[var(--accent-color)]" /> Secure, private, and trusted by high-growth teams.</div>
-          </div>
+
+
         </div>
       </div>
     </div>

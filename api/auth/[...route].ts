@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import * as crypto from 'crypto';
 import type { IncomingMessage, ServerResponse } from 'http';
 import { createClient } from '@supabase/supabase-js';
 import { performTransactionalRegistration } from '../../server/onboardingService';
@@ -33,7 +33,7 @@ function sendJson(res: ServerResponse, status: number, payload: unknown) {
   res.end(JSON.stringify(payload));
 }
 
-async function readJson(req: IncomingMessage) {
+async function readJson(req: IncomingMessage): Promise<Record<string, any>> {
   const chunks: Buffer[] = [];
   for await (const chunk of req) {
     chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk);
@@ -41,10 +41,29 @@ async function readJson(req: IncomingMessage) {
   const body = Buffer.concat(chunks).toString('utf8');
   if (!body) return {};
   try {
-    return JSON.parse(body);
+    return JSON.parse(body) as Record<string, any>;
   } catch {
     return {};
   }
+}
+
+async function checkEmailAvailability(email: string) {
+  if (!supabaseAdmin) {
+    throw new Error('Supabase admin is not configured. Set SUPABASE_SERVICE_ROLE_KEY.');
+  }
+
+  const normalizedEmail = String(email || '').trim().toLowerCase();
+  if (!normalizedEmail) {
+    throw new Error('Email is required for availability checks.');
+  }
+
+  const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 1000 });
+  if (error) {
+    throw error;
+  }
+
+  const users = data?.users as Array<{ email?: string }> | undefined;
+  return users?.some((user) => user.email?.toLowerCase() === normalizedEmail) || false;
 }
 
 async function ensureProfileRecord(userId: string, businessId: string, fullName: string, email: string, role = 'owner') {
@@ -141,6 +160,21 @@ export default async function handler(req: IncomingMessage & { method?: string; 
   }
 
   const body = await readJson(req);
+
+  if (pathname === '/api/auth/check-email') {
+    const { email } = body || {};
+    if (!email) {
+      return sendJson(res, 400, { error: 'Email is required.' });
+    }
+
+    try {
+      const exists = await checkEmailAvailability(email);
+      return sendJson(res, 200, { available: !exists });
+    } catch (error: any) {
+      console.error('Vercel check-email error', error);
+      return sendJson(res, 500, { error: error?.message || 'Unable to validate email address.' });
+    }
+  }
 
   if (pathname === '/api/auth/signup') {
     const { email, password, fullName, organizationConfig, role, pin } = body || {};

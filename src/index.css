@@ -1,11 +1,11 @@
 ﻿@import "tailwindcss";
 
 :root {
-  --primary-color: #0F172A;
+  --primary-color: #06ff00;
   --text-color: #64748B;
   --border-color: #E2E8F0;
   --white: #FFFFFF;
-  --accent-color: #0EA5E9;
+  --accent-color: #06ff00;
   --shadow-color: 0deg 0% 0%;
   --_colors---background--main: #f7f9f7;
   --_text-style---font-family--dm-sans: "Dmsans Variable", Arial, sans-serif;
