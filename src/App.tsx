@@ -1282,7 +1282,7 @@ export default function App() {
     setAuthLoading(true);
 
     try {
-      const response = await fetch(`/api/auth/${mode}`, {
+      const response = await fetch(`${import.meta.env.VITE_APP_URL || ''}/api/auth/${mode}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

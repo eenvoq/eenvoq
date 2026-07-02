@@ -1000,68 +1000,68 @@ function LandingPage({ setAuthMode, setAppMode }: LandingPageProps) {
 
 function AuthPage({ authMode, setAuthMode, authName, authEmail, authPassword, setAuthName, setAuthEmail, setAuthPassword, setAppMode, onSubmit, isLoading, authError, passwordVisible, setPasswordVisible }: AuthPageProps) {
   return (
-    <div className="flex min-h-screen items-start justify-center bg-neutral-50 px-4 py-4 sm:px-6 sm:py-10 lg:items-center lg:px-8">
-      <div className="grid w-full max-w-5xl gap-4 rounded-[24px] border border-neutral-200 bg-white p-4 shadow-[0_12px_40px_rgba(0,0,0,0.03)] lg:grid-cols-[0.95fr_1.05fr] lg:p-6">
-        <div className="order-2 rounded-[20px] border border-neutral-200 bg-neutral-50 p-6 lg:order-1 lg:p-8">
+    <div className="flex min-h-screen items-start justify-center bg-[var(--primary-bg)] px-4 py-4 sm:px-6 sm:py-10 lg:items-center lg:px-8">
+      <div className="grid w-full max-w-5xl gap-4 rounded-[24px] border border-[var(--border-color)] bg-[var(--white)] p-4 shadow-[0_12px_40px_rgba(15,23,42,0.06)] lg:grid-cols-[0.95fr_1.05fr] lg:p-6">
+        <div className="order-2 rounded-[20px] border border-[var(--border-color)] bg-[var(--secondary-bg)] p-6 lg:order-1 lg:p-8">
           <div className="flex items-center gap-3">
             <img src="https://i.ibb.co/1f3mhnj4/file-000000009c0871f4a926f8036d1d614e.png" alt="Eenvoq logo" className="h-10 w-10 object-contain" referrerPolicy="no-referrer" />
             <div>
-              <p className="text-sm font-semibold text-black">Eenvoq</p>
-              <p className="text-xs text-neutral-500">Secure operations workspace</p>
+              <p className="text-sm font-semibold text-[var(--primary-color)]">Eenvoq</p>
+              <p className="text-xs text-[var(--text-color)]">Secure operations workspace</p>
             </div>
           </div>
           <div className="mt-8 space-y-3">
-            <div className="rounded-[18px] border border-neutral-200 bg-white p-4">
-              <p className="text-sm font-semibold text-black">Control without clutter</p>
-              <p className="mt-2 text-sm leading-7 text-neutral-600">Inventory, orders, customers, and AI guidance stay organized in one place.</p>
+            <div className="rounded-[18px] border border-[var(--border-color)] bg-[var(--white)] p-4">
+              <p className="text-sm font-semibold text-[var(--primary-color)]">Control without clutter</p>
+              <p className="mt-2 text-sm leading-7 text-[var(--text-color)]">Inventory, orders, customers, and AI guidance stay organized in one place.</p>
             </div>
-            <div className="rounded-[18px] border border-neutral-200 bg-white p-4">
-              <p className="text-sm font-semibold text-black">Trusted by serious teams</p>
-              <p className="mt-2 text-sm leading-7 text-neutral-600">Built for operators who need clarity, precision, and dependable workflows.</p>
+            <div className="rounded-[18px] border border-[var(--border-color)] bg-[var(--white)] p-4">
+              <p className="text-sm font-semibold text-[var(--primary-color)]">Trusted by serious teams</p>
+              <p className="mt-2 text-sm leading-7 text-[var(--text-color)]">Built for operators who need clarity, precision, and dependable workflows.</p>
             </div>
           </div>
         </div>
 
-        <div className="order-1 rounded-[20px] border border-neutral-200 bg-white p-6 lg:order-2 lg:p-8">
+        <div className="order-1 rounded-[20px] border border-[var(--border-color)] bg-[var(--white)] p-6 lg:order-2 lg:p-8">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium uppercase tracking-[0.25em] text-neutral-500">{authMode === 'signup' ? 'Create account' : 'Welcome back'}</p>
-              <h2 className="mt-2 text-2xl font-semibold tracking-[-0.02em] text-black">{authMode === 'signup' ? 'Start with Eenvoq' : 'Sign in to Eenvoq'}</h2>
+              <p className="text-sm font-medium uppercase tracking-[0.25em] text-[var(--text-color)]">{authMode === 'signup' ? 'Create account' : 'Welcome back'}</p>
+              <h2 className="mt-2 text-2xl font-semibold tracking-[-0.02em] text-[var(--primary-color)]">{authMode === 'signup' ? 'Start with Eenvoq' : 'Sign in to Eenvoq'}</h2>
             </div>
-            <button onClick={() => setAppMode('onboarding')} className="text-sm text-neutral-500 transition hover:text-black">Back</button>
+            <button onClick={() => setAppMode('onboarding')} className="text-sm text-[var(--text-color)] transition hover:text-[var(--primary-color)]">Back</button>
           </div>
 
-          <div className="mt-6 flex rounded-full border border-neutral-200 p-1">
-            <button onClick={() => setAuthMode('signup')} className={`flex-1 rounded-full px-4 py-2 text-sm font-medium transition ${authMode === 'signup' ? 'bg-black text-white' : 'text-neutral-600'}`}>Sign up</button>
-            <button onClick={() => setAuthMode('login')} className={`flex-1 rounded-full px-4 py-2 text-sm font-medium transition ${authMode === 'login' ? 'bg-black text-white' : 'text-neutral-600'}`}>Log in</button>
+          <div className="mt-6 flex rounded-full border border-[var(--border-color)] p-1">
+            <button onClick={() => setAuthMode('signup')} className={`flex-1 rounded-full px-4 py-2 text-sm font-medium transition ${authMode === 'signup' ? 'bg-[var(--primary-color)] text-[var(--white)]' : 'text-[var(--text-color)]'}`}>Sign up</button>
+            <button onClick={() => setAuthMode('login')} className={`flex-1 rounded-full px-4 py-2 text-sm font-medium transition ${authMode === 'login' ? 'bg-[var(--primary-color)] text-[var(--white)]' : 'text-[var(--text-color)]'}`}>Log in</button>
           </div>
 
           <form className="mt-6 space-y-4" onSubmit={(event) => { event.preventDefault(); void onSubmit(authMode); }}>
             {authMode === 'signup' && (
               <div>
-                <label className="mb-2 block text-sm font-medium text-black">Full name</label>
-                <input value={authName} onChange={(event) => setAuthName(event.target.value)} className="w-full rounded-2xl border border-neutral-300 bg-white px-4 py-3 text-sm text-black focus:border-[#8EE5C2] focus:outline-none focus:ring-2 focus:ring-[#8EE5C2]/20" placeholder="Alex Morgan" />
+                <label className="mb-2 block text-sm font-medium text-[var(--primary-color)]">Full name</label>
+                <input value={authName} onChange={(event) => setAuthName(event.target.value)} className="w-full rounded-2xl border border-[var(--border-color)] bg-[var(--white)] px-4 py-3 text-sm text-[var(--primary-color)] focus:border-[var(--accent-color)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]/20" placeholder="Alex Morgan" />
               </div>
             )}
             <div>
-              <label className="mb-2 block text-sm font-medium text-black">Email</label>
-              <input type="email" value={authEmail} onChange={(event) => setAuthEmail(event.target.value)} className="w-full rounded-2xl border border-neutral-300 bg-white px-4 py-3 text-sm text-black focus:border-[#8EE5C2] focus:outline-none focus:ring-2 focus:ring-[#8EE5C2]/20" placeholder="you@company.com" />
+              <label className="mb-2 block text-sm font-medium text-[var(--primary-color)]">Email</label>
+              <input type="email" value={authEmail} onChange={(event) => setAuthEmail(event.target.value)} className="w-full rounded-2xl border border-[var(--border-color)] bg-[var(--white)] px-4 py-3 text-sm text-[var(--primary-color)] focus:border-[var(--accent-color)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]/20" placeholder="you@company.com" />
             </div>
             <div>
-              <label className="mb-2 block text-sm font-medium text-black">Password</label>
+              <label className="mb-2 block text-sm font-medium text-[var(--primary-color)]">Password</label>
               <div className="relative">
-                <input type={passwordVisible ? 'text' : 'password'} value={authPassword} onChange={(event) => setAuthPassword(event.target.value)} className="w-full rounded-2xl border border-neutral-300 bg-white px-4 py-3 pr-12 text-sm text-black focus:border-[#8EE5C2] focus:outline-none focus:ring-2 focus:ring-[#8EE5C2]/20" placeholder="••••••••" />
-                <button type="button" onClick={() => setPasswordVisible(!passwordVisible)} className="absolute inset-y-0 right-3 flex items-center text-neutral-500 transition hover:text-black" aria-label={passwordVisible ? 'Hide password' : 'Show password'}>
+                <input type={passwordVisible ? 'text' : 'password'} value={authPassword} onChange={(event) => setAuthPassword(event.target.value)} className="w-full rounded-2xl border border-[var(--border-color)] bg-[var(--white)] px-4 py-3 pr-12 text-sm text-[var(--primary-color)] focus:border-[var(--accent-color)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]/20" placeholder="••••••••" />
+                <button type="button" onClick={() => setPasswordVisible(!passwordVisible)} className="absolute inset-y-0 right-3 flex items-center text-[var(--text-color)] transition hover:text-[var(--primary-color)]" aria-label={passwordVisible ? 'Hide password' : 'Show password'}>
                   {passwordVisible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
             </div>
             {authError ? <p className="text-sm text-red-600">{authError}</p> : null}
-            <button type="submit" disabled={isLoading} className="w-full rounded-full bg-black px-4 py-3 text-sm font-medium text-white transition hover:shadow-[0_0_22px_rgba(142,229,194,0.25)] disabled:cursor-not-allowed disabled:opacity-70">{isLoading ? 'Please wait…' : authMode === 'signup' ? 'Create account' : 'Log in'}</button>
+            <button type="submit" disabled={isLoading} className="w-full rounded-full bg-[var(--accent-color)] px-4 py-3 text-sm font-medium text-[var(--white)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70">{isLoading ? 'Please wait…' : authMode === 'signup' ? 'Create account' : 'Log in'}</button>
           </form>
 
-          <div className="mt-6 rounded-2xl border border-[#8EE5C2]/30 bg-[#8EE5C2]/10 p-4 text-sm text-neutral-700">
-            <div className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-[#8EE5C2]" /> Secure, private, and trusted by high-growth teams.</div>
+          <div className="mt-6 rounded-2xl border border-[var(--accent-color)]/30 bg-[var(--accent-color)]/10 p-4 text-sm text-[var(--primary-color)]">
+            <div className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-[var(--accent-color)]" /> Secure, private, and trusted by high-growth teams.</div>
           </div>
         </div>
       </div>
@@ -1140,19 +1140,19 @@ function OnboardingWizard({ onComplete, setAppMode }: OnboardingWizardProps) {
   };
 
   return (
-    <div className="flex min-h-screen items-start justify-center bg-neutral-50 px-4 py-4 sm:px-6 sm:py-10 lg:items-center lg:px-8">
-      <div className="w-full max-w-5xl rounded-[24px] border border-neutral-200 bg-white p-4 shadow-[0_12px_40px_rgba(0,0,0,0.03)] lg:p-6">
-        <div className="flex flex-col gap-4 border-b border-neutral-200 pb-4 lg:flex-row lg:items-center lg:justify-between">
+    <div className="flex min-h-screen items-start justify-center bg-[var(--primary-bg)] px-4 py-4 sm:px-6 sm:py-10 lg:items-center lg:px-8">
+      <div className="w-full max-w-5xl rounded-[24px] border border-[var(--border-color)] bg-[var(--white)] p-4 shadow-[0_12px_40px_rgba(15,23,42,0.06)] lg:p-6">
+        <div className="flex flex-col gap-4 border-b border-[var(--border-color)] pb-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <p className="text-sm font-medium uppercase tracking-[0.25em] text-neutral-500">Personalize your workspace</p>
-            <h2 className="mt-2 text-2xl font-semibold tracking-[-0.02em] text-black">Configure Eenvoq for your organization</h2>
+            <p className="text-sm font-medium uppercase tracking-[0.25em] text-[var(--text-color)]">Personalize your workspace</p>
+            <h2 className="mt-2 text-2xl font-semibold tracking-[-0.02em] text-[var(--primary-color)]">Configure Eenvoq for your organization</h2>
           </div>
-          <button onClick={() => setAppMode('auth')} className="text-sm text-neutral-500 transition hover:text-black">Back</button>
+          <button onClick={() => setAppMode('auth')} className="text-sm text-[var(--text-color)] transition hover:text-[var(--primary-color)]">Back</button>
         </div>
 
         <div className="mt-6 flex flex-wrap gap-2">
           {[1, 2, 3].map((item) => (
-            <div key={item} className={`rounded-full px-3 py-1.5 text-sm font-medium ${step === item ? 'bg-black text-white' : 'bg-neutral-100 text-neutral-600'}`}>
+            <div key={item} className={`rounded-full px-3 py-1.5 text-sm font-medium ${step === item ? 'bg-[var(--primary-color)] text-[var(--white)]' : 'bg-[var(--secondary-bg)] text-[var(--text-color)]'}`}>
               Step {item}
             </div>
           ))}
@@ -1161,35 +1161,35 @@ function OnboardingWizard({ onComplete, setAppMode }: OnboardingWizardProps) {
         {step === 1 && (
           <div className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {/* Primary selection: Business or Education */}
-            <button type="button" onClick={() => setIndustry('Business')} className={`rounded-[20px] border p-4 text-left transition ${profileType === 'business' ? 'border-[#8EE5C2] bg-[#F7FFF9]' : 'border-neutral-200 bg-white hover:border-neutral-300'}`}>
-              <p className="text-sm font-semibold text-black">Business</p>
-              <p className="mt-2 text-sm leading-6 text-neutral-600">Commercial businesses: retail, wholesale, services, hospitality, manufacturing, and e-commerce.</p>
+            <button type="button" onClick={() => setIndustry('Business')} className={`rounded-[20px] border p-4 text-left transition ${profileType === 'business' ? 'border-[var(--accent-color)] bg-[var(--secondary-bg)]' : 'border-[var(--border-color)] bg-[var(--white)] hover:border-[var(--accent-color)]'}`}>
+              <p className="text-sm font-semibold text-[var(--primary-color)]">Business</p>
+              <p className="mt-2 text-sm leading-6 text-[var(--text-color)]">Commercial businesses: retail, wholesale, services, hospitality, manufacturing, and e-commerce.</p>
             </button>
-            <button type="button" onClick={() => setIndustry('Education')} className={`rounded-[20px] border p-4 text-left transition ${profileType === 'school' ? 'border-[#8EE5C2] bg-[#F7FFF9]' : 'border-neutral-200 bg-white hover:border-neutral-300'}`}>
-              <p className="text-sm font-semibold text-black">Education</p>
-              <p className="mt-2 text-sm leading-6 text-neutral-600">Schools and institutions: primary, secondary, colleges, universities and training centers.</p>
+            <button type="button" onClick={() => setIndustry('Education')} className={`rounded-[20px] border p-4 text-left transition ${profileType === 'school' ? 'border-[var(--accent-color)] bg-[var(--secondary-bg)]' : 'border-[var(--border-color)] bg-[var(--white)] hover:border-[var(--accent-color)]'}`}>
+              <p className="text-sm font-semibold text-[var(--primary-color)]">Education</p>
+              <p className="mt-2 text-sm leading-6 text-[var(--text-color)]">Schools and institutions: primary, secondary, colleges, universities and training centers.</p>
             </button>
           </div>
         )}
 
         {step === 2 && (
           <div className="mt-6 grid gap-4 md:grid-cols-2">
-            <label className="space-y-2 text-sm text-black">
-              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-500">Organization name</span>
-              <input value={name} onChange={(event) => setName(event.target.value)} className="w-full rounded-2xl border border-neutral-300 bg-white px-4 py-3 text-sm text-black focus:border-[#8EE5C2] focus:outline-none focus:ring-2 focus:ring-[#8EE5C2]/20" />
+            <label className="space-y-2 text-sm text-[var(--primary-color)]">
+              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--text-color)]">Organization name</span>
+              <input value={name} onChange={(event) => setName(event.target.value)} className="w-full rounded-2xl border border-[var(--border-color)] bg-[var(--white)] px-4 py-3 text-sm text-[var(--primary-color)] focus:border-[var(--accent-color)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]/20" />
             </label>
-            <label className="space-y-2 text-sm text-black">
-              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-500">Category</span>
-              <select value={industry} onChange={(event) => setIndustry(event.target.value)} className="w-full rounded-2xl border border-neutral-300 bg-white px-4 py-3 text-sm text-black focus:border-[#8EE5C2] focus:outline-none focus:ring-2 focus:ring-[#8EE5C2]/20">
+            <label className="space-y-2 text-sm text-[var(--primary-color)]">
+              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--text-color)]">Category</span>
+              <select value={industry} onChange={(event) => setIndustry(event.target.value)} className="w-full rounded-2xl border border-[var(--border-color)] bg-[var(--white)] px-4 py-3 text-sm text-[var(--primary-color)] focus:border-[var(--accent-color)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]/20">
                 {industryOptions.map((option) => (
                   <option key={option} value={option}>{option}</option>
                 ))}
               </select>
             </label>
             {/* Subtype: depends on Business vs Education */}
-            <label className="space-y-2 text-sm text-black">
-              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-500">Type</span>
-              <select value={subtype} onChange={(e) => setSubtype(e.target.value)} className="w-full rounded-2xl border border-neutral-300 bg-white px-4 py-3 text-sm text-black focus:border-[#8EE5C2] focus:outline-none focus:ring-2 focus:ring-[#8EE5C2]/20">
+            <label className="space-y-2 text-sm text-[var(--primary-color)]">
+              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--text-color)]">Type</span>
+              <select value={subtype} onChange={(e) => setSubtype(e.target.value)} className="w-full rounded-2xl border border-[var(--border-color)] bg-[var(--white)] px-4 py-3 text-sm text-[var(--primary-color)] focus:border-[var(--accent-color)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]/20">
                 <option value="">Select a type</option>
                 {profileType === 'business' && businessSubtypes.map((s: string) => (
                   <option key={s} value={s}>{s}</option>
@@ -1200,42 +1200,42 @@ function OnboardingWizard({ onComplete, setAppMode }: OnboardingWizardProps) {
               </select>
               {subtype === '' && <p className="mt-1 text-xs text-red-500">Please select a type to continue.</p>}
             </label>
-            <label className="space-y-2 text-sm text-black">
-              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-500">Location</span>
-              <select value={location} onChange={(event) => setLocation(event.target.value)} className="w-full rounded-2xl border border-neutral-300 bg-white px-4 py-3 text-sm text-black focus:border-[#8EE5C2] focus:outline-none focus:ring-2 focus:ring-[#8EE5C2]/20">
+            <label className="space-y-2 text-sm text-[var(--primary-color)]">
+              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--text-color)]">Location</span>
+              <select value={location} onChange={(event) => setLocation(event.target.value)} className="w-full rounded-2xl border border-[var(--border-color)] bg-[var(--white)] px-4 py-3 text-sm text-[var(--primary-color)] focus:border-[var(--accent-color)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]/20">
                 {locationOptions.map((option) => (
                   <option key={option} value={option}>{option}</option>
                 ))}
               </select>
             </label>
-            <label className="space-y-2 text-sm text-black">
-              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-500">Primary currency</span>
-              <select value={currency} onChange={(event) => setCurrency(event.target.value)} className="w-full rounded-2xl border border-neutral-300 bg-white px-4 py-3 text-sm text-black focus:border-[#8EE5C2] focus:outline-none focus:ring-2 focus:ring-[#8EE5C2]/20">
+            <label className="space-y-2 text-sm text-[var(--primary-color)]">
+              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--text-color)]">Primary currency</span>
+              <select value={currency} onChange={(event) => setCurrency(event.target.value)} className="w-full rounded-2xl border border-[var(--border-color)] bg-[var(--white)] px-4 py-3 text-sm text-[var(--primary-color)] focus:border-[var(--accent-color)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]/20">
                 {currencyOptions.map((option) => (
                   <option key={option.value} value={option.value}>{option.label}</option>
                 ))}
               </select>
             </label>
-            <label className="space-y-2 text-sm text-black">
-              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-500">Contact email</span>
-              <input type="email" value={contactEmail} onChange={(event) => setContactEmail(event.target.value)} className="w-full rounded-2xl border border-neutral-300 bg-white px-4 py-3 text-sm text-black focus:border-[#8EE5C2] focus:outline-none focus:ring-2 focus:ring-[#8EE5C2]/20" />
+            <label className="space-y-2 text-sm text-[var(--primary-color)]">
+              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--text-color)]">Contact email</span>
+              <input type="email" value={contactEmail} onChange={(event) => setContactEmail(event.target.value)} className="w-full rounded-2xl border border-[var(--border-color)] bg-[var(--white)] px-4 py-3 text-sm text-[var(--primary-color)] focus:border-[var(--accent-color)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]/20" />
             </label>
-            <label className="space-y-2 text-sm text-black">
-              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-500">Contact phone</span>
-              <input value={contactPhone} onChange={(event) => setContactPhone(event.target.value)} className="w-full rounded-2xl border border-neutral-300 bg-white px-4 py-3 text-sm text-black focus:border-[#8EE5C2] focus:outline-none focus:ring-2 focus:ring-[#8EE5C2]/20" />
+            <label className="space-y-2 text-sm text-[var(--primary-color)]">
+              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--text-color)]">Contact phone</span>
+              <input value={contactPhone} onChange={(event) => setContactPhone(event.target.value)} className="w-full rounded-2xl border border-[var(--border-color)] bg-[var(--white)] px-4 py-3 text-sm text-[var(--primary-color)] focus:border-[var(--accent-color)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]/20" />
             </label>
-            <label className="space-y-2 text-sm text-black md:col-span-2">
-              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-500">Team size</span>
-              <input type="number" min="1" value={staffCount} onChange={(event) => setStaffCount(Number(event.target.value) || 1)} className="w-full rounded-2xl border border-neutral-300 bg-white px-4 py-3 text-sm text-black focus:border-[#8EE5C2] focus:outline-none focus:ring-2 focus:ring-[#8EE5C2]/20" />
+            <label className="space-y-2 text-sm text-[var(--primary-color)] md:col-span-2">
+              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--text-color)]">Team size</span>
+              <input type="number" min="1" value={staffCount} onChange={(event) => setStaffCount(Number(event.target.value) || 1)} className="w-full rounded-2xl border border-[var(--border-color)] bg-[var(--white)] px-4 py-3 text-sm text-[var(--primary-color)] focus:border-[var(--accent-color)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]/20" />
             </label>
           </div>
         )}
 
         {step === 3 && (
           <div className="mt-6 space-y-4">
-            <div className="rounded-[20px] border border-neutral-200 bg-neutral-50 p-4">
-              <p className="text-sm font-semibold text-black">Recommended modules for {profile.label}</p>
-              <p className="mt-2 text-sm leading-6 text-neutral-600">{profile.description}</p>
+            <div className="rounded-[20px] border border-[var(--border-color)] bg-[var(--secondary-bg)] p-4">
+              <p className="text-sm font-semibold text-[var(--primary-color)]">Recommended modules for {profile.label}</p>
+              <p className="mt-2 text-sm leading-6 text-[var(--text-color)]">{profile.description}</p>
             </div>
             <div className="grid gap-3 md:grid-cols-2">
               {availableModules.map((id) => {
@@ -1243,7 +1243,7 @@ function OnboardingWizard({ onComplete, setAppMode }: OnboardingWizardProps) {
                 const active = modules.includes(moduleId);
                 const isRequired = requiredModules.includes(moduleId);
                 return (
-                  <button key={moduleId} type="button" onClick={() => toggleModule(moduleId)} disabled={isRequired} className={`rounded-[18px] border px-4 py-3 text-left ${active ? 'border-[#8EE5C2] bg-[#F7FFF9]' : 'border-neutral-200 bg-white'} ${isRequired ? 'cursor-default opacity-90' : 'hover:border-neutral-300'}`}>
+                  <button key={moduleId} type="button" onClick={() => toggleModule(moduleId)} disabled={isRequired} className={`rounded-[18px] border px-4 py-3 text-left ${active ? 'border-[var(--accent-color)] bg-[var(--secondary-bg)]' : 'border-[var(--border-color)] bg-[var(--white)]'} ${isRequired ? 'cursor-default opacity-90' : 'hover:border-[var(--text-color)]'}`}>
                     <div className="flex items-center justify-between gap-2">
                       <p className="text-sm font-semibold text-black">{moduleId}</p>
                       {isRequired ? <span className="rounded-full bg-black px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-white">Required</span> : null}
@@ -1258,14 +1258,14 @@ function OnboardingWizard({ onComplete, setAppMode }: OnboardingWizardProps) {
 
         <div className="mt-8 flex flex-col-reverse gap-3 border-t border-neutral-200 pt-4 sm:flex-row sm:justify-between">
           <div className="flex gap-2">
-            {step > 1 && <button type="button" onClick={() => setStep((value) => Math.max(1, value - 1))} className="rounded-full border border-neutral-200 bg-white px-4 py-2 text-sm font-medium text-black">Back</button>}
-            <button type="button" onClick={() => setAppMode('auth')} className="rounded-full border border-neutral-200 bg-white px-4 py-2 text-sm font-medium text-black">Skip for now</button>
+            {step > 1 && <button type="button" onClick={() => setStep((value) => Math.max(1, value - 1))} className="rounded-full border border-[var(--border-color)] bg-[var(--white)] px-4 py-2 text-sm font-medium text-[var(--primary-color)]">Back</button>}
+            <button type="button" onClick={() => setAppMode('auth')} className="rounded-full border border-[var(--border-color)] bg-[var(--white)] px-4 py-2 text-sm font-medium text-[var(--primary-color)]">Skip for now</button>
           </div>
           <div className="flex gap-2">
             {step < 3 ? (
-              <button type="button" onClick={() => setStep((value) => Math.min(3, value + 1))} className="rounded-full border border-black bg-[#8EE5C2] px-4 py-2 text-sm font-semibold text-black">Continue</button>
+              <button type="button" onClick={() => setStep((value) => Math.min(3, value + 1))} className="rounded-full border border-[var(--primary-color)] bg-[var(--accent-color)] px-4 py-2 text-sm font-semibold text-[var(--primary-color)]">Continue</button>
             ) : (
-              <button type="button" onClick={handleComplete} className="rounded-full border border-black bg-[#8EE5C2] px-4 py-2 text-sm font-semibold text-black">Finish setup</button>
+              <button type="button" onClick={handleComplete} className="rounded-full border border-[var(--primary-color)] bg-[var(--accent-color)] px-4 py-2 text-sm font-semibold text-[var(--primary-color)]">Finish setup</button>
             )}
           </div>
         </div>
