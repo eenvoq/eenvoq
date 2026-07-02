@@ -2800,8 +2800,7 @@ export default function App() {
   }
 
   return (
-    <>
-      <div className={`fixed inset-0 z-[120] flex min-h-screen flex-col overflow-hidden bg-white transition-opacity duration-300 ${(splashActive || !startupComplete) && appMode === 'app' ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+    <div className={`min-h-screen bg-white text-sm font-normal text-black select-none transition-opacity duration-300 ${(splashActive || !startupComplete) && appMode === 'app' ? 'opacity-0' : 'opacity-100'}`}>
         <div className="p-4 sm:p-5 lg:p-6">
           <div className="space-y-4">
             {/* Header skeleton */}
@@ -3144,21 +3143,35 @@ export default function App() {
 
               {/* VIEW 1: DESK (DASHBOARD) */}
               {activeTab === 'desk' && (
-                <div className="space-y-4 p-4 sm:p-5 lg:p-6">
-                  <div className="relative rounded-[30px] border border-[#a6ff00] bg-white/90 p-5 backdrop-blur-xl sm:p-6 lg:p-8">
+                <div className="space-y-0">
+                  {/* Dark Green Hero Section */}
+                  <div className="relative overflow-hidden bg-gradient-to-b from-[#0B4D2B] via-[#063B1F] to-[#042D17] px-4 pt-6 pb-8 sm:px-6 sm:pt-8 sm:pb-10 lg:px-8 lg:pt-10 lg:pb-12" style={{ borderRadius: '0 0 32px 32px' }}>
+                    {/* Wave Pattern */}
+                    <div className="hero-wave-pattern" style={{ opacity: '0.06' }}></div>
+                    
+                    {/* Content */}
+                    <div className="relative z-10">
                       <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
                         <div>
-                          <p className="text-[11px] uppercase tracking-[0.3em] text-neutral-500">{dashboardHeroLabel}</p>
-                          <h2 className="mt-2 text-3xl font-semibold tracking-[-0.03em] text-black sm:text-4xl">
+                          <p className="text-[11px] uppercase tracking-[0.3em] text-white/70">{dashboardHeroLabel}</p>
+                          <h2 className="mt-2 text-3xl font-semibold tracking-[-0.03em] text-white sm:text-4xl">
                             {getGreeting()}, {userFirstName}.
                           </h2>
                         </div>
-                        <div className="flex flex-col gap-2 sm:flex-row">
-                          <button type="button" onClick={() => { setActiveTab('orders'); setTransactionReviewMode('standard'); }} className={primaryActionClasses}>Record {transactionLabel}</button>
-                          <button type="button" onClick={() => { setActiveTab('stock'); setInventoryType('Products'); setInventoryAlertFilter('Low'); setInventoryStatusFilter('All'); }} className={secondaryActionClasses}>Add {inventoryLabel}</button>
+                        <div className="flex flex-col gap-2.5 sm:flex-row">
+                          <button type="button" onClick={() => { setActiveTab('orders'); setTransactionReviewMode('standard'); }} className="rounded-full bg-[#06FF00] px-5 py-2.5 text-sm font-semibold text-[#042D17] shadow-[0_8px_24px_rgba(6,255,0,0.25)] transition hover:shadow-[0_12px_32px_rgba(6,255,0,0.35)] hover:translate-y-[-1px]">
+                            Record {transactionLabel}
+                          </button>
+                          <button type="button" onClick={() => { setActiveTab('stock'); setInventoryType('Products'); setInventoryAlertFilter('Low'); setInventoryStatusFilter('All'); }} className="rounded-full border border-white/20 bg-transparent px-5 py-2.5 text-sm font-semibold text-white transition hover:border-white/40 hover:bg-white/5">
+                            Add {inventoryLabel}
+                          </button>
                         </div>
                       </div>
                     </div>
+                  </div>
+
+                  {/* White Content Area */}
+                  <div className="space-y-3 p-4 sm:p-5 lg:p-6">
 
                   <div className="space-y-3">
                     <div className="flex items-center justify-between gap-3">

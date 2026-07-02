@@ -75,15 +75,15 @@ interface OnboardingWizardProps {
 }
 
 function Panel({ className = '', children }: { className?: string; children: React.ReactNode }) {
-  return <div className={`rounded-[20px] border border-neutral-200 bg-white ${className}`}>{children}</div>;
+  return <div className={`rounded-[20px] border border-[var(--border-color)] bg-[var(--bg-card)] ${className}`}>{children}</div>;
 }
 
 function SectionTitle({ eyebrow, title, copy }: { eyebrow: string; title: string; copy?: string }) {
   return (
     <div className="max-w-3xl">
-      <p className="text-sm font-medium uppercase tracking-[0.25em] text-neutral-500">{eyebrow}</p>
-      <h2 className="mt-3 text-2xl font-semibold tracking-[-0.02em] text-black sm:text-3xl">{title}</h2>
-      {copy ? <p className="mt-4 text-base leading-7 text-neutral-600">{copy}</p> : null}
+      <p className="text-sm font-medium uppercase tracking-[0.25em] text-[var(--text-secondary)]">{eyebrow}</p>
+      <h2 className="mt-3 text-2xl font-semibold tracking-[-0.02em] text-[var(--text-primary)] sm:text-3xl">{title}</h2>
+      {copy ? <p className="mt-4 text-base leading-7 text-[var(--text-secondary)]">{copy}</p> : null}
     </div>
   );
 }
@@ -93,7 +93,7 @@ function SidebarNavButton({ label, icon: Icon, active, onClick, badge }: { label
     <button
       onClick={onClick}
       className={`w-full flex items-center justify-between space-x-3 px-3 py-2 rounded-md text-left transition-colors ${
-        active ? 'bg-[#a6ff00]/15 border-l-2 border-[#a6ff00] font-semibold text-black pl-2.5 shadow-mint-glow-sm' : 'text-black hover:bg-neutral-50 font-normal'
+        active ? 'bg-[var(--accent-color)]/15 border-l-2 border-[var(--accent-color)] font-semibold text-[var(--text-primary)] pl-2.5 shadow-mint-glow-sm' : 'text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] font-normal'
       }`}
     >
       <div className="flex items-center space-x-3">
@@ -101,7 +101,7 @@ function SidebarNavButton({ label, icon: Icon, active, onClick, badge }: { label
         <span>{label}</span>
       </div>
       {badge !== undefined && badge !== null && badge !== '' ? (
-        <span className="rounded-full bg-[#a6ff00] px-2 py-0.5 text-[10px] font-semibold text-black">
+        <span className="rounded-full bg-[var(--accent-color)] px-2 py-0.5 text-[10px] font-semibold text-[var(--text-primary)]">
           {badge}
         </span>
       ) : null}
@@ -155,12 +155,12 @@ function AppHeader({
 
   return (
     <>
-      <header className="fixed inset-x-0 top-0 z-50 flex h-14 flex-shrink-0 items-center justify-between border-b border-neutral-100 bg-white/95 px-3 backdrop-blur sm:px-5">
+      <header className="fixed inset-x-0 top-0 z-50 flex h-14 flex-shrink-0 items-center justify-between border-b border-[var(--border-color)] bg-[var(--bg-primary)]/95 px-3 backdrop-blur sm:px-5">
         <div className="flex items-center gap-2">
           {!isDesktop && (
             <button
               onClick={() => setMenuOpen(true)}
-              className="-ml-1 rounded p-1 text-black transition-colors hover:bg-neutral-50"
+              className="-ml-1 rounded p-1 text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-secondary)]"
               aria-label="Open menu"
             >
               <Menu className="h-5 w-5" />
@@ -170,35 +170,35 @@ function AppHeader({
             <div className="flex items-center gap-2">
               <img src="https://i.ibb.co/1f3mhnj4/file-000000009c0871f4a926f8036d1d614e.png" alt="Logo" className="h-5 w-5 object-contain" referrerPolicy="no-referrer" />
               <div className="flex flex-col leading-none">
-                <span className="text-sm font-semibold uppercase tracking-wider text-black">EENVOQ</span>
+                <span className="text-sm font-semibold uppercase tracking-wider text-[var(--text-primary)]">EENVOQ</span>
               </div>
             </div>
           )}
           {isDesktop && (
             <div className="relative">
-              <div className="flex items-center gap-2 rounded-full border border-neutral-200 bg-neutral-50 px-3 py-2 shadow-sm">
-                <Search className="h-4 w-4 text-neutral-500" />
+              <div className="flex items-center gap-2 rounded-full border border-[var(--border-color)] bg-[var(--bg-secondary)] px-3 py-2 shadow-sm">
+                <Search className="h-4 w-4 text-[var(--text-secondary)]" />
                 <input
                   value={searchQuery}
                   onChange={(event) => setSearchQuery(event.target.value)}
                   placeholder="Search everything"
-                  className="w-44 border-0 bg-transparent text-sm text-black outline-none placeholder:text-neutral-400 sm:w-56"
+                  className="w-44 border-0 bg-transparent text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-secondary)] sm:w-56"
                 />
               </div>
               {searchQuery.trim().length > 0 && searchResults.length > 0 && (
-                <div className="absolute left-0 top-full z-[70] mt-2 w-[min(24rem,calc(100vw-2rem))] rounded-2xl border border-neutral-200 bg-white p-2 shadow-[0_20px_60px_rgba(0,0,0,0.12)]">
+                <div className="absolute left-0 top-full z-[70] mt-2 w-[min(24rem,calc(100vw-2rem))] rounded-2xl border border-[var(--border-color)] bg-[var(--bg-primary)] p-2 shadow-[0_20px_60px_rgba(0,0,0,0.12)]">
                   {searchResults.map((item) => (
                     <button
                       key={item.id}
                       type="button"
                       onClick={() => onSelectSearchResult(item)}
-                      className="flex w-full items-start justify-between rounded-xl px-3 py-2 text-left transition-colors hover:bg-neutral-50"
+                      className="flex w-full items-start justify-between rounded-xl px-3 py-2 text-left transition-colors hover:bg-[var(--bg-secondary)]"
                     >
                       <span>
-                        <span className="block text-sm font-semibold text-black">{item.label}</span>
-                        <span className="mt-0.5 block text-xs text-neutral-500">{item.hint}</span>
+                        <span className="block text-sm font-semibold text-[var(--text-primary)]">{item.label}</span>
+                        <span className="mt-0.5 block text-xs text-[var(--text-secondary)]">{item.hint}</span>
                       </span>
-                      <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.2em] text-neutral-500">
+                      <span className="rounded-full bg-[var(--bg-secondary)] px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.2em] text-[var(--text-secondary)]">
                         {item.category}
                       </span>
                     </button>
@@ -213,7 +213,7 @@ function AppHeader({
             {onlineMembers.map((member) => (
               <div
                 key={member.id}
-                className={`flex h-7 w-7 items-center justify-center rounded-full border text-[10px] font-semibold text-black ${currentOperatorId === member.id ? 'border-black bg-black text-white' : 'border-[#a6ff00] bg-[#a6ff00]'}`}
+                className={`flex h-7 w-7 items-center justify-center rounded-full border text-[10px] font-semibold text-[var(--text-primary)] ${currentOperatorId === member.id ? 'border-[var(--text-primary)] bg-[var(--text-primary)] text-[var(--bg-primary)]' : 'border-[var(--accent-color)] bg-[var(--accent-color)]'}`}
                 title={member.name}
               >
                 {member.name.split(' ').map((part) => part[0]).join('').slice(0, 2)}
@@ -224,7 +224,7 @@ function AppHeader({
             <button
               type="button"
               onClick={() => setSearchOpen(true)}
-              className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-neutral-200 bg-neutral-50 text-black transition-colors hover:bg-neutral-100"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[var(--border-color)] bg-[var(--bg-secondary)] text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-secondary)]"
               aria-label="Open search"
             >
               <Search className="h-4 w-4" />
@@ -233,41 +233,41 @@ function AppHeader({
           <button
             type="button"
             onClick={onOpenTagPage}
-            className="inline-flex h-8 items-center gap-1.5 rounded-full border border-neutral-200 bg-neutral-50 px-2.5 text-[11px] font-semibold text-black transition-colors hover:bg-neutral-100"
+            className="inline-flex h-8 items-center gap-1.5 rounded-full border border-[var(--border-color)] bg-[var(--bg-secondary)] px-2.5 text-[11px] font-semibold text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-secondary)]"
           >
             <MessageSquare className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Tag</span>
             {tagCount > 0 && (
-              <span className="ml-0.5 inline-flex min-w-5 items-center justify-center rounded-full bg-[#a6ff00] px-1.5 py-0.5 text-[10px] font-semibold text-black">
+              <span className="ml-0.5 inline-flex min-w-5 items-center justify-center rounded-full bg-[var(--accent-color)] px-1.5 py-0.5 text-[10px] font-semibold text-[var(--text-primary)]">
                 {tagCount}
               </span>
             )}
           </button>
           {lowStockCount > 0 && (
-            <span className="hidden text-xs font-semibold text-black underline decoration-1 decoration-black whitespace-nowrap sm:inline">
+            <span className="hidden text-xs font-semibold text-[var(--text-primary)] underline decoration-1 decoration-[var(--text-primary)] whitespace-nowrap sm:inline">
               {lowStockCount} Warnings
             </span>
           )}
           <RefreshCw
             onClick={loadAllData}
-            className={`h-4 w-4 cursor-pointer text-black transition-transform hover:rotate-45 ${loading ? 'animate-spin' : ''}`}
+            className={`h-4 w-4 cursor-pointer text-[var(--text-primary)] transition-transform hover:rotate-45 ${loading ? 'animate-spin' : ''}`}
           />
         </div>
       </header>
       {!isDesktop && searchOpen && (
         <>
-          <div className="fixed inset-0 top-14 z-50 bg-black/20 backdrop-blur-sm" onClick={handleCloseSearch} />
-          <div className="fixed inset-x-0 top-14 z-[60] mx-2 rounded-b-2xl border border-neutral-200 bg-white/95 p-3 shadow-[0_18px_50px_rgba(0,0,0,0.15)]">
-            <div className="flex items-center gap-2 rounded-2xl border border-neutral-200 bg-neutral-50 px-3 py-2">
-              <Search className="h-4 w-4 text-neutral-500" />
+          <div className="fixed inset-0 top-14 z-50 bg-[var(--text-primary)]/20 backdrop-blur-sm" onClick={handleCloseSearch} />
+          <div className="fixed inset-x-0 top-14 z-[60] mx-2 rounded-b-2xl border border-[var(--border-color)] bg-[var(--bg-primary)]/95 p-3 shadow-[0_18px_50px_rgba(0,0,0,0.15)]">
+            <div className="flex items-center gap-2 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-3 py-2">
+              <Search className="h-4 w-4 text-[var(--text-secondary)]" />
               <input
                 autoFocus
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
                 placeholder="Search everything"
-                className="flex-1 border-0 bg-transparent text-sm text-black outline-none placeholder:text-neutral-400"
+                className="flex-1 border-0 bg-transparent text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-secondary)]"
               />
-              <button type="button" onClick={handleCloseSearch} className="rounded-full p-1 text-neutral-500 transition-colors hover:bg-white hover:text-black" aria-label="Close search">
+              <button type="button" onClick={handleCloseSearch} className="rounded-full p-1 text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-primary)] hover:text-[var(--text-primary)]" aria-label="Close search">
                 <X className="h-4 w-4" />
               </button>
             </div>
@@ -278,13 +278,13 @@ function AppHeader({
                     key={item.id}
                     type="button"
                     onClick={() => onSelectSearchResult(item)}
-                    className="flex w-full items-start justify-between rounded-xl px-3 py-2 text-left transition-colors hover:bg-neutral-50"
+                    className="flex w-full items-start justify-between rounded-xl px-3 py-2 text-left transition-colors hover:bg-[var(--bg-secondary)]"
                   >
                     <span>
-                      <span className="block text-sm font-semibold text-black">{item.label}</span>
-                      <span className="mt-0.5 block text-xs text-neutral-500">{item.hint}</span>
+                      <span className="block text-sm font-semibold text-[var(--text-primary)]">{item.label}</span>
+                      <span className="mt-0.5 block text-xs text-[var(--text-secondary)]">{item.hint}</span>
                     </span>
-                    <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.2em] text-neutral-500">
+                    <span className="rounded-full bg-[var(--bg-secondary)] px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.2em] text-[var(--text-secondary)]">
                       {item.category}
                     </span>
                   </button>
@@ -292,7 +292,7 @@ function AppHeader({
               </div>
             )}
             {searchQuery.trim().length > 0 && searchResults.length === 0 && (
-              <div className="mt-3 rounded-xl border border-dashed border-neutral-200 bg-neutral-50 px-3 py-3 text-sm text-neutral-500">
+              <div className="mt-3 rounded-xl border border-dashed border-[var(--border-color)] bg-[var(--bg-secondary)] px-3 py-3 text-sm text-[var(--text-secondary)]">
                 No results yet. Try a product, customer, supplier, or page label.
               </div>
             )}
@@ -305,10 +305,10 @@ function AppHeader({
 
 function MetricCard({ label, value, accent = true }: { label: string; value: React.ReactNode; accent?: boolean }) {
   return (
-    <div className="bg-white shadow-sm border border-neutral-200/60 rounded-lg p-3 relative overflow-hidden">
-      {accent && <div className="absolute top-0 left-0 bottom-0 w-[3px] bg-[#a6ff00]"></div>}
-      <p className="text-xs font-normal text-neutral-400 pl-1">{label}</p>
-      <div className="text-sm font-semibold text-black pl-1">{value}</div>
+    <div className="bg-white shadow-sm border border-[var(--border-color)] rounded-lg p-3 relative overflow-hidden">
+      {accent && <div className="absolute top-0 left-0 bottom-0 w-[3px] bg-[var(--accent-color)]"></div>}
+      <p className="text-xs font-normal text-[var(--text-secondary)] pl-1">{label}</p>
+      <div className="text-sm font-semibold text-[var(--text-primary)] pl-1">{value}</div>
     </div>
   );
 }
@@ -794,14 +794,14 @@ function LandingPage({ setAuthMode, setAppMode }: LandingPageProps) {
   ];
 
   return (
-    <div ref={pageRef} className="min-h-screen overflow-x-hidden bg-[#f7faf8] text-black">
-      <header className="sticky top-0 z-50 w-full border-b border-black/5 bg-[#f7faf8]/90 backdrop-blur">
+    <div ref={pageRef} className="min-h-screen overflow-x-hidden bg-[var(--bg-primary)] text-[var(--text-primary)]">
+      <header className="sticky top-0 z-50 w-full border-b border-[var(--border-color)] bg-[var(--bg-primary)]/90 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6 lg:px-8">
           <div className="flex items-center gap-3">
             <img src="https://i.ibb.co/1f3mhnj4/file-000000009c0871f4a926f8036d1d614e.png" alt="Eenvoq logo" className="h-10 w-10 object-contain" referrerPolicy="no-referrer" />
             <div>
-              <p className="text-base font-semibold tracking-tight">Eenvoq</p>
-              <p className="text-xs text-neutral-500">Operations, simplified</p>
+              <p className="text-base font-semibold tracking-tight text-[var(--text-primary)]">Eenvoq</p>
+              <p className="text-xs text-[var(--text-secondary)]">Operations, simplified</p>
             </div>
           </div>
           <nav className="hidden items-center gap-7 text-sm text-neutral-600 md:flex">
@@ -819,7 +819,7 @@ function LandingPage({ setAuthMode, setAppMode }: LandingPageProps) {
               <Menu className="h-5 w-5" />
             </button>
             <button onClick={() => { setAuthMode('login'); setAppMode('auth'); }} className="hidden rounded-[4px] border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-black transition hover:border-[#a6ff00] hover:text-[#111111] sm:inline-flex">Log In</button>
-            <button onClick={() => { setAuthMode('signup'); setAppMode('auth'); }} className="rounded-[4px] bg-black px-4 py-2 text-sm font-medium text-white transition hover:bg-[#1f1f1f]">Get Started</button>
+            <button onClick={() => { setAuthMode('signup'); setAppMode('auth'); }} className="rounded-[4px] bg-[#06ff00] px-4 py-2 text-sm font-medium text-black transition hover:bg-[#06ff00]">Get Started</button>
           </div>
         </div>
         {mobileMenuOpen && (
@@ -829,7 +829,7 @@ function LandingPage({ setAuthMode, setAppMode }: LandingPageProps) {
               <a href="#stories" onClick={() => setMobileMenuOpen(false)} className="transition hover:text-black">Stories</a>
               <a href="#faq" onClick={() => setMobileMenuOpen(false)} className="transition hover:text-black">FAQ</a>
               <button onClick={() => { setMobileMenuOpen(false); setAuthMode('login'); setAppMode('auth'); }} className="text-left transition hover:text-black">Login</button>
-              <button onClick={() => { setMobileMenuOpen(false); setAuthMode('signup'); setAppMode('auth'); }} className="rounded-[4px] bg-black px-4 py-2 text-left text-sm font-medium text-white">Get Started</button>
+              <button onClick={() => { setMobileMenuOpen(false); setAuthMode('signup'); setAppMode('auth'); }} className="rounded-[4px] bg-[#06ff00] px-4 py-2 text-left text-sm font-medium text-black">Get Started</button>
             </div>
           </div>
         )}
@@ -850,7 +850,7 @@ function LandingPage({ setAuthMode, setAppMode }: LandingPageProps) {
                 Whether you run a retail store, school, warehouse, distribution business, or service company, Eenvoq helps you replace scattered records, disconnected tools, and manual processes with one connected space.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
-                <button onClick={() => { setAuthMode('signup'); setAppMode('auth'); }} className="rounded-[4px] bg-[#a6ff00] px-5 py-2.75 text-sm font-semibold text-black transition hover:bg-[#a6ff00]">Start Free Trial</button>
+                <button onClick={() => { setAuthMode('signup'); setAppMode('auth'); }} className="rounded-[4px] bg-[#06ff00] px-5 py-2.75 text-sm font-semibold text-black transition hover:bg-[#06ff00]">Start Free Trial</button>
                 <button onClick={() => { setAuthMode('login'); setAppMode('auth'); }} className="rounded-[4px] border border-[#E6ECEA] bg-white px-5 py-2.75 text-sm font-semibold text-neutral-700 transition hover:border-[#a6ff00]">Book a Demo</button>
               </div>
               <div className="mt-7 flex flex-wrap gap-3 text-sm text-neutral-700">
@@ -921,7 +921,7 @@ function LandingPage({ setAuthMode, setAppMode }: LandingPageProps) {
               <h2 className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-black sm:text-4xl">Everything Your Organization Needs. One Connected Platform.</h2>
               <p className="mt-4 text-lg leading-8 text-neutral-600">Whether you manage a retail business, a school, a warehouse, a distribution company, or a growing service organization, Eenvoq gives your team the tools, visibility, and intelligence needed to operate with confidence.</p>
               <div data-section-body className="mt-8 flex flex-wrap justify-center gap-3">
-                <button onClick={() => { setAuthMode('signup'); setAppMode('auth'); }} className="rounded-[6px] bg-[#a6ff00] px-5 py-2.75 text-sm font-semibold text-black transition hover:bg-[#a6ff00]">Start Your Free Trial</button>
+                <button onClick={() => { setAuthMode('signup'); setAppMode('auth'); }} className="rounded-[6px] bg-[#06ff00] px-5 py-2.75 text-sm font-semibold text-black transition hover:bg-[#06ff00]">Start Your Free Trial</button>
                 <button onClick={() => { setAuthMode('login'); setAppMode('auth'); }} className="rounded-[6px] border border-[#E6ECEA] bg-white px-5 py-2.75 text-sm font-semibold text-neutral-700 transition hover:border-[#a6ff00]">Book A Personalized Demo</button>
               </div>
               <div data-section-body className="mt-8 flex flex-wrap justify-center gap-4 text-sm text-neutral-600">
@@ -968,7 +968,7 @@ function LandingPage({ setAuthMode, setAppMode }: LandingPageProps) {
                       <li key={feature} className="flex gap-2"><CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-[#111111]" />{feature}</li>
                     ))}
                   </ul>
-                  <button className="mt-6 rounded-[4px] bg-[#a6ff00] px-4 py-2 text-sm font-semibold text-black transition hover:bg-[#A8E83D]">Choose {plan.name}</button>
+                  <button className="mt-6 rounded-[4px] bg-[#06ff00] px-4 py-2 text-sm font-semibold text-black transition hover:bg-[#06ff00]">Choose {plan.name}</button>
                 </div>
               ))}
             </div>
@@ -1057,7 +1057,8 @@ function AuthPage({ authMode, setAuthMode, authName, authEmail, authPassword, se
               </div>
             </div>
             {authError ? <p className="text-sm text-red-600">{authError}</p> : null}
-            <button type="submit" disabled={isLoading} className="w-full rounded-full bg-[var(--accent-color)] px-4 py-3 text-sm font-medium text-[var(--white)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70">{isLoading ? 'Please wait...' : authMode === 'signup' ? 'Create account' : 'Log in'}</button>
+            <button type="submit" disabled={isLoading} className="w-full rounded-full bg-[#06ff00] px-4 py-3 text-sm font-medium text-black transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70">{isLoading ? 'Please wait...' : authMode === 'signup' ? 'Create account' : 'Log in'}</button>
+            <button type="button" onClick={() => { setAppMode('app'); }} className="w-full rounded-full border-2 border-[var(--border-color)] bg-white px-4 py-3 text-sm font-medium text-[var(--text-primary)] transition hover:border-[var(--accent-color)] hover:bg-[var(--bg-secondary)]">Mock Sign In (Demo)</button>
           </form>
 
 
