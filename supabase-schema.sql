@@ -2,6 +2,23 @@
 
 create extension if not exists pgcrypto;
 
+-- Compatibility-safe table repairs for production environments
+alter table if exists businesses
+  add column if not exists contact_email text,
+  add column if not exists contact_phone text,
+  add column if not exists modules jsonb default '[]'::jsonb,
+  add column if not exists logo_url text;
+
+alter table if exists profiles
+  add column if not exists full_name text,
+  add column if not exists email text,
+  add column if not exists role text,
+  add column if not exists profile_pic text,
+  add column if not exists online boolean default false,
+  add column if not exists last_active timestamptz,
+  add column if not exists is_active boolean default true,
+  add column if not exists pin_hash text;
+
 -- Business organizations / tenants
 create table if not exists businesses (
   id uuid primary key default gen_random_uuid(),

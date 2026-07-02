@@ -338,37 +338,47 @@ function createLocalProfileRecord(userId: string, businessId: string, fullName: 
 async function ensureProfileRecord(userId: string, businessId: string, fullName: string, email: string, role = 'owner', pin = '') {
   if (!supabaseAdmin) return null;
 
-  const { data: existingProfile } = await supabaseAdmin
-    .from('profiles')
-    .select('id')
-    .eq('user_id', userId)
-    .maybeSingle();
+  try {
+    const { data: existingProfile } = await supabaseAdmin
+      .from('profiles')
+      .select('id')
+      .eq('user_id', userId)
+      .maybeSingle();
 
-  if (existingProfile?.id) {
-    return existingProfile;
-  }
+    if (existingProfile?.id) {
+      return existingProfile;
+    }
 
-  const { data, error } = await supabaseAdmin
-    .from('profiles')
-    .insert({
+    const profilePayload: Record<string, unknown> = {
       user_id: userId,
       business_id: businessId,
       full_name: fullName,
       email,
       role: normalizeRole(role),
-      pin_hash: pin ? hashPassword(pin) : null,
       online: true,
       last_active: new Date().toISOString(),
       is_active: true
-    })
-    .select('id')
-    .single();
+    };
 
-  if (error) {
+    const { data, error } = await supabaseAdmin
+      .from('profiles')
+      .insert(profilePayload)
+      .select('id')
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  } catch (error: any) {
+    const message = String(error?.message || '').toLowerCase();
+    if (message.includes('does not exist') || message.includes('column') || message.includes('relation') || message.includes('permission') || message.includes('not found')) {
+      console.warn('Supabase profile sync skipped because the profiles table or columns are not currently available.', error?.message || error);
+      return null;
+    }
     throw error;
   }
-
-  return data;
 }
 
 function createLocalAuthAccount(email: string, password: string, fullName: string, config: Partial<OrganizationConfig> & { fullName?: string; email?: string } = {}, role = 'owner', pin = '') {
@@ -460,29 +470,38 @@ async function upsertBusinessProfile(userId: string, config: Partial<Organizatio
     logo_url: config.logoUrl || ''
   };
 
-  const { data: profileData } = await supabaseAdmin
-    .from('profiles')
-    .select('business_id')
-    .eq('user_id', userId)
-    .maybeSingle();
+  try {
+    const { data: profileData } = await supabaseAdmin
+      .from('profiles')
+      .select('business_id')
+      .eq('user_id', userId)
+      .maybeSingle();
 
-  if (profileData?.business_id) {
-    await supabaseAdmin.from('businesses').update(businessPayload).eq('id', profileData.business_id);
-    return profileData.business_id;
+    if (profileData?.business_id) {
+      await supabaseAdmin.from('businesses').update(businessPayload).eq('id', profileData.business_id);
+      return profileData.business_id;
+    }
+
+    const { data: businessData, error: businessError } = await supabaseAdmin
+      .from('businesses')
+      .insert(businessPayload)
+      .select('id')
+      .single();
+
+    if (businessError) {
+      throw businessError;
+    }
+
+    await ensureProfileRecord(userId, businessData.id, config.fullName || 'Business Owner', config.email || '', role, pin);
+    return businessData.id;
+  } catch (error: any) {
+    const message = String(error?.message || '').toLowerCase();
+    if (message.includes('does not exist') || message.includes('column') || message.includes('relation') || message.includes('permission') || message.includes('not found')) {
+      console.warn('Supabase business sync skipped because the businesses/profiles tables are not currently available.', error?.message || error);
+      return null;
+    }
+    throw error;
   }
-
-  const { data: businessData, error: businessError } = await supabaseAdmin
-    .from('businesses')
-    .insert(businessPayload)
-    .select('id')
-    .single();
-
-  if (businessError) {
-    throw businessError;
-  }
-
-  await ensureProfileRecord(userId, businessData.id, config.fullName || 'Business Owner', config.email || '', role, pin);
-  return businessData.id;
 }
 
 // Lazy initialize Gemini API client to prevent startup crash if API key is missing
@@ -643,26 +662,37 @@ app.post('/api/auth/login', async (req, res) => {
       clearRateLimit(key);
 
       let businessId: string | null = null;
-      const { data: profileData } = await supabaseAdmin?.from('profiles').select('business_id, full_name, email, role').eq('user_id', data.user.id).maybeSingle() || { data: null };
+      let profileData: any = null;
+
+      try {
+        const response = await supabaseAdmin?.from('profiles').select('business_id, full_name, email, role').eq('user_id', data.user.id).maybeSingle();
+        profileData = response?.data || null;
+      } catch (profileError: any) {
+        console.warn('Unable to read Supabase profile record during login, continuing with auth fallback.', profileError?.message || profileError);
+      }
 
       if (profileData?.business_id) {
         businessId = profileData.business_id;
       } else if (supabaseAdmin) {
-        const { data: businessData } = await supabaseAdmin.from('businesses').insert({
-          name: 'Your Business',
-          industry: 'Business',
-          subtype: '',
-          location: '',
-          currency: 'USD ($)',
-          contact_email: normalizedEmail,
-          contact_phone: '',
-          modules: ['transactions', 'inventory', 'customers', 'staff', 'reports', 'ai'],
-          logo_url: ''
-        }).select('id').single();
+        try {
+          const { data: businessData } = await supabaseAdmin.from('businesses').insert({
+            name: 'Your Business',
+            industry: 'Business',
+            subtype: '',
+            location: '',
+            currency: 'USD ($)',
+            contact_email: normalizedEmail,
+            contact_phone: '',
+            modules: ['transactions', 'inventory', 'customers', 'staff', 'reports', 'ai'],
+            logo_url: ''
+          }).select('id').single();
 
-        if (businessData?.id) {
-          businessId = businessData.id;
-          await ensureProfileRecord(data.user.id, businessData.id, data.user.user_metadata?.full_name || 'Business Owner', normalizedEmail, normalizedRole, normalizedPin);
+          if (businessData?.id) {
+            businessId = businessData.id;
+            await ensureProfileRecord(data.user.id, businessData.id, data.user.user_metadata?.full_name || 'Business Owner', normalizedEmail, normalizedRole, normalizedPin);
+          }
+        } catch (businessError: any) {
+          console.warn('Unable to create a Supabase business record during login, continuing with auth success.', businessError?.message || businessError);
         }
       }
 
