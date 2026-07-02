@@ -886,7 +886,7 @@ app.post('/api/orders', (req, res) => {
 
     const product = products.find(p => p.id === itemProductId);
     if (product) {
-      product.stock = Math.max(0, product.stock - quantity);
+      product.stock = Math.max(0, (product.stock ?? 0) - quantity);
     }
 
     const nextItem: OrderItem = {
@@ -1407,7 +1407,7 @@ app.post('/api/gemini/chat', async (req, res) => {
     const gemini = getGemini();
 
     // Construct system instructions with live db context
-    const lowStockItems = products.filter(p => p.stock <= p.minStock);
+    const lowStockItems = products.filter(p => (p.stock ?? 0) <= (p.minStock ?? 0));
     const systemInstruction = `
 You are Eenvoq AI, an intelligent, enterprise-grade Sales, Inventory, and Stock Management Expert.
 You are embedded inside the Eenvoq platform. You have real-time read access to the small business database:
