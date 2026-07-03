@@ -3305,7 +3305,7 @@ export default function App() {
                         placeholder="What should I focus on today?"
                         className="flex-1 rounded-[18px] border border-neutral-200 bg-neutral-50 px-3 py-3 text-sm text-black outline-none focus:border-[#a6ff00]"
                       />
-                      <button type="button" onClick={() => { setActiveTab('ai'); handleSendPrompt('Summarize the most urgent priorities for my organization today.'); }} className="rounded-[18px] border border-black bg-[#a6ff00] px-4 py-3 text-sm font-semibold text-black">Ask</button>
+                      <button type="button" onClick={() => { setActiveTab('ai'); handleSendPrompt('Summarize the most urgent priorities for my organization today.'); }} className="rounded-[18px] border border-black bg-[#021201] px-4 py-3 text-sm font-semibold text-[#a6ff00]">Eenvoq my data → </button>
                     </div>
                   </div>
                 </div> {/* <--- Added missing closing tag for the white content area */}
