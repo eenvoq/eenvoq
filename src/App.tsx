@@ -4078,6 +4078,8 @@ export default function App() {
               {/* VIEW 4: AI COACH */}
               {activeTab === 'ai' && (
                 <div className="flex flex-col h-[520px] md:h-[580px]">
+                    <p className="text-[11px] uppercase tracking-[0.3em] text-neutral-500">Eenvoq your data</p>
+                    <h2 className="text-lg font-semibold text-black">Eenvoq AI Consultant</h2>
                   
                   {/* Quick Audit suggested capsules row */}
                   <div className="px-4 py-3 bg-neutral-50 border-b border-neutral-100 flex overflow-x-auto gap-2 no-scrollbar flex-shrink-0">

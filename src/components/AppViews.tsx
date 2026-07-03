@@ -211,7 +211,7 @@ function AppHeader({
                 autoFocus
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder="Search everything"
+                placeholder="type to search..."
                 className="flex-1 border-0 bg-transparent text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-secondary)]"
               />
               <button type="button" onClick={handleCloseSearch} className="rounded-full p-1 text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-primary)] hover:text-[var(--text-primary)]" aria-label="Close search">
