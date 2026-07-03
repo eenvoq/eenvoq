@@ -1171,7 +1171,7 @@ export default function App() {
     };
 
     if (appMode === 'auth' || appMode === 'onboarding' || appMode === 'app') {
-      applyTheme('#a6ff00');
+      applyTheme('#021201');
     }
   }, [appMode]);
 
