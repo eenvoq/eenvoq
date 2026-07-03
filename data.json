@@ -35,6 +35,41 @@
       "balanceDue": 0,
       "currency": "USD ($)",
       "notes": ""
+    },
+    {
+      "id": "ORD-6100",
+      "customerName": "Walk-in customer",
+      "items": [
+        {
+          "productId": "inventory-1783077844844",
+          "productName": "Selected item",
+          "quantity": 1,
+          "price": 0,
+          "transactionType": "product-sale",
+          "inventoryId": "inventory-1783077844844",
+          "inventoryName": "Selected item",
+          "inventoryPhoto": "",
+          "saleDate": "2026-07-03",
+          "currency": "USD ($)",
+          "notes": ""
+        }
+      ],
+      "totalAmount": 0,
+      "date": "2026-07-03T11:24:06.100Z",
+      "status": "Completed",
+      "recordedBy": "Business Owner",
+      "transactionType": "product-sale",
+      "recipientId": "walk-in",
+      "recipientName": "Walk-in customer",
+      "inventoryName": "",
+      "inventoryPhoto": "",
+      "saleDate": "2026-07-03",
+      "purchasePrice": 0,
+      "sellingPrice": 0,
+      "profit": 0,
+      "balanceDue": 0,
+      "currency": "USD ($)",
+      "notes": ""
     }
   ],
   "staff": [],
@@ -47,8 +82,8 @@
       "company": "Walk-in customer",
       "status": "Active",
       "totalSpent": 0,
-      "ordersCount": 1,
-      "lastPurchaseDate": "2026-07-02"
+      "ordersCount": 2,
+      "lastPurchaseDate": "2026-07-03"
     }
   ],
   "suppliers": [],

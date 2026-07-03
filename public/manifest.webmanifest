@@ -9,19 +9,19 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "https://i.ibb.co/1f3mhnj4/file-000000009c0871f4a926f8036d1d614e.png",
+      "src": "/app-icon.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "https://i.ibb.co/1f3mhnj4/file-000000009c0871f4a926f8036d1d614e.png",
+      "src": "/app-icon.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "https://i.ibb.co/1f3mhnj4/file-000000009c0871f4a926f8036d1d614e.png",
+      "src": "/app-icon.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

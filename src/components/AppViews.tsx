@@ -12,7 +12,7 @@ import {
   ShoppingCart,
   TrendingUp,
   AlertTriangle,
-  MessageSquare,
+  Paperclip,
   Plus,
   Edit,
   Trash2,
@@ -92,16 +92,16 @@ function SidebarNavButton({ label, icon: Icon, active, onClick, badge }: { label
   return (
     <button
       onClick={onClick}
-      className={`w-full flex items-center justify-between space-x-3 px-3 py-2 rounded-md text-left transition-colors ${
-        active ? 'bg-[var(--accent-color)]/15 border-l-2 border-[var(--accent-color)] font-semibold text-[var(--text-primary)] pl-2.5 shadow-mint-glow-sm' : 'text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] font-normal'
+      className={`w-full flex items-center justify-between space-x-3 rounded-md border px-3 py-2 text-left transition-colors ${
+        active ? 'border-[#a6ff00] text-white' : 'border-transparent text-white/80 hover:border-white/20 hover:text-white'
       }`}
     >
       <div className="flex items-center space-x-3">
-        <Icon className="w-4 h-4" />
+        <Icon className="w-4 h-4 text-current" />
         <span>{label}</span>
       </div>
       {badge !== undefined && badge !== null && badge !== '' ? (
-        <span className="rounded-full bg-[var(--accent-color)] px-2 py-0.5 text-[10px] font-semibold text-[var(--text-primary)]">
+        <span className="rounded-full bg-[var(--accent-color)] px-2 py-0.5 text-[10px] font-semibold text-black">
           {badge}
         </span>
       ) : null}
@@ -125,7 +125,8 @@ function AppHeader({
   searchResults,
   onSelectSearchResult,
   searchOpen,
-  setSearchOpen
+  setSearchOpen,
+  profilePic
 }: {
   ownerName: string;
   currentOperatorId: string;
@@ -143,6 +144,7 @@ function AppHeader({
   onSelectSearchResult: (item: { id: string; label: string; hint: string; category: string; tab: string }) => void;
   searchOpen: boolean;
   setSearchOpen: (value: boolean) => void;
+  profilePic: string;
 }) {
   const onlineMembers = [{ id: 'owner', name: ownerName, online: true }, ...staff.filter((member) => member.online)]
     .filter((member, index, list) => list.findIndex((item) => item.id === member.id) === index)
@@ -155,103 +157,48 @@ function AppHeader({
 
   return (
     <>
-      <header className="fixed inset-x-0 top-0 z-50 flex h-14 flex-shrink-0 items-center justify-between border-b border-[var(--border-color)] bg-[var(--bg-primary)]/95 px-3 backdrop-blur sm:px-5">
-        <div className="flex items-center gap-2">
+      <header className="fixed inset-x-0 top-0 z-50 flex h-16 items-center justify-between px-4 sm:px-5 border-b border-[#021201] bg-[#021201]">
+        <div className="flex items-center gap-3">
           {!isDesktop && (
             <button
               onClick={() => setMenuOpen(true)}
-              className="-ml-1 rounded p-1 text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-secondary)]"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#021201] text-white transition hover:bg-[#021201]/90"
               aria-label="Open menu"
             >
-              <Menu className="h-5 w-5" />
+              <Menu className="h-5 w-5 text-white" />
             </button>
           )}
-          {!isDesktop && (
-            <div className="flex items-center gap-2">
-              <img src="https://i.ibb.co/1f3mhnj4/file-000000009c0871f4a926f8036d1d614e.png" alt="Logo" className="h-5 w-5 object-contain" referrerPolicy="no-referrer" />
-              <div className="flex flex-col leading-none">
-                <span className="text-sm font-semibold uppercase tracking-wider text-[var(--text-primary)]">EENVOQ</span>
-              </div>
-            </div>
-          )}
-          {isDesktop && (
-            <div className="relative">
-              <div className="flex items-center gap-2 rounded-full border border-[var(--border-color)] bg-[var(--bg-secondary)] px-3 py-2 shadow-sm">
-                <Search className="h-4 w-4 text-[var(--text-secondary)]" />
-                <input
-                  value={searchQuery}
-                  onChange={(event) => setSearchQuery(event.target.value)}
-                  placeholder="Search everything"
-                  className="w-44 border-0 bg-transparent text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-secondary)] sm:w-56"
-                />
-              </div>
-              {searchQuery.trim().length > 0 && searchResults.length > 0 && (
-                <div className="absolute left-0 top-full z-[70] mt-2 w-[min(24rem,calc(100vw-2rem))] rounded-2xl border border-[var(--border-color)] bg-[var(--bg-primary)] p-2 shadow-[0_20px_60px_rgba(0,0,0,0.12)]">
-                  {searchResults.map((item) => (
-                    <button
-                      key={item.id}
-                      type="button"
-                      onClick={() => onSelectSearchResult(item)}
-                      className="flex w-full items-start justify-between rounded-xl px-3 py-2 text-left transition-colors hover:bg-[var(--bg-secondary)]"
-                    >
-                      <span>
-                        <span className="block text-sm font-semibold text-[var(--text-primary)]">{item.label}</span>
-                        <span className="mt-0.5 block text-xs text-[var(--text-secondary)]">{item.hint}</span>
-                      </span>
-                      <span className="rounded-full bg-[var(--bg-secondary)] px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.2em] text-[var(--text-secondary)]">
-                        {item.category}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5">
-            {onlineMembers.map((member) => (
-              <div
-                key={member.id}
-                className={`flex h-7 w-7 items-center justify-center rounded-full border text-[10px] font-semibold text-[var(--text-primary)] ${currentOperatorId === member.id ? 'border-[var(--text-primary)] bg-[var(--text-primary)] text-[var(--bg-primary)]' : 'border-[var(--accent-color)] bg-[var(--accent-color)]'}`}
-                title={member.name}
-              >
-                {member.name.split(' ').map((part) => part[0]).join('').slice(0, 2)}
-              </div>
-            ))}
+          <div className="flex items-center gap-2">
+            <img src="/eenvoq-app-logo.png" alt="Logo" className="h-6 w-6 object-contain" referrerPolicy="no-referrer" />
+            <span className="text-sm font-semibold uppercase tracking-[0.12em] text-white">EENVOQ</span>
           </div>
-          {!isDesktop && (
-            <button
-              type="button"
-              onClick={() => setSearchOpen(true)}
-              className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[var(--border-color)] bg-[var(--bg-secondary)] text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-secondary)]"
-              aria-label="Open search"
-            >
-              <Search className="h-4 w-4" />
-            </button>
-          )}
+        </div>
+
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setSearchOpen(true)}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-transparent text-white transition hover:bg-transparent"
+            aria-label="Open search"
+          >
+            <Search className="h-5 w-5 text-white" />
+          </button>
+
           <button
             type="button"
             onClick={onOpenTagPage}
-            className="inline-flex h-8 items-center gap-1.5 rounded-full border border-[var(--border-color)] bg-[var(--bg-secondary)] px-2.5 text-[11px] font-semibold text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-secondary)]"
+            className="relative inline-flex h-10 w-10 items-center justify-center rounded-full bg-transparent text-white transition hover:bg-transparent"
+            aria-label="Open clip"
           >
-            <MessageSquare className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">Tag</span>
-            {tagCount > 0 && (
-              <span className="ml-0.5 inline-flex min-w-5 items-center justify-center rounded-full bg-[var(--accent-color)] px-1.5 py-0.5 text-[10px] font-semibold text-[var(--text-primary)]">
-                {tagCount}
-              </span>
-            )}
-          </button>
-          {lowStockCount > 0 && (
-            <span className="hidden text-xs font-semibold text-[var(--text-primary)] underline decoration-1 decoration-[var(--text-primary)] whitespace-nowrap sm:inline">
-              {lowStockCount} Warnings
+            <Paperclip className="h-5 w-5 text-white" />
+            <span className="absolute -right-0.5 -top-0.5 inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-[#a6ff00] px-1.5 text-[10px] font-semibold text-black">
+              {tagCount > 0 ? tagCount : 1}
             </span>
-          )}
-          <RefreshCw
-            onClick={loadAllData}
-            className={`h-4 w-4 cursor-pointer text-[var(--text-primary)] transition-transform hover:rotate-45 ${loading ? 'animate-spin' : ''}`}
-          />
+          </button>
+
+          <div className="relative inline-flex h-10 w-10 overflow-hidden rounded-full border border-[#E6ECEA] bg-white">
+            <img src={profilePic} alt={ownerName} className="h-full w-full object-cover" referrerPolicy="no-referrer" />
+          </div>
         </div>
       </header>
       {!isDesktop && searchOpen && (
@@ -617,22 +564,26 @@ function LandingPage({ setAuthMode, setAppMode }: LandingPageProps) {
       ),
     },
     {
-      eyebrow: 'REPORTING',
-      title: 'Turn Daily Activity Into Clear Decisions',
-      description: 'Data is only valuable when people can understand it, and Eenvoq presents it clearly.',
+      eyebrow: 'EENVOQ AI ANALYSIS',
+      title: 'Eenvoq AI Analysis',
+      description: 'The system scans sales, profit, revenue, stock, and customer activity so you get a fast overview of what matters most.',
       content: (
         <div className="rounded-[30px] border border-[#E6ECEA] bg-white p-6 shadow-[0_16px_60px_rgba(0,0,0,0.04)] lg:p-8">
           <div className="grid gap-6 lg:grid-cols-[1fr_0.95fr] lg:items-center">
             <div className="rounded-[24px] border border-[#E6ECEA] bg-[#FAFAF8] p-6">
-              <p className="text-sm font-medium uppercase tracking-[0.25em] text-neutral-500">Monitor what matters most</p>
-              <ul className="mt-4 space-y-3 text-sm leading-7 text-neutral-700">
-                {['Revenue growth', 'Sales performance', 'Inventory movement', 'Product performance', 'Payment collections', 'Outstanding balances', 'Customer activity', 'Operational trends'].map((item) => (
-                  <li key={item} className="rounded-[14px] border border-[#E6ECEA] bg-white px-4 py-3">â€¢ {item}</li>
-                ))}
-              </ul>
+              <p className="text-sm font-medium uppercase tracking-[0.25em] text-neutral-500">Actionable business insights</p>
+              <p className="mt-4 text-lg leading-8 text-neutral-700">Eenvoq reviews your records and tells you where sales are trending, which products are hurting profit, how revenue is performing, which stock needs attention, and which customers should be engaged next.</p>
+              <p className="mt-5 text-lg leading-8 text-neutral-700">It updates you in clear language, so you know exactly what changed and what to do without digging through spreadsheets.</p>
             </div>
             <div className="rounded-[24px] border border-[#a6ff00]/20 bg-[linear-gradient(135deg,_#a6ff00_0%,_#F8FAF9_100%)] p-6">
-              <p className="text-lg leading-8 text-neutral-700">Instead of spending hours building reports manually, generate meaningful insights in seconds and make better strategic decisions.</p>
+              <p className="text-lg leading-8 text-neutral-700">Instead of guessing, get a short, smart summary and direct links to take action:</p>
+              <div className="mt-6 grid gap-3">
+                <a href="#sales" className="rounded-full border border-[#E6ECEA] bg-white px-4 py-3 text-sm font-semibold text-neutral-900 transition hover:border-[#a6ff00]">Sales performance</a>
+                <a href="#profit" className="rounded-full border border-[#E6ECEA] bg-white px-4 py-3 text-sm font-semibold text-neutral-900 transition hover:border-[#a6ff00]">Profit margins</a>
+                <a href="#revenue" className="rounded-full border border-[#E6ECEA] bg-white px-4 py-3 text-sm font-semibold text-neutral-900 transition hover:border-[#a6ff00]">Revenue trends</a>
+                <a href="#stock" className="rounded-full border border-[#E6ECEA] bg-white px-4 py-3 text-sm font-semibold text-neutral-900 transition hover:border-[#a6ff00]">Stock levels</a>
+                <a href="#customers" className="rounded-full border border-[#E6ECEA] bg-white px-4 py-3 text-sm font-semibold text-neutral-900 transition hover:border-[#a6ff00]">Customer activity</a>
+              </div>
             </div>
           </div>
         </div>
@@ -763,7 +714,7 @@ function LandingPage({ setAuthMode, setAppMode }: LandingPageProps) {
     'Get Paid Faster. Stay In Control.': { src: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=1200&q=80', alt: 'A polished finance workspace with invoices and receipts' },
     'Every Relationship. One Complete Record.': { src: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1200&q=80', alt: 'A warm team environment focused on relationships and service' },
     'Ask Questions. Get Instant Answers.': { src: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80', alt: 'An assistant-style interface for operational guidance' },
-    'Turn Daily Activity Into Clear Decisions': { src: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80', alt: 'A dashboard view with analytics and reporting visuals' },
+    'Eenvoq AI Analysis': { src: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80', alt: 'A dashboard view with analytics and reporting visuals' },
     'One Platform. Multiple Industries.': { src: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1200&q=80', alt: 'A collaborative planning room with multiple organization contexts' },
     'Less Administrative Chaos. More Operational Control.': { src: 'https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1200&q=80', alt: 'A professional reviewing growth metrics and goals' },
     'From Scattered Records To Complete Visibility.': { src: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=1200&q=80', alt: 'A professional sharing a success story in a calm workspace' },
@@ -795,10 +746,10 @@ function LandingPage({ setAuthMode, setAppMode }: LandingPageProps) {
 
   return (
     <div ref={pageRef} className="min-h-screen overflow-x-hidden bg-[var(--bg-primary)] text-[var(--text-primary)]">
-      <header className="sticky top-0 z-50 w-full border-b border-[var(--border-color)] bg-[var(--bg-primary)]/90 backdrop-blur">
+      <header className="sticky top-0 z-50 w-full border-b border-[var(--border-color)] bg-[var(--bg-primary)]/90">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6 lg:px-8">
           <div className="flex items-center gap-3">
-            <img src="https://i.ibb.co/1f3mhnj4/file-000000009c0871f4a926f8036d1d614e.png" alt="Eenvoq logo" className="h-10 w-10 object-contain" referrerPolicy="no-referrer" />
+            <img src="/eenvoq-app-logo.png" alt="Eenvoq logo" className="h-10 w-10 object-contain" referrerPolicy="no-referrer" />
             <div>
               <p className="text-base font-semibold tracking-tight text-[var(--text-primary)]">Eenvoq</p>
               <p className="text-xs text-[var(--text-secondary)]">Operations, simplified</p>
@@ -819,7 +770,7 @@ function LandingPage({ setAuthMode, setAppMode }: LandingPageProps) {
               <Menu className="h-5 w-5" />
             </button>
             <button onClick={() => { setAuthMode('login'); setAppMode('auth'); }} className="hidden rounded-[4px] border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-black transition hover:border-[#a6ff00] hover:text-[#111111] sm:inline-flex">Log In</button>
-            <button onClick={() => { setAuthMode('signup'); setAppMode('auth'); }} className="rounded-[4px] bg-[#06ff00] px-4 py-2 text-sm font-medium text-black transition hover:bg-[#06ff00]">Get Started</button>
+            <button onClick={() => { setAuthMode('signup'); setAppMode('auth'); }} className="rounded-[4px] bg-[#a6ff00] px-4 py-2 text-sm font-medium text-black transition hover:bg-[#a6ff00]">Get Started</button>
           </div>
         </div>
         {mobileMenuOpen && (
@@ -829,19 +780,19 @@ function LandingPage({ setAuthMode, setAppMode }: LandingPageProps) {
               <a href="#stories" onClick={() => setMobileMenuOpen(false)} className="transition hover:text-black">Stories</a>
               <a href="#faq" onClick={() => setMobileMenuOpen(false)} className="transition hover:text-black">FAQ</a>
               <button onClick={() => { setMobileMenuOpen(false); setAuthMode('login'); setAppMode('auth'); }} className="text-left transition hover:text-black">Login</button>
-              <button onClick={() => { setMobileMenuOpen(false); setAuthMode('signup'); setAppMode('auth'); }} className="rounded-[4px] bg-[#06ff00] px-4 py-2 text-left text-sm font-medium text-black">Get Started</button>
+              <button onClick={() => { setMobileMenuOpen(false); setAuthMode('signup'); setAppMode('auth'); }} className="rounded-[4px] bg-[#a6ff00] px-4 py-2 text-left text-sm font-medium text-black">Get Started</button>
             </div>
           </div>
         )}
       </header>
 
-      <main className="flex flex-col pb-20">
-        <section id="hero" ref={heroSectionRef} className="w-full border-b border-[#E6ECEA] bg-[radial-gradient(circle_at_top_left,_rgba(166,255,0,0.18),_transparent_38%),linear-gradient(135deg,_#FCFCFA_0%,_#F7FAF8_100%)] px-6 pt-4 pb-10 sm:px-8 sm:pt-8 sm:pb-14 lg:px-12 lg:py-24">
+      <main className="flex flex-col pb-20 pt-6 sm:pb-28 sm:pt-8 lg:pb-36 lg:pt-12">
+        <section id="hero" ref={heroSectionRef} className="w-full border-b border-[#E6ECEA] bg-[radial-gradient(circle_at_top_left,_rgba(166,255,0,0.18),_transparent_38%),linear-gradient(135deg,_#FCFCFA_0%,_#F7FAF8_100%)] px-6 pt-3 pb-10 sm:px-8 sm:pt-6 sm:pb-14 lg:px-12 lg:py-24">
           <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1.02fr_0.98fr] lg:items-center">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-[#EDEFE6] bg-[#a6ff00] px-3 py-1 text-sm text-[#111111]">
                 <span className="h-2 w-2 rounded-full bg-[#a6ff00]" />
-                ALL-IN-ONE BUSINESS OPERATING SYSTEM
+                #1 AI Business Operations Platform
               </div>
               <h1 ref={heroTitleRef} className="mt-5 text-4xl font-semibold leading-[1.02] tracking-[-0.03em] text-black sm:text-5xl lg:text-6xl">
                 Run Your Entire Organization From One Intelligent Workspace
@@ -850,7 +801,7 @@ function LandingPage({ setAuthMode, setAppMode }: LandingPageProps) {
                 Whether you run a retail store, school, warehouse, distribution business, or service company, Eenvoq helps you replace scattered records, disconnected tools, and manual processes with one connected space.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
-                <button onClick={() => { setAuthMode('signup'); setAppMode('auth'); }} className="rounded-[4px] bg-[#06ff00] px-5 py-2.75 text-sm font-semibold text-black transition hover:bg-[#06ff00]">Start Free Trial</button>
+                <button onClick={() => { setAuthMode('signup'); setAppMode('auth'); }} className="rounded-[4px] bg-[#a6ff00] px-5 py-2.75 text-sm font-semibold text-black transition hover:bg-[#a6ff00]">Start Free Trial</button>
                 <button onClick={() => { setAuthMode('login'); setAppMode('auth'); }} className="rounded-[4px] border border-[#E6ECEA] bg-white px-5 py-2.75 text-sm font-semibold text-neutral-700 transition hover:border-[#a6ff00]">Book a Demo</button>
               </div>
               <div className="mt-7 flex flex-wrap gap-3 text-sm text-neutral-700">
@@ -921,7 +872,7 @@ function LandingPage({ setAuthMode, setAppMode }: LandingPageProps) {
               <h2 className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-black sm:text-4xl">Everything Your Organization Needs. One Connected Platform.</h2>
               <p className="mt-4 text-lg leading-8 text-neutral-600">Whether you manage a retail business, a school, a warehouse, a distribution company, or a growing service organization, Eenvoq gives your team the tools, visibility, and intelligence needed to operate with confidence.</p>
               <div data-section-body className="mt-8 flex flex-wrap justify-center gap-3">
-                <button onClick={() => { setAuthMode('signup'); setAppMode('auth'); }} className="rounded-[6px] bg-[#06ff00] px-5 py-2.75 text-sm font-semibold text-black transition hover:bg-[#06ff00]">Start Your Free Trial</button>
+                <button onClick={() => { setAuthMode('signup'); setAppMode('auth'); }} className="rounded-[6px] bg-[#a6ff00] px-5 py-2.75 text-sm font-semibold text-black transition hover:bg-[#a6ff00]">Start Your Free Trial</button>
                 <button onClick={() => { setAuthMode('login'); setAppMode('auth'); }} className="rounded-[6px] border border-[#E6ECEA] bg-white px-5 py-2.75 text-sm font-semibold text-neutral-700 transition hover:border-[#a6ff00]">Book A Personalized Demo</button>
               </div>
               <div data-section-body className="mt-8 flex flex-wrap justify-center gap-4 text-sm text-neutral-600">
@@ -968,7 +919,7 @@ function LandingPage({ setAuthMode, setAppMode }: LandingPageProps) {
                       <li key={feature} className="flex gap-2"><CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-[#111111]" />{feature}</li>
                     ))}
                   </ul>
-                  <button className="mt-6 rounded-[4px] bg-[#06ff00] px-4 py-2 text-sm font-semibold text-black transition hover:bg-[#06ff00]">Choose {plan.name}</button>
+                  <button className="mt-6 rounded-[4px] bg-[#a6ff00] px-4 py-2 text-sm font-semibold text-black transition hover:bg-[#a6ff00]">Choose {plan.name}</button>
                 </div>
               ))}
             </div>
@@ -980,7 +931,7 @@ function LandingPage({ setAuthMode, setAppMode }: LandingPageProps) {
       <footer className="border-t border-neutral-200 bg-white/80 px-6 py-8 text-sm text-neutral-500">
         <div className="mx-auto flex max-w-7xl flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-3">
-            <img src="https://i.ibb.co/1f3mhnj4/file-000000009c0871f4a926f8036d1d614e.png" alt="Eenvoq logo" className="h-9 w-9 object-contain" referrerPolicy="no-referrer" />
+            <img src="/eenvoq-app-logo.png" alt="Eenvoq" className="h-9 w-9 object-contain" referrerPolicy="no-referrer" />
             <div>
               <p className="text-sm font-semibold text-black">Eenvoq</p>
               <p className="text-xs text-neutral-500">Warm systems for organized teams</p>
@@ -1002,22 +953,12 @@ function AuthPage({ authMode, setAuthMode, authName, authEmail, authPassword, se
   return (
     <div className="flex min-h-screen items-start justify-center bg-[var(--primary-bg)] px-4 py-4 sm:px-6 sm:py-10 lg:items-center lg:px-8">
       <div className="grid w-full max-w-5xl gap-4 rounded-[24px] border border-[var(--border-color)] bg-[var(--white)] p-4 shadow-[0_12px_40px_rgba(15,23,42,0.06)] lg:grid-cols-[0.95fr_1.05fr] lg:p-6">
-        <div className="order-2 rounded-[20px] border border-[var(--border-color)] bg-[var(--secondary-bg)] p-6 lg:order-1 lg:p-8">
+        <div className="order-2 rounded-[20px] border border-[var(--border-color)] bg-[var(--secondary-bg)] bg-[url('/eenvoq-login-signup.png')] bg-cover bg-center bg-no-repeat p-6 min-h-[32rem] lg:min-h-0 lg:order-1 lg:p-8">
           <div className="flex items-center gap-3">
-            <img src="https://i.ibb.co/1f3mhnj4/file-000000009c0871f4a926f8036d1d614e.png" alt="Eenvoq logo" className="h-10 w-10 object-contain" referrerPolicy="no-referrer" />
+            <img src="/eenvoq-app-logo.png" alt="Eenvoq logo" className="h-10 w-10 object-contain" referrerPolicy="no-referrer" />
             <div>
               <p className="text-sm font-semibold text-[var(--primary-color)]">Eenvoq</p>
-              <p className="text-xs text-[var(--text-color)]">Secure operations workspace</p>
-            </div>
-          </div>
-          <div className="mt-8 space-y-3">
-            <div className="rounded-[18px] border border-[var(--border-color)] bg-[var(--white)] p-4">
-              <p className="text-sm font-semibold text-[var(--primary-color)]">Control without clutter</p>
-              <p className="mt-2 text-sm leading-7 text-[var(--text-color)]">Inventory, orders, customers, and AI guidance stay organized in one place.</p>
-            </div>
-            <div className="rounded-[18px] border border-[var(--border-color)] bg-[var(--white)] p-4">
-              <p className="text-sm font-semibold text-[var(--primary-color)]">Trusted by serious teams</p>
-              <p className="mt-2 text-sm leading-7 text-[var(--text-color)]">Built for operators who need clarity, precision, and dependable workflows.</p>
+              <p className="text-xs text-[var(--text-color)]">AI Operations for Businesses & Institutions</p>
             </div>
           </div>
         </div>
@@ -1040,24 +981,24 @@ function AuthPage({ authMode, setAuthMode, authName, authEmail, authPassword, se
             {authMode === 'signup' && (
               <div>
                 <label className="mb-2 block text-sm font-medium text-[var(--primary-color)]">Full name</label>
-                <input value={authName} onChange={(event) => setAuthName(event.target.value)} className="w-full rounded-2xl border border-[var(--border-color)] bg-[var(--white)] px-4 py-3 text-sm text-[var(--primary-color)] focus:border-[var(--accent-color)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]/20" placeholder="Alex Morgan" />
+                <input value={authName} onChange={(event) => setAuthName(event.target.value)} className="w-full rounded-2xl border border-[var(--border-color)] bg-[var(--white)] px-4 py-3 text-sm text-[var(--primary-color)] focus:border-[var(--accent-color)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]/20" placeholder="e.g. Alex Morgan" />
               </div>
             )}
             <div>
               <label className="mb-2 block text-sm font-medium text-[var(--primary-color)]">Email</label>
-              <input type="email" value={authEmail} onChange={(event) => setAuthEmail(event.target.value)} className="w-full rounded-2xl border border-[var(--border-color)] bg-[var(--white)] px-4 py-3 text-sm text-[var(--primary-color)] focus:border-[var(--accent-color)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]/20" placeholder="you@company.com" />
+              <input type="email" value={authEmail} onChange={(event) => setAuthEmail(event.target.value)} className="w-full rounded-2xl border border-[var(--border-color)] bg-[var(--white)] px-4 py-3 text-sm text-[var(--primary-color)] focus:border-[var(--accent-color)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]/20" placeholder="e.g. johndoe@gmail.com" />
             </div>
             <div>
               <label className="mb-2 block text-sm font-medium text-[var(--primary-color)]">Password</label>
               <div className="relative">
-                <input type={passwordVisible ? 'text' : 'password'} value={authPassword} onChange={(event) => setAuthPassword(event.target.value)} className="w-full rounded-2xl border border-[var(--border-color)] bg-[var(--white)] px-4 py-3 pr-12 text-sm text-[var(--primary-color)] focus:border-[var(--accent-color)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]/20" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" />
+                <input type={passwordVisible ? 'text' : 'password'} value={authPassword} onChange={(event) => setAuthPassword(event.target.value)} className="w-full rounded-2xl border border-[var(--border-color)] bg-[var(--white)] px-4 py-3 pr-12 text-sm text-[var(--primary-color)] focus:border-[var(--accent-color)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]/20" placeholder="e.g. johndoe123" />
                 <button type="button" onClick={() => setPasswordVisible(!passwordVisible)} className="absolute inset-y-0 right-3 flex items-center text-[var(--text-color)] transition hover:text-[var(--primary-color)]" aria-label={passwordVisible ? 'Hide password' : 'Show password'}>
                   {passwordVisible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
             </div>
             {authError ? <p className="text-sm text-red-600">{authError}</p> : null}
-            <button type="submit" disabled={isLoading} className="w-full rounded-full bg-[#06ff00] px-4 py-3 text-sm font-medium text-black transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70">{isLoading ? 'Please wait...' : authMode === 'signup' ? 'Create account' : 'Log in'}</button>
+            <button type="submit" disabled={isLoading} className="w-full rounded-full bg-[#a6ff00] px-4 py-3 text-sm font-medium text-black transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70">{isLoading ? 'Please wait...' : authMode === 'signup' ? 'Create account' : 'Log in'}</button>
             <button type="button" onClick={() => { setAppMode('app'); }} className="w-full rounded-full border-2 border-[var(--border-color)] bg-white px-4 py-3 text-sm font-medium text-[var(--text-primary)] transition hover:border-[var(--accent-color)] hover:bg-[var(--bg-secondary)]">Mock Sign In (Demo)</button>
           </form>
 

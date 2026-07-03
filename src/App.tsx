@@ -912,6 +912,7 @@ export default function App() {
   };
   const [deskRange, setDeskRange] = useState<'Today' | 'Last 7 Days' | 'Last 30 Days' | 'This Month' | 'Last Month' | 'This Year' | 'Custom Range'>('Last 7 Days');
   const [showDashboardFilterMenu, setShowDashboardFilterMenu] = useState(false);
+  const [bottomNavVisible, setBottomNavVisible] = useState(true);
   const [selectedRecipientId, setSelectedRecipientId] = useState('cust-1');
   const [recipientQuery, setRecipientQuery] = useState('');
   const [productSearchQuery, setProductSearchQuery] = useState('');
@@ -1475,7 +1476,7 @@ export default function App() {
   };
 
   const submitTransaction = async () => {
-    const selectedInventoryItem = transactionInventoryCatalog.find((record: { id: string; name: string; category: string; purchasePrice: number; sellingPrice: number; image: string; stock: number; inventoryType: string; productId: string }) => record.id === transactionDraft.inventoryId);
+    const selectedInventoryItem = transactionInventoryCatalog.find((record) => record.id === transactionDraft.inventoryId);
     const purchasePrice = Number(transactionDraft.purchasePrice || selectedInventoryItem?.purchasePrice || 0);
     const sellingPrice = Number(transactionDraft.sellingPrice || 0);
     const quantity = Math.max(1, Number(transactionDraft.quantity || 1));
@@ -1868,7 +1869,7 @@ export default function App() {
       return;
     }
     try {
-      const updatedStock = product.stock + amount;
+      const updatedStock = (product.stock ?? 0) + amount;
       const response = await fetch(`/api/inventory/${productId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -2149,10 +2150,10 @@ export default function App() {
     id: product.id,
     name: product.name,
     category: product.category,
-    purchasePrice: product.cost,
-    sellingPrice: product.price,
+    purchasePrice: product.cost ?? 0,
+    sellingPrice: product.price ?? 0,
     image: product.image || '',
-    stock: product.stock,
+    stock: product.stock ?? 0,
     inventoryType: 'Products' as const,
     productId: product.id
   }));
@@ -2635,19 +2636,19 @@ export default function App() {
     return [
       {
         id: 'revenue',
-        label: 'Revenue',
+        label: 'Total Revenue',
         value: formatCurrencyValue(currentRevenue, organizationSetup.currency || 'NGN (₦)'),
         detail: `${trendValue >= 0 ? '+' : ''}${trendValue.toFixed(1)}% vs prior window`,
-        accent: 'from-[#a6ff00] to-[#a6ff00]',
-        iconBg: 'bg-[#a6ff00]',
-        iconTint: 'text-[#a6ff00]',
+        accent: 'from-[#FFF4D8] to-[#FFDD6F]',
+        iconBg: 'bg-[#FFE39C]',
+        iconTint: 'text-[#4F3A00]',
         icon: TrendingUp,
         page: 'analytics' as const,
         description: 'Revenue pulse'
       },
       {
         id: 'products-services',
-        label: 'Products & Services',
+        label: 'Active Products',
         value: `${productAndServiceCount} active`,
         detail: products.length > 0 ? `${products.length} products • ${serviceTemplates.length} service templates` : 'Service-led setup with no stock items',
         accent: 'from-[#F4F8FF] to-[#EAF2FF]',
@@ -2674,9 +2675,9 @@ export default function App() {
         label: 'Customers',
         value: `${customers.length} total`,
         detail: `${customers.filter((customer) => customer.status === 'Follow Up' || customer.status === 'Contacted').length} in review`,
-        accent: 'from-[#F8F7FF] to-[#EEEAFE]',
-        iconBg: 'bg-[#E4DCFF]',
-        iconTint: 'text-[#5B4BE3]',
+        accent: 'from-[#FFEAF7] to-[#FFD0E7]',
+        iconBg: 'bg-[#FFB9D8]',
+        iconTint: 'text-[#7C2554]',
         icon: Users,
         page: 'crm' as const,
         description: 'Customer base'
@@ -2698,9 +2699,9 @@ export default function App() {
         label: 'Cash Flow',
         value: `${formatCurrencyValue(currentRevenue, organizationSetup.currency || 'NGN (₦)')} / ${formatCurrencyValue(currentExpenses, organizationSetup.currency || 'NGN (₦)')}`,
         detail: `Net ${formatCurrencyValue(currentRevenue - currentExpenses, organizationSetup.currency || 'NGN (₦)')}`,
-        accent: 'from-[#F2FFF9] to-[#E0F8ED]',
-        iconBg: 'bg-[#a6ff00]',
-        iconTint: 'text-[#a6ff00]',
+        accent: 'from-[#FFF4D8] to-[#FFDE79]',
+        iconBg: 'bg-[#FFE297]',
+        iconTint: 'text-[#4F3A00]',
         icon: Activity,
         page: 'analytics' as const,
         description: 'Liquidity'
@@ -2803,22 +2804,22 @@ export default function App() {
     <div className={`min-h-screen bg-white text-sm font-normal text-black select-none transition-opacity duration-300 ${(splashActive || !startupComplete) && appMode === 'app' ? 'opacity-0' : 'opacity-100'}`}>
       <div className="relative min-h-screen w-full overflow-hidden bg-white">
         {(menuOpen || isDesktop) && (
-          <div className={`${isDesktop ? 'fixed inset-y-0 left-0 z-40 hidden w-72 flex-col border-r border-neutral-200 bg-white p-5 lg:flex' : 'fixed inset-0 z-50 flex bg-neutral-950/40 lg:hidden'}`}>
-            <div className={`${isDesktop ? 'flex h-full w-full flex-col justify-between' : 'w-[280px] h-full flex flex-col border-r border-neutral-200 shadow-2xl p-5 justify-between bg-white animate-in slide-in-from-left duration-200'}`}>
+          <div className={`${isDesktop ? 'fixed inset-y-0 left-0 z-40 hidden w-72 flex-col border-r border-[#021201] bg-[#021201] p-5 lg:flex' : 'fixed inset-0 z-50 flex bg-[#021201]/90 lg:hidden'}`}>
+            <div className={`${isDesktop ? 'flex h-full w-full flex-col justify-between bg-[#021201]' : 'w-[280px] h-full flex flex-col border-r border-[#021201] shadow-2xl p-5 justify-between bg-[#021201] animate-in slide-in-from-left duration-200'}`}>
               <div className="space-y-5">
                 
                 {/* Drawer Header */}
-                <div className="flex justify-between items-center pb-4 border-b border-neutral-100">
+                <div className="flex justify-between items-center pb-4 border-b border-[#021201]">
                   <div className="flex items-center space-x-2">
-                    <img src="https://i.ibb.co/1f3mhnj4/file-000000009c0871f4a926f8036d1d614e.png" alt="Logo" className="w-5 h-5 object-contain" referrerPolicy="no-referrer" />
+                    <img src="/eenvoq-app-logo.png" alt="Logo" className="w-5 h-5 object-contain" referrerPolicy="no-referrer" />
                     <div className="flex flex-col">
-                      <span className="text-sm font-semibold text-black uppercase tracking-wider">EENVOQ</span>
-                      {isDesktop && <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-neutral-500">for {businessName}</span>}
+                      <span className="text-sm font-semibold text-white uppercase tracking-wider">EENVOQ</span>
+                      {isDesktop && <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#a6ff00]">for {businessName}</span>}
                     </div>
                   </div>
                   <button 
                     onClick={() => setMenuOpen(false)}
-                    className="text-neutral-400 hover:text-black"
+                    className="text-white hover:text-[#a6ff00]"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -2956,6 +2957,7 @@ export default function App() {
             onSelectSearchResult={handleSearchSelect}
             searchOpen={headerSearchOpen}
             setSearchOpen={setHeaderSearchOpen}
+            profilePic={profilePic}
           />
 
         {/* Dynamic App Content Box */}
@@ -3097,99 +3099,123 @@ export default function App() {
                 </div>
               )}
 
-              {/* VIEW 1: DESK (DASHBOARD) */}
+             {/* VIEW 1: DESK (DASHBOARD) */}
               {activeTab === 'desk' && (
                 <div className="space-y-0">
                   {/* Dark Green Hero Section */}
-                  <div className="relative overflow-hidden bg-gradient-to-b from-[#0B4D2B] via-[#063B1F] to-[#042D17] px-4 pt-6 pb-8 sm:px-6 sm:pt-8 sm:pb-10 lg:px-8 lg:pt-10 lg:pb-12" style={{ borderRadius: '0 0 32px 32px' }}>
-                    {/* Wave Pattern */}
-                    <div className="hero-wave-pattern" style={{ opacity: '0.06' }}></div>
-                    
+                  <div className="relative overflow-hidden -mt-4 bg-[#021201] px-4 pt-8 pb-8 sm:px-6 sm:pb-10 lg:px-8 lg:pb-12" style={{ borderRadius: '0 0 32px 32px' }}>
+                    <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#021201] via-[#021201] to-[#021201] opacity-100" aria-hidden="true" />
+                    <div className="hero-wave-pattern absolute inset-x-0 bottom-0 h-40 opacity-10" />
+
                     {/* Content */}
                     <div className="relative z-10">
-                      <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+                      <div className="space-y-4">
+                        <p className="text-[11px] uppercase tracking-[0.3em] text-white/70">{dashboardHeroLabel}</p>
                         <div>
-                          <p className="text-[11px] uppercase tracking-[0.3em] text-white/70">{dashboardHeroLabel}</p>
-                          <h2 className="mt-2 text-3xl font-semibold tracking-[-0.03em] text-white sm:text-4xl">
-                            {getGreeting()}, {userFirstName}.
-                          </h2>
+                          <h1 className="text-2xl font-semibold tracking-[-0.03em] text-white sm:text-3xl">
+                            Good morning, {userFirstName}
+                          </h1>
+                          <p className="mt-2 max-w-2xl text-sm font-medium leading-7 text-white/80 sm:text-base">
+                            Record a sale now or add to your inventory.
+                          </p>
                         </div>
-                        <div className="flex flex-col gap-2.5 sm:flex-row">
-                          <button type="button" onClick={() => { setActiveTab('orders'); setTransactionReviewMode('standard'); }} className="rounded-full bg-[#06FF00] px-5 py-2.5 text-sm font-semibold text-[#042D17] shadow-[0_8px_24px_rgba(6,255,0,0.25)] transition hover:shadow-[0_12px_32px_rgba(6,255,0,0.35)] hover:translate-y-[-1px]">
-                            Record {transactionLabel}
-                          </button>
-                          <button type="button" onClick={() => { setActiveTab('stock'); setInventoryType('Products'); setInventoryAlertFilter('Low'); setInventoryStatusFilter('All'); }} className="rounded-full border border-white/20 bg-transparent px-5 py-2.5 text-sm font-semibold text-white transition hover:border-white/40 hover:bg-white/5">
-                            Add {inventoryLabel}
-                          </button>
-                        </div>
+                      </div>
+
+                      <div className="mt-6 grid grid-cols-2 gap-3">
+                        <button
+                          type="button"
+                          onClick={() => { setActiveTab('orders'); setTransactionReviewMode('standard'); }}
+                          className="inline-flex items-center justify-center gap-2 rounded-[20px] bg-[#a6ff00] px-4 py-4 text-sm font-semibold text-[#042D17] shadow-[0_10px_30px_rgba(6,255,0,0.28)] transition hover:shadow-[0_14px_40px_rgba(6,255,0,0.35)]"
+                        >
+                          <Plus className="h-4 w-4" />
+                          Record Sale
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => { setActiveTab('stock'); setInventoryType('Products'); setInventoryAlertFilter('Low'); setInventoryStatusFilter('All'); }}
+                          className="inline-flex items-center justify-center gap-2 rounded-[20px] border border-[#a6ff00] bg-white/10 px-4 py-4 text-sm font-semibold text-white transition hover:bg-white/15"
+                        >
+                          Add Inventory
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => { setActiveTab('orders'); setTransactionReviewMode('standard'); }}
+                          className="inline-flex items-center justify-center gap-2 rounded-[20px] border border-[#a6ff00] bg-white/10 px-4 py-4 text-sm font-semibold text-white transition hover:bg-white/15"
+                        >
+                          View Orders
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setActiveTab('analytics')}
+                          className="inline-flex items-center justify-center gap-2 rounded-[20px] border border-[#a6ff00] bg-white/10 px-4 py-4 text-sm font-semibold text-white transition hover:bg-white/15"
+                        >
+                          Expenses
+                        </button>
                       </div>
                     </div>
                   </div>
 
                   {/* White Content Area */}
-                  <div className="space-y-3 p-4 sm:p-5 lg:p-6">
-
-                  <div className="space-y-3">
+                  <div className="space-y-3 bg-white p-4 sm:p-5 lg:p-6">
                     <div className="flex items-center justify-between gap-3">
                       <div>
-                        <p className="text-[11px] uppercase tracking-[0.28em] text-neutral-500">Dashboard statistics</p>
-                        <h3 className="mt-1 text-lg font-semibold text-black">A premium snapshot of the business</h3>
-                      </div>
-                      <div className="relative">
-                        <button
-                          type="button"
-                          onClick={() => setShowDashboardFilterMenu((value) => !value)}
-                          className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-neutral-200 bg-white text-black shadow-[0_10px_30px_rgba(0,0,0,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_18px_45px_rgba(0,0,0,0.12)]"
-                          aria-label="Filter dashboard stats"
-                        >
-                          <Sliders className="h-5 w-5" />
-                        </button>
-                        {showDashboardFilterMenu && (
-                          <div className="absolute right-0 z-20 mt-2 w-48 rounded-[18px] border border-neutral-200 bg-white p-2 shadow-[0_16px_45px_rgba(0,0,0,0.12)]">
-                            {dashboardFilterOptions.map((option) => (
-                              <button
-                                key={option.value}
-                                type="button"
-                                onClick={() => {
-                                  setDeskRange(option.value);
-                                  setShowDashboardFilterMenu(false);
-                                }}
-                                className={`flex w-full items-center justify-between rounded-[12px] px-3 py-2 text-sm font-medium text-left ${deskRange === option.value ? 'bg-[#a6ff00] text-black' : 'text-neutral-700 hover:bg-neutral-50'}`}
-                              >
-                                <span>{option.label}</span>
-                                {deskRange === option.value && <CheckCircle className="h-4 w-4 text-[#a6ff00]" />}
-                              </button>
-                            ))}
-                          </div>
-                        )}
+                        <p className="text-[11px] uppercase tracking-[0.28em] text-neutral-500">Overview</p>
+                        <h2 className="mt-1 text-xl font-semibold text-black">Overview</h2>
                       </div>
                     </div>
 
-                    <div className="flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory">
-                      {dashboardStats.map((card) => {
-                        const Icon = card.icon;
-                        return (
-                          <button
-                            key={card.id}
-                            type="button"
-                            onClick={() => setActiveTab(card.page)}
-                            className="group min-h-[220px] w-[260px] shrink-0 snap-start rounded-[28px] border border-neutral-200 bg-white p-5 text-left shadow-[0_16px_45px_rgba(0,0,0,0.06)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_65px_rgba(0,0,0,0.12)] active:scale-[0.98]"
-                            style={{ fontFamily: 'Manrope, ui-sans-serif, system-ui, sans-serif' }}
-                          >
-                            <div className={`inline-flex rounded-2xl ${card.iconBg} p-3 ${card.iconTint}`}>
-                              <Icon className="h-5 w-5" />
-                            </div>
-                            <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.28em] text-neutral-500">{card.label}</p>
-                            <p className="mt-3 text-2xl font-semibold leading-tight text-black">{card.value}</p>
-                            <p className="mt-3 text-sm leading-6 text-neutral-600">{card.detail}</p>
-                            <div className={`mt-4 inline-flex rounded-full bg-gradient-to-r ${card.accent} px-3 py-1.5 text-xs font-semibold text-black`}>
-                              {card.description}
-                            </div>
-                          </button>
-                        );
-                      })}
+                    <div className="-mx-4 px-4 pb-4 sm:-mx-5 sm:px-5 lg:-mx-6 lg:px-6">
+                      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                        {dashboardStats.map((card) => {
+                          const Icon = card.icon;
+                          return (
+                            <button
+                              key={card.id}
+                              type="button"
+                              onClick={() => setActiveTab(card.page)}
+                              className="min-h-[150px] rounded-[24px] border border-neutral-200 bg-white p-3 text-left shadow-[0_10px_22px_rgba(0,0,0,0.06)] transition hover:-translate-y-0.5"
+                            >
+                              <div className={`inline-flex h-10 w-10 items-center justify-center rounded-2xl ${card.iconBg} ${card.iconTint}`}>
+                                <Icon className="h-5 w-5" />
+                              </div>
+                              <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.25em] text-neutral-500">{card.label}</p>
+                              <p className="mt-2 text-base font-semibold text-black leading-tight">{card.value}</p>
+                              <p className="mt-1 text-[11px] leading-5 text-neutral-600">{card.detail}</p>
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
+
+                    <div className="rounded-[28px] border border-neutral-200 bg-white p-5 shadow-[0_16px_60px_rgba(0,0,0,0.03)]">
+                      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                        <div>
+                          <p className="text-[11px] uppercase tracking-[0.25em] text-neutral-500">Performance overview</p>
+                          <h3 className="mt-1 text-lg font-semibold text-black">How it's going so far</h3>
+                        </div>
+                        <div className="rounded-full border border-[#a6ff00]/30 bg-[#a6ff00] px-3 py-1.5 text-sm font-medium text-black">
+                          {deskRange}
+                        </div>
+                      </div>
+                      <div className="mt-4 h-56">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <AreaChart data={deskChartData} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
+                            <defs>
+                              <linearGradient id="deskGradient" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor="#a6ff00" stopOpacity={0.32} />
+                                <stop offset="100%" stopColor="#a6ff00" stopOpacity={0.04} />
+                              </linearGradient>
+                            </defs>
+                            <CartesianGrid stroke="#ececec" vertical={false} strokeDasharray="3 3" />
+                            <XAxis dataKey="name" stroke="#737373" fontSize={12} tickLine={false} axisLine={false} />
+                            <YAxis stroke="#737373" fontSize={12} tickLine={false} axisLine={false} />
+                            <Tooltip />
+                            <Area type="monotone" dataKey="value" stroke="#a6ff00" strokeWidth={2.5} fill="url(#deskGradient)" />
+                          </AreaChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+
 
                   <div className="rounded-[28px] border border-neutral-200 bg-white p-5 shadow-[0_16px_60px_rgba(0,0,0,0.03)]">
                     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -3311,8 +3337,9 @@ export default function App() {
                       <button type="button" onClick={() => { setActiveTab('ai'); handleSendPrompt('Summarize the most urgent priorities for my organization today.'); }} className="rounded-[18px] border border-black bg-[#a6ff00] px-4 py-3 text-sm font-semibold text-black">Ask</button>
                     </div>
                   </div>
-                </div>
-              )}
+                </div> {/* <--- Added missing closing tag for the white content area */}
+              </div>
+            )}
 
               {/* VIEW 2: STOCK (INVENTORY) */}
               {activeTab === 'stock' && (
@@ -3389,7 +3416,39 @@ export default function App() {
                           className="w-full rounded-2xl border border-neutral-200 bg-neutral-50 px-3 py-2.5 pl-9 text-sm text-black outline-none focus:border-[#a6ff00]"
                         />
                       </div>
-                      <div className="flex flex-wrap gap-2">
+                      <div className="grid gap-3 lg:hidden">
+                        <label className="grid gap-2 text-sm text-white">
+                          <span className="text-xs font-semibold uppercase tracking-[0.28em] text-[#a6ff00]">Category</span>
+                          <select
+                            value={inventoryCategoryFilter}
+                            onChange={(event) => setInventoryCategoryFilter(event.target.value)}
+                            className="w-full rounded-[20px] border border-[#a6ff00] bg-[#021201] px-4 py-3 text-sm text-white shadow-[0_18px_40px_rgba(0,255,0,0.08)] outline-none transition hover:border-[#a6ff00]/80"
+                          >
+                            {categories.map((category) => (
+                              <option key={category} value={category} className="bg-[#021201] text-white">
+                                {category}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+
+                        <label className="grid gap-2 text-sm text-white">
+                          <span className="text-xs font-semibold uppercase tracking-[0.28em] text-[#a6ff00]">Status</span>
+                          <select
+                            value={inventoryStatusFilter}
+                            onChange={(event) => setInventoryStatusFilter(event.target.value)}
+                            className="w-full rounded-[20px] border border-[#a6ff00] bg-[#021201] px-4 py-3 text-sm text-white shadow-[0_18px_40px_rgba(0,255,0,0.08)] outline-none transition hover:border-[#a6ff00]/80"
+                          >
+                            {statusOptions.map((option) => (
+                              <option key={option} value={option} className="bg-[#021201] text-white">
+                                {option}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+                      </div>
+
+                      <div className="hidden lg:flex flex-wrap gap-2">
                         {categories.map((category) => (
                           <button
                             key={category}
@@ -3403,7 +3462,7 @@ export default function App() {
                       </div>
                     </div>
 
-                    <div className="mt-3 flex flex-wrap gap-2">
+                    <div className="hidden lg:flex mt-3 flex-wrap gap-2">
                       {statusOptions.map((option) => (
                         <button
                           key={option}
@@ -3633,7 +3692,7 @@ export default function App() {
                     </div>
                     <button type="button" onClick={() => openTransactionComposer(null)} className={primaryActionClasses}>
                       <Plus className="h-4 w-4" />
-                      Record Transaction
+                      Record Sale
                     </button>
                   </div>
 
@@ -3679,7 +3738,7 @@ export default function App() {
                               <h3 className="mt-1 text-base font-semibold text-black">Latest records</h3>
                             </div>
                             <button type="button" onClick={() => openTransactionComposer(null)} className="rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-sm font-medium text-black">
-                              Record Transaction
+                              Record Sale
                             </button>
                           </div>
                           <div className="mt-4 space-y-3">
@@ -4265,7 +4324,7 @@ export default function App() {
                         <span className="rounded-full border border-[#a6ff00]/25 bg-[#a6ff00] px-3 py-1 text-xs font-medium text-black">{summary.lowStockCount} flagged</span>
                       </div>
                       <div className="mt-3 space-y-2">
-                        {products.filter(p => p.stock <= p.minStock).map(prod => (
+                        {products.filter(p => p && (p.stock ?? 0) <= (p.minStock ?? 0)).map(prod => (
                           <div key={prod.id} className="flex flex-col gap-2 rounded-[16px] border border-neutral-200 bg-neutral-50 px-3 py-3 sm:flex-row sm:items-center sm:justify-between">
                             <div>
                               <p className="font-semibold text-black">{prod.name}</p>
@@ -4416,9 +4475,22 @@ export default function App() {
               {/* VIEW 8: PROFILE & BUSINESS SETTINGS */}
               {activeTab === 'settings' && (
                 <div className="p-5 space-y-4">
-                  <div className="flex items-center justify-between gap-3">
-                    <h2 className="text-sm font-semibold text-black">Profile & Settings</h2>
-                    <button type="button" onClick={handleLogout} className="rounded-full border border-neutral-200 bg-white px-3 py-2 text-sm font-medium text-black">Log out</button>
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <h2 className="text-sm font-semibold text-black">Profile & Settings</h2>
+                    </div>
+                    <div className="flex flex-col items-start gap-2 sm:items-end">
+                      <button type="button" onClick={handleLogout} className="rounded-full border border-neutral-200 bg-white px-3 py-2 text-sm font-medium text-black">Log out</button>
+                      <label className="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-black">
+                        <input
+                          type="checkbox"
+                          checked={bottomNavVisible}
+                          onChange={(event) => setBottomNavVisible(event.target.checked)}
+                          className="h-4 w-4 rounded border-neutral-300 bg-white text-[#a6ff00] focus:ring-[#a6ff00]"
+                        />
+                        <span className="text-sm">Bottom nav visible</span>
+                      </label>
+                    </div>
                   </div>
 
                   {currentOperatorId === 'owner' && (
@@ -5008,59 +5080,75 @@ export default function App() {
         </div>
 
         {/* Bottom Tab Bar Navigation - Standard mobile paradigm */}
-        <nav className="sticky bottom-0 z-40 flex h-16 flex-shrink-0 items-center justify-around border-t border-neutral-100 bg-white px-2 lg:hidden">
-          <button
-            onClick={() => setActiveTab('desk')}
-            className={`flex flex-col items-center justify-center flex-1 py-1 transition-colors ${
-              activeTab === 'desk' ? 'text-black font-semibold' : 'text-neutral-400 hover:text-black font-normal'
-            }`}
-          >
-            <Activity className="w-4 h-4 mb-1" />
-            <span className="text-sm">Desk</span>
-          </button>
+        {bottomNavVisible && (
+          <div className="fixed inset-x-0 bottom-0 z-50 px-3 pb-3 lg:hidden">
+            <div className="overflow-hidden rounded-[32px] border border-[#a6ff00] bg-[#021201] shadow-[0_28px_80px_rgba(0,0,0,0.35)]">
+              <nav className="flex items-center justify-between gap-2 px-3 py-3">
+                <button
+                  onClick={() => setActiveTab('desk')}
+                  className={`flex flex-1 flex-col items-center justify-center gap-1 rounded-3xl border px-2 py-2 text-xs transition ${
+                    activeTab === 'desk'
+                      ? 'border-[#a6ff00] bg-[#021201] text-[#a6ff00]'
+                      : 'border-transparent text-white/70 hover:border-[#a6ff00]/30 hover:text-[#a6ff00] hover:bg-white/5'
+                  }`}
+                >
+                  <Activity className="w-5 h-5" />
+                  <span>Home</span>
+                </button>
 
-          <button
-            onClick={() => setActiveTab('stock')}
-            className={`flex flex-col items-center justify-center flex-1 py-1 transition-colors ${
-              activeTab === 'stock' ? 'text-black font-semibold' : 'text-neutral-400 hover:text-black font-normal'
-            }`}
-          >
-            <Package className="w-4 h-4 mb-1" />
-            <span className="text-sm">Stock</span>
-          </button>
+                <button
+                  onClick={() => setActiveTab('stock')}
+                  className={`flex flex-1 flex-col items-center justify-center gap-1 rounded-3xl border px-2 py-2 text-xs transition ${
+                    activeTab === 'stock'
+                      ? 'border-[#a6ff00] bg-[#021201] text-[#a6ff00]'
+                      : 'border-transparent text-white/70 hover:border-[#a6ff00]/30 hover:text-[#a6ff00] hover:bg-white/5'
+                  }`}
+                >
+                  <Package className="w-5 h-5" />
+                  <span>Stock</span>
+                </button>
 
-          <button
-            onClick={() => setActiveTab('orders')}
-            className={`flex flex-col items-center justify-center flex-1 py-1 transition-colors ${
-              activeTab === 'orders' ? 'text-black font-semibold' : 'text-neutral-400 hover:text-black font-normal'
-            }`}
-          >
-            <ShoppingCart className="w-4 h-4 mb-1" />
-            <span className="text-sm">Transactions</span>
-          </button>
+                <button
+                  onClick={() => setActiveTab('orders')}
+                  className={`flex flex-1 flex-col items-center justify-center gap-1 rounded-3xl border px-2 py-2 text-xs transition ${
+                    activeTab === 'orders'
+                      ? 'border-[#a6ff00] bg-[#021201] text-[#a6ff00]'
+                      : 'border-transparent text-white/70 hover:border-[#a6ff00]/30 hover:text-[#a6ff00] hover:bg-white/5'
+                  }`}
+                >
+                  <ShoppingCart className="w-5 h-5" />
+                  <span>Orders</span>
+                </button>
 
-          <button
-            onClick={() => setActiveTab('ai')}
-            className={`flex flex-col items-center justify-center flex-1 py-1 transition-colors ${
-              activeTab === 'ai' ? 'text-black font-semibold' : 'text-neutral-400 hover:text-black font-normal'
-            }`}
-          >
-            <MessageSquare className="w-4 h-4 mb-1" />
-            <span className="text-sm">Advisor</span>
-          </button>
+                <button
+                  onClick={() => setActiveTab('ai')}
+                  className={`flex flex-1 flex-col items-center justify-center gap-1 rounded-3xl border px-2 py-2 text-xs transition ${
+                    activeTab === 'ai'
+                      ? 'border-[#a6ff00] bg-[#021201] text-[#a6ff00]'
+                      : 'border-transparent text-white/70 hover:border-[#a6ff00]/30 hover:text-[#a6ff00] hover:bg-white/5'
+                  }`}
+                >
+                  <MessageSquare className="w-5 h-5" />
+                  <span>AI</span>
+                </button>
 
-          <button
-            onClick={() => setActiveTab('tag')}
-            className={`flex flex-col items-center justify-center flex-1 py-1 transition-colors ${
-              activeTab === 'tag' ? 'text-black font-semibold' : 'text-neutral-400 hover:text-black font-normal'
-            }`}
-          >
-            <Send className="w-4 h-4 mb-1" />
-            <span className="text-sm">Tag</span>
-          </button>
-        </nav>
-        </div>
+                <button
+                  onClick={() => setActiveTab('tag')}
+                  className={`flex flex-1 flex-col items-center justify-center gap-1 rounded-3xl border px-2 py-2 text-xs transition ${
+                    activeTab === 'tag'
+                      ? 'border-[#a6ff00] bg-[#021201] text-[#a6ff00]'
+                      : 'border-transparent text-white/70 hover:border-[#a6ff00]/30 hover:text-[#a6ff00] hover:bg-white/5'
+                  }`}
+                >
+                  <Send className="w-5 h-5" />
+                  <span>Tag</span>
+                </button>
+              </nav>
+            </div>
+          </div>
+        )}
       </div>
+    </div>
 
       {/* ---------------------------------------------------- */}
       {/* DIALOG MODALS SECTION (STRICT MINIMAL STYLING) */}
@@ -5740,17 +5828,16 @@ export default function App() {
                   Cancel
                 </button>
                 <button
-                  type="submit"
-                  className="bg-neutral-950 hover:bg-black text-white px-4 py-2 rounded-md font-normal text-sm transition-colors"
-                >
-                  Save Partner
-                </button>
-              </div>
-
-            </form>
+                    type="submit"
+                    className="bg-neutral-950 hover:bg-black text-white px-4 py-2 rounded-md font-normal text-sm transition-colors"
+                  >
+                    Save Partner
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
   );
 }

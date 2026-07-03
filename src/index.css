@@ -4,7 +4,7 @@
   /* Primary Brand Colors */
   --primary-color: #0B3D2E;
   --primary-color-light: #0F5132;
-  --accent-color: #06FF00;
+  --accent-color: #a6FF00;
   
   /* Background Colors */
   --bg-primary: #FFFFFF;
@@ -59,12 +59,12 @@
   --_colors---glyph--light: #FFFFFF;
   --_colors---glyph--secondary: #64748B;
   --_colors---glyph--stroke-terciary: #E2E8F0;
-  --_colors---background--accent: #06FF00;
+  --_colors---background--accent: #a6FF00;
   --_colors---background--secondary: #F8FAFC;
   --_colors---background--light-caqui: #F8FAFC;
   --_colors---background--dark-secondary: #0B3D2E;
   --_colors---button--primary-background: #0B3D2E;
-  --_colors---button--accent: #06FF00;
+  --_colors---button--accent: #a6FF00;
   --_colors---button--link-default: #2563EB;
   --_colors---glyph--accent-gradient: #FFFFFF;
   
@@ -80,7 +80,7 @@
   --swatch--transparent: #fff0;
   
   /* Additional legacy colors mapped to new system */
-  --verde-claro: #06FF00;
+  --verde-claro: #a6FF00;
   --verde-agua: #38BDF8;
   --verde: #22C55E;
   --azul: #2563EB;
