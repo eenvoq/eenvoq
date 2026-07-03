@@ -1016,7 +1016,7 @@ function OnboardingWizard({ onComplete, setAppMode }: OnboardingWizardProps) {
   const [name, setName] = useState('Your Business');
   const [industry, setIndustry] = useState('Business');
   const [location, setLocation] = useState('Accra, Nigeria');
-  const [currency, setCurrency] = useState('NGN (â‚¦)');
+  const [currency, setCurrency] = useState('NGN (₦)');
   const [contactEmail, setContactEmail] = useState('support@yourbusiness.com');
   const [contactPhone, setContactPhone] = useState('');
   const [staffCount, setStaffCount] = useState(1);
@@ -1026,7 +1026,7 @@ function OnboardingWizard({ onComplete, setAppMode }: OnboardingWizardProps) {
   const requiredModules: ModuleKey[] = ['transactions', 'inventory', 'staff', 'reports', 'ai'];
   // Only keep industry options relevant to Business or Education
   const industryOptions = ['Business', 'Education'];
-  const locationOptions = ['Accra, Ghana', 'Kumasi, Ghana', 'Lagos, Nigeria', 'Nairobi, Kenya', 'London, UK', 'New York, USA'];
+  const locationOptions = ['Nigeria', 'Ghana', 'Kenya', 'United Kingdom (UK)', 'United States of America (USA)', 'Australia', 'Canada', 'South Africa'];
 
   // Keep profileType and industry aligned; enforce only 'business' or 'school'
   useEffect(() => {
@@ -1034,11 +1034,14 @@ function OnboardingWizard({ onComplete, setAppMode }: OnboardingWizardProps) {
     else setProfileType('business');
   }, [industry]);
   const currencyOptions = [
-    { value: 'NGN (â‚¦)', label: 'NGN' },
-    { value: 'Ghana Cedis (â‚µ)', label: 'Ghana cedis' },
+    { value: 'NGN (₦)', label: 'NGN' },
+    { value: 'Ghana Cedis (₵)', label: 'Ghana cedis' },
     { value: 'Kenyan Shillings (KSh)', label: 'Kenyan shillings' },
     { value: 'USD ($)', label: 'USD' },
-    { value: 'GBP (Â£)', label: 'GBP' }
+    { value: 'GBP (£)', label: 'GBP' },
+    { value: 'AUD ($)', label: 'AUD' },
+    { value: 'CAD ($)', label: 'CAD' },
+    { value: 'ZAR (R)', label: 'ZAR' }
   ];
 
   useEffect(() => {
@@ -1048,7 +1051,7 @@ function OnboardingWizard({ onComplete, setAppMode }: OnboardingWizardProps) {
 
   useEffect(() => {
     if (location.includes('Nigeria')) {
-      setCurrency('NGN (â‚¦)');
+      setCurrency('NGN (₦)');
     }
   }, [location]);
 

@@ -2366,7 +2366,7 @@ export default function App() {
             ? 'Patient records are set up for follow-up and care coordination.'
             : 'Academic records are ready for review and can be extended with additional data.'
     : inventoryType === 'Products'
-      ? 'Your product catalog is being tracked by categories and stock thresholds.'
+      ? 'I am tracking your product catalog using your categories and stock thresholds.'
       : inventoryType === 'Members'
         ? 'Membership records are current. Monitor renewals and engagement activity.'
         : inventoryType === 'Patients'
@@ -2744,7 +2744,7 @@ export default function App() {
     }
   })) : [
     {
-      title: `${summary.lowStockCount} products may need replenishment`,
+      title: `${summary.lowStockCount} products may need restocking`,
       detail: 'Open the low-stock inventory view and replenish before demand slips.',
       action: () => { setActiveTab('stock'); setInventoryType('Products'); setInventoryAlertFilter('Low'); setInventoryStatusFilter('All'); }
     },
@@ -2826,7 +2826,7 @@ export default function App() {
                 </div>
 
                 {/* Owner Profile Snippet */}
-                <div className="flex items-center space-x-3 p-2 bg-neutral-50 rounded-lg">
+                <div className="flex items-center space-x-3 p-2 bg-[#021201]-50 border border-neutral-200 rounded-lg">
                   <img 
                     src={profilePic} 
                     alt={ownerName} 
@@ -2844,13 +2844,13 @@ export default function App() {
                   <p className="text-sm font-semibold text-neutral-400 px-2 uppercase tracking-widest pb-1">Quick Access</p>
 
                   <SidebarNavButton
-                    label={activeOrganizationProfile.navigation[0]?.label || 'Desk (Dashboard)'}
+                    label={activeOrganizationProfile.navigation[0]?.label || 'Dashboard'}
                     icon={Activity}
                     active={activeTab === 'desk'}
                     onClick={() => { setActiveTab('desk'); setMenuOpen(false); }}
                   />
                   <SidebarNavButton
-                    label={activeOrganizationProfile.navigation.find((item) => item.tab === 'stock')?.label || 'Inventory & Assets'}
+                    label={activeOrganizationProfile.navigation.find((item) => item.tab === 'stock')?.label || 'Stock & Inventory'}
                     icon={Package}
                     active={activeTab === 'stock'}
                     onClick={() => { setActiveTab('stock'); setMenuOpen(false); }}
@@ -2868,7 +2868,7 @@ export default function App() {
                     onClick={() => { setActiveTab('ai'); setMenuOpen(false); }}
                   />
                   <SidebarNavButton
-                    label="Tag"
+                    label="Tags"
                     icon={MessageSquare}
                     active={activeTab === 'tag'}
                     badge={tagThreads.length > 0 ? tagThreads.length : undefined}
@@ -2878,19 +2878,19 @@ export default function App() {
                   <p className="text-sm font-semibold text-neutral-400 px-2 uppercase tracking-widest pt-3 pb-1">Business Add-ons</p>
 
                   <SidebarNavButton
-                    label="Smart Analytics"
+                    label="Revenue & Analytics"
                     icon={TrendingUp}
                     active={activeTab === 'analytics'}
                     onClick={() => { setActiveTab('analytics'); setMenuOpen(false); }}
                   />
                   <SidebarNavButton
-                    label="Suppliers List"
+                    label="Suppliers"
                     icon={Truck}
                     active={activeTab === 'procurement'}
                     onClick={() => { setActiveTab('procurement'); setMenuOpen(false); }}
                   />
                   <SidebarNavButton
-                    label="Auditing Logs"
+                    label="Audits"
                     icon={History}
                     active={activeTab === 'audits'}
                     onClick={() => { setActiveTab('audits'); setMenuOpen(false); }}
@@ -2979,7 +2979,7 @@ export default function App() {
                     <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
                       <div>
                         <p className="text-[11px] uppercase tracking-[0.3em] text-neutral-500">Tag workspace</p>
-                        <h2 className="text-lg font-semibold text-black">Tag yourself and leave requests for your team</h2>
+                        <h2 className="text-lg font-semibold text-black">Tag business owner, manager or staff and leave requests they can respond to</h2>
                         <p className="mt-1 text-sm text-neutral-600">Use tags for stock checks, sales follow-ups, and operating requests that need another teammate to act on.</p>
                       </div>
                       <button type="button" onClick={() => setShowTagComposer(true)} className="inline-flex items-center justify-center gap-2 rounded-2xl border border-black bg-[#a6ff00] px-3 py-2 text-sm font-semibold text-black">
@@ -2994,7 +2994,7 @@ export default function App() {
                       <div className="flex items-start justify-between gap-3">
                         <div>
                           <p className="text-[11px] uppercase tracking-[0.25em] text-neutral-500">Quick tag</p>
-                          <p className="mt-1 text-sm font-semibold text-black">Tag yourself and leave a request for another operator.</p>
+                          <p className="mt-1 text-sm font-semibold text-black">Tag business owner, manager or staff and leave requests they can respond to.</p>
                         </div>
                         <button type="button" onClick={() => setShowTagComposer(false)} className="rounded-full p-1 text-neutral-500 hover:bg-neutral-50 hover:text-black">
                           <X className="h-4 w-4" />
@@ -3090,7 +3090,7 @@ export default function App() {
                     <div className="rounded-[24px] border border-neutral-200 bg-white p-4 shadow-[0_16px_60px_rgba(0,0,0,0.03)]">
                       <p className="text-[11px] uppercase tracking-[0.25em] text-neutral-500">How it works</p>
                       <ul className="mt-3 space-y-2 text-sm text-neutral-700">
-                        <li>• Tag yourself and mention a teammate for stock, sales, or operational follow-up.</li>
+                        <li>• Mention a colleague, staff, or owner for stock, sales, or operational follow-up.</li>
                         <li>• Leave a concrete request so the tagged person can act on the note right away.</li>
                         <li>• Keep comments visible in the shared workspace so the next action is obvious.</li>
                       </ul>
@@ -3370,7 +3370,7 @@ export default function App() {
                       </div>
                       <div className="inline-flex items-center gap-2 rounded-full border border-[#a6ff00]/30 bg-white px-3 py-2 text-sm font-medium text-black">
                         <Sparkles className="h-4 w-4 text-[#a6ff00]" />
-                        <span>Always explain what needs attention and why</span>
+                        <span>See what needs attention, why, and what to do</span>
                       </div>
                     </div>
                   </div>
@@ -4176,7 +4176,7 @@ export default function App() {
                       <h2 className="text-lg font-semibold text-black">Operations, cash flow, and profit health</h2>
                       <p className="mt-1 text-sm text-neutral-600">Review revenue, hidden operating costs, and the month-to-month trend in one place.</p>
                     </div>
-                    <button type="button" onClick={() => setActiveTab('stock')} className={secondaryActionClasses}>Open cost intake</button>
+                    <button type="button" onClick={() => setActiveTab('stock')} className={secondaryActionClasses}>Operational costs</button>
                   </div>
 
                   <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
@@ -4225,7 +4225,7 @@ export default function App() {
                     <div className="rounded-[24px] border border-neutral-200 bg-white p-4 shadow-[0_16px_60px_rgba(0,0,0,0.03)]">
                       <div className="flex items-center justify-between gap-3">
                         <div>
-                          <p className="text-[11px] uppercase tracking-[0.3em] text-neutral-500">Expense mix</p>
+                          <p className="text-[11px] uppercase tracking-[0.3em] text-neutral-500">All expenses</p>
                           <h3 className="mt-1 text-base font-semibold text-black">Where cash is moving</h3>
                         </div>
                         <div className="rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1 text-xs font-medium text-black">Updated live</div>
@@ -4275,7 +4275,7 @@ export default function App() {
                   <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
                     <div>
                       <p className="text-[11px] uppercase tracking-[0.3em] text-neutral-500">Supply chain</p>
-                      <h2 className="text-lg font-semibold text-black">Registered partners and replenishment actions</h2>
+                      <h2 className="text-lg font-semibold text-black">Registered partners</h2>
                       <p className="mt-1 text-sm text-neutral-600">Keep procurement, stock safety, and audit history connected from one place.</p>
                     </div>
                     <button 
