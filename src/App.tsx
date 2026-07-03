@@ -3193,7 +3193,7 @@ export default function App() {
                           <p className="text-[11px] uppercase tracking-[0.25em] text-neutral-500">Performance overview</p>
                           <h3 className="mt-1 text-lg font-semibold text-black">How it's going so far</h3>
                         </div>
-                        <div className="rounded-full border border-[#021201]/30 bg-[#021201] px-3 py-1.5 text-sm font-medium text-[#021201]">
+                        <div className="rounded-full border border-[#021201]/30 bg-[#021201] px-3 py-1.5 text-sm font-medium text-[#a6ff00]">
                           {deskRange}
                         </div>
                       </div>
