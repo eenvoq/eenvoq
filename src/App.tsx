@@ -3679,25 +3679,25 @@ export default function App() {
                         <div className="rounded-[24px] border border-neutral-200 bg-white p-4 shadow-[0_16px_60px_rgba(0,0,0,0.03)]">
                           <div className="flex items-start justify-between gap-3">
                             <div>
-                              <p className="text-[11px] uppercase tracking-[0.3em] text-neutral-500">Guided flow</p>
-                              <h3 className="mt-1 text-base font-semibold text-black">Create a transaction in minutes</h3>
+                              <p className="text-[11px] uppercase tracking-[0.3em] text-neutral-500">Record a sale</p>
+                              <h3 className="mt-1 text-base font-semibold text-black">In 3 steps</h3>
                             </div>
-                            <div className="rounded-full border border-[#a6ff00]/30 bg-[#a6ff00] px-3 py-1 text-xs font-medium text-black">
+                            <div className="rounded-full border border-[#021201]/30 bg-[#021201] px-3 py-1 text-xs font-medium text-[#a6ff00]">
                               {canManageTransactions ? 'Owner / Manager' : 'Operator'}
                             </div>
                           </div>
                           <div className="mt-4 grid gap-3 md:grid-cols-3">
                             <div className="rounded-[18px] border border-neutral-200 bg-neutral-50 p-3">
                               <p className="text-[11px] uppercase tracking-[0.25em] text-neutral-500">Step 1</p>
-                              <p className="mt-2 text-sm font-semibold text-black">Pick a recipient</p>
+                              <p className="mt-2 text-sm font-semibold text-black">Select customer (or create customer's profile)</p>
                             </div>
                             <div className="rounded-[18px] border border-neutral-200 bg-neutral-50 p-3">
                               <p className="text-[11px] uppercase tracking-[0.25em] text-neutral-500">Step 2</p>
-                              <p className="mt-2 text-sm font-semibold text-black">Choose inventory</p>
+                              <p className="mt-2 text-sm font-semibold text-black">Select the inventory (product, service, etc)</p>
                             </div>
                             <div className="rounded-[18px] border border-neutral-200 bg-neutral-50 p-3">
                               <p className="text-[11px] uppercase tracking-[0.25em] text-neutral-500">Step 3</p>
-                              <p className="mt-2 text-sm font-semibold text-black">Review and submit</p>
+                              <p className="mt-2 text-sm font-semibold text-black">Review and submit to create transaction</p>
                             </div>
                           </div>
                         </div>
