@@ -3756,7 +3756,7 @@ export default function App() {
                             <div>• Only owner and manager roles can edit or delete completed sales.</div>
                           </div>
                           <div className="mt-4 rounded-[18px] border border-[#a6ff00]/30 bg-[#a6ff00] p-3 text-sm text-neutral-700">
-                            Currency defaults to the value saved in settings: <span className="font-semibold text-black">{businessCurrency || organizationSetup.currency || 'NGN (₦)'}</span>
+                            Currency defaults to <span className="font-semibold text-black">{businessCurrency || organizationSetup.currency || 'NGN (₦)'}</span>. To choose your business currency, go to Profile & Settings.
                           </div>
                         </div>
                       </aside>
