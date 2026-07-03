@@ -3125,7 +3125,7 @@ export default function App() {
                         <button
                           type="button"
                           onClick={() => { setActiveTab('orders'); setTransactionReviewMode('standard'); }}
-                          className="inline-flex items-center justify-center gap-2 rounded-[20px] bg-[#a6ff00] px-4 py-4 text-sm font-semibold text-[#042D17] shadow-[0_10px_30px_rgba(6,255,0,0.28)] transition hover:shadow-[0_14px_40px_rgba(6,255,0,0.35)]"
+                          className="inline-flex items-center justify-center gap-2 rounded-[20px] bg-[#a6ff00] px-4 py-4 text-sm font-semibold text-[#042D17] transition hover:shadow-[0_14px_40px_rgba(6,255,0,0.35)]"
                         >
                           <Plus className="h-4 w-4" />
                           Record Sale
@@ -3160,7 +3160,7 @@ export default function App() {
                     <div className="flex items-center justify-between gap-3">
                       <div>
                         <p className="text-[11px] uppercase tracking-[0.28em] text-neutral-500">Overview</p>
-                        <h2 className="mt-1 text-xl font-semibold text-black">Overview</h2>
+                        <h2 className="mt-1 text-xl font-semibold text-black">Your stats today</h2>
                       </div>
                     </div>
 
@@ -3217,38 +3217,9 @@ export default function App() {
                     </div>
 
 
-                  <div className="rounded-[28px] border border-neutral-200 bg-white p-5 shadow-[0_16px_60px_rgba(0,0,0,0.03)]">
-                    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                      <div>
-                        <p className="text-[11px] uppercase tracking-[0.25em] text-neutral-500">Performance overview</p>
-                        <h3 className="mt-1 text-lg font-semibold text-black">A calm view of momentum</h3>
-                      </div>
-                      <div className="rounded-full border border-[#021201]/30 bg-[#021201] px-3 py-1.5 text-sm font-medium text-[#a6ff00]">
-                        {deskRange}
-                      </div>
-                    </div>
-                    <div className="mt-4 h-56">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={deskChartData} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
-                          <defs>
-                            <linearGradient id="deskGradient" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="0%" stopColor="#a6ff00" stopOpacity={0.32} />
-                              <stop offset="100%" stopColor="#a6ff00" stopOpacity={0.04} />
-                            </linearGradient>
-                          </defs>
-                          <CartesianGrid stroke="#ececec" vertical={false} strokeDasharray="3 3" />
-                          <XAxis dataKey="name" stroke="#737373" fontSize={12} tickLine={false} axisLine={false} />
-                          <YAxis stroke="#737373" fontSize={12} tickLine={false} axisLine={false} />
-                          <Tooltip />
-                          <Area type="monotone" dataKey="value" stroke="#a6ff00" strokeWidth={2.5} fill="url(#deskGradient)" />
-                        </AreaChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </div>
-
                   <div className="grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
                     <div className="rounded-[28px] border border-neutral-200 bg-white p-5 shadow-[0_16px_60px_rgba(0,0,0,0.03)]">
-                      <p className="text-[11px] uppercase tracking-[0.25em] text-neutral-500">Watchlist</p>
+                      <p className="text-[11px] uppercase tracking-[0.25em] text-neutral-500">Urgent attention</p>
                       <div className="mt-3 space-y-2">
                         {(() => {
                           const items = [] as Array<{ label: string; badge: string }>;
@@ -3318,16 +3289,16 @@ export default function App() {
 
                     <div className="rounded-[28px] border border-neutral-200 bg-white p-5 shadow-[0_16px_60px_rgba(0,0,0,0.03)]">
                       <p className="text-[11px] uppercase tracking-[0.25em] text-neutral-500">Verified transactions</p>
-                      <div className="mt-3 rounded-[22px] border border-[#a6ff00]/20 bg-[#a6ff00] p-4">
-                        <p className="text-4xl font-semibold tracking-[-0.03em] text-black">{orders.length > 0 ? `${Math.round((orders.filter((order) => order.status === 'Completed').length / orders.length) * 100)}%` : '0%'}</p>
-                        <p className="mt-2 text-sm text-neutral-600">Completed order ratio based on current transaction activity.</p>
+                      <div className="mt-3 rounded-[22px] border border-[#a6ff00]/20 bg-[#021201] p-4">
+                        <p className="text-4xl font-semibold tracking-[-0.03em] text-[#a6ff00]">{orders.length > 0 ? `${Math.round((orders.filter((order) => order.status === 'Completed').length / orders.length) * 100)}%` : '0%'}</p>
+                        <p className="mt-2 text-sm text-neutral-400">Completed order ratio based on current transaction activity.</p>
                       </div>
                       <button type="button" className="mt-3 rounded-full border border-neutral-200 bg-white px-3 py-2 text-sm font-medium text-black">Review current order status</button>
                     </div>
                   </div>
 
                   <div className="rounded-[28px] border border-neutral-200 bg-white p-5 shadow-[0_16px_60px_rgba(0,0,0,0.03)]">
-                    <p className="text-[11px] uppercase tracking-[0.25em] text-neutral-500">Global AI ask bar</p>
+                    <p className="text-[11px] uppercase tracking-[0.25em] text-neutral-500">Eenvoq AI</p>
                     <div className="mt-3 flex flex-col gap-2 sm:flex-row">
                       <input
                         type="text"
