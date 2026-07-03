@@ -2826,7 +2826,7 @@ export default function App() {
                 </div>
 
                 {/* Owner Profile Snippet */}
-                <div className="flex items-center space-x-3 p-2 bg-[#021201]-50 border border-neutral-200 rounded-lg">
+                <div className="flex items-center space-x-3 p-2 bg-[#021201]-50 rounded-lg">
                   <img 
                     src={profilePic} 
                     alt={ownerName} 
@@ -2834,7 +2834,7 @@ export default function App() {
                     referrerPolicy="no-referrer"
                   />
                   <div>
-                    <p className="text-sm font-semibold text-black leading-tight">{ownerName}</p>
+                    <p className="text-sm font-semibold text-neutral-400 leading-tight">{ownerName}</p>
                     <p className="text-xs font-normal text-neutral-400 leading-tight">{ownerRole}</p>
                   </div>
                 </div>
