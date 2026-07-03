@@ -3389,7 +3389,7 @@ export default function App() {
                       </div>
                       <div className="grid gap-3 lg:hidden">
                         <label className="grid gap-2 text-sm text-white">
-                          <span className="text-xs font-semibold uppercase tracking-[0.28em] text-[#a6ff00]">Category</span>
+                          <span className="text-xs font-semibold uppercase tracking-[0.28em] text-[#021201]">Category</span>
                           <select
                             value={inventoryCategoryFilter}
                             onChange={(event) => setInventoryCategoryFilter(event.target.value)}
@@ -3404,7 +3404,7 @@ export default function App() {
                         </label>
 
                         <label className="grid gap-2 text-sm text-white">
-                          <span className="text-xs font-semibold uppercase tracking-[0.28em] text-[#a6ff00]">Status</span>
+                          <span className="text-xs font-semibold uppercase tracking-[0.28em] text-[#021201]">Status</span>
                           <select
                             value={inventoryStatusFilter}
                             onChange={(event) => setInventoryStatusFilter(event.target.value)}
