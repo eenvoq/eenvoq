@@ -4,8 +4,8 @@
   "description": "Eenvoq mobile app experience for operations and business management.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#8EE5C2",
-  "theme_color": "#8EE5C2",
+  "background_color": "#021201",
+  "theme_color": "#021201",
   "orientation": "portrait",
   "icons": [
     {
