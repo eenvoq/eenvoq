@@ -48,6 +48,7 @@ import {
 
 import { AuthPage, OnboardingWizard, SidebarNavButton, AppHeader, MetricCard } from './components/AppViews';
 import { getOrganizationProfile, type ModuleKey, type OrganizationTypeKey } from './organizationConfig';
+import { getDemoLoginConfig, type DemoAccountKey } from './demoAccounts';
 
 // Interfaces matching the server models
 interface Product {
@@ -153,6 +154,9 @@ interface Supplier {
   leadTime: number;
   contact: string;
   email: string;
+  businessName?: string;
+  address?: string;
+  whatsappNumber?: string;
 }
 
 interface AuditLog {
@@ -249,17 +253,6 @@ const recipientOptions: TransactionRecipient[] = [
   { id: 'don-1', name: 'Daniel Mensah', subtitle: 'Donor • Sponsorship history', type: 'Donor' },
   { id: 'pat-1', name: 'Grace Tetteh', subtitle: 'Patient • Visit record', type: 'Patient' },
   { id: 'walk-1', name: 'Walk-in Guest', subtitle: 'No prior profile yet', type: 'Walk-in' }
-];
-
-const inventoryTypeOptions: Array<{ id: InventoryType; label: string; description: string }> = [
-  { id: 'Products', label: 'Products', description: 'Inventory-led commerce and stock control.' },
-  { id: 'Students', label: 'Students', description: 'Admissions, payments, attendance, and academic progress.' },
-  { id: 'Members', label: 'Members', description: 'Membership records, dues, and engagement.' },
-  { id: 'Patients', label: 'Patients', description: 'Patient records, visits, and follow-ups.' },
-  { id: 'Assets', label: 'Assets', description: 'Facilities, shared resources, and long-term value.' },
-  { id: 'Equipment', label: 'Equipment', description: 'Tools, devices, and operational gear.' },
-  { id: 'Vehicles', label: 'Vehicles', description: 'Fleet vehicles, transport, and assigned mobility assets.' },
-  { id: 'Custom Inventory', label: 'Custom Records', description: 'Flexible records for any operational need.' }
 ];
 
 const businessRecordCategories = [
@@ -441,11 +434,6 @@ const businessCategoryFields: Record<BusinessRecordCategory, FieldDefinition[]> 
     { key: 'email', label: 'Email', type: 'email' },
     { key: 'phone', label: 'Phone', type: 'tel' },
     { key: 'specialization', label: 'Specialization', type: 'text' }
-  ],
-  Other: [
-    { key: 'title', label: 'Record Title', type: 'text' },
-    { key: 'summary', label: 'Summary', type: 'textarea' },
-    { key: 'notes', label: 'Notes', type: 'textarea' }
   ]
 };
 
@@ -601,13 +589,11 @@ const educationCategoryFields: Record<EducationRecordCategory, FieldDefinition[]
     { key: 'sessionName', label: 'Session Name', type: 'text' },
     { key: 'startDate', label: 'Start Date', type: 'date' },
     { key: 'endDate', label: 'End Date', type: 'date' },
-    { key: 'notes', label: 'Notes', type: 'textarea' }
   ],
   'Term/Semester': [
     { key: 'termName', label: 'Term / Semester Name', type: 'text' },
     { key: 'startDate', label: 'Start Date', type: 'date' },
     { key: 'endDate', label: 'End Date', type: 'date' },
-    { key: 'notes', label: 'Notes', type: 'textarea' }
   ],
   'Fee Structure': [
     { key: 'feeName', label: 'Fee Structure Name', type: 'text' },
@@ -642,8 +628,6 @@ const educationCategoryFields: Record<EducationRecordCategory, FieldDefinition[]
   ],
   Product: [
     { key: 'productName', label: 'Product Name', type: 'text' },
-    { key: 'productCode', label: 'Product Code', type: 'text' },
-    { key: 'category', label: 'Product Category', type: 'text' },
     { key: 'price', label: 'Unit Price', type: 'number' },
     { key: 'stock', label: 'Stock Quantity', type: 'number' },
     { key: 'supplier', label: 'Supplier', type: 'text' }
@@ -661,11 +645,6 @@ const educationCategoryFields: Record<EducationRecordCategory, FieldDefinition[]
     { key: 'phoneNumber', label: 'Phone Number', type: 'tel' },
     { key: 'emailAddress', label: 'Email Address', type: 'email' },
     { key: 'address', label: 'Address', type: 'textarea' }
-  ],
-  Other: [
-    { key: 'title', label: 'Record Title', type: 'text' },
-    { key: 'summary', label: 'Summary', type: 'textarea' },
-    { key: 'notes', label: 'Notes', type: 'textarea' }
   ]
 };
 
@@ -796,6 +775,25 @@ export default function App() {
   const recipientLabel = activeOrganizationProfile.terminology.recipientLabel;
   const summaryLabel = activeOrganizationProfile.terminology.summaryLabel;
   const allRecordCategories = getRecordCategories(organizationSetup.profileType || organizationType);
+  const inventoryTypeOptions = useMemo<Array<{ id: InventoryType; label: string; description: string }>>(() => {
+    if (activeOrganizationProfile.id === 'institution') {
+      return [
+        { id: 'Students', label: 'Students', description: 'Admissions, payments, attendance, and academic progress.' },
+        { id: 'Assets', label: 'Assets', description: 'Facilities, shared resources, and long-term value.' },
+        { id: 'Equipment', label: 'Equipment', description: 'Tools, devices, and operational gear.' },
+        { id: 'Vehicles', label: 'Vehicles', description: 'Fleet vehicles, transport, and assigned mobility assets.' },
+        { id: 'Custom Inventory', label: 'Custom Records', description: 'Flexible records for any operational need.' }
+      ];
+    }
+
+    return [
+      { id: 'Products', label: 'Products', description: 'Inventory-led commerce and stock control.' },
+      { id: 'Assets', label: 'Assets', description: 'Facilities, shared resources, and long-term value.' },
+      { id: 'Equipment', label: 'Equipment', description: 'Tools, devices, and operational gear.' },
+      { id: 'Vehicles', label: 'Vehicles', description: 'Fleet vehicles, transport, and assigned mobility assets.' },
+      { id: 'Custom Inventory', label: 'Custom Records', description: 'Flexible records for any operational need.' }
+    ];
+  }, [activeOrganizationProfile.id]);
   const [headerSearchQuery, setHeaderSearchQuery] = useState('');
   const [headerSearchOpen, setHeaderSearchOpen] = useState(false);
 
@@ -958,7 +956,10 @@ export default function App() {
   const [showAddOrderModal, setShowAddOrderModal] = useState(false);
   const [showAddSupplierModal, setShowAddSupplierModal] = useState(false);
   const [showAddStaffModal, setShowAddStaffModal] = useState(false);
-  const [supplierDraft, setSupplierDraft] = useState({ name: '', specialty: 'Smart Devices & Security', leadTime: 5, contact: '', email: '' });
+  const [supplierDraft, setSupplierDraft] = useState({ name: '', businessName: '', address: '', whatsappNumber: '', specialty: 'General Supply', leadTime: 3, contact: '', email: '' });
+  const [recordSupplierSelection, setRecordSupplierSelection] = useState('');
+  const [showRecordSupplierComposer, setShowRecordSupplierComposer] = useState(false);
+  const [recordSupplierDraft, setRecordSupplierDraft] = useState({ name: '', businessName: '', address: '', whatsappNumber: '', email: '' });
   const [inventoryComposerStep, setInventoryComposerStep] = useState<'form' | 'preview'>('form');
   const [inventoryDraft, setInventoryDraft] = useState({
     inventoryType: 'Products' as InventoryType,
@@ -1293,6 +1294,52 @@ export default function App() {
     return found ? found.name : ownerName;
   };
 
+  const applyDemoAccount = (demoKey: DemoAccountKey) => {
+    const config = getDemoLoginConfig(demoKey);
+    const nextConfig: OrganizationSetupConfig = {
+      profileType: config.profileType,
+      name: config.name,
+      industry: config.industry,
+      subtype: config.subtype,
+      location: config.location,
+      currency: config.currency,
+      contactEmail: config.contactEmail,
+      contactPhone: config.contactPhone,
+      staffCount: config.staffCount,
+      modules: getOrganizationProfile(config.profileType).defaultModules,
+      logoUrl: config.logoUrl
+    };
+
+    setAuthName(config.name);
+    setAuthEmail(config.contactEmail);
+    setAuthPassword('demo-pass');
+    setAuthError('');
+    setOwnerName(config.name);
+    setOwnerEmail(config.contactEmail);
+    setOwnerRole(config.profileType === 'institution' ? 'Administrator' : 'Owner');
+    setProfilePic('https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=160&q=80');
+    setOrganizationSetup(nextConfig);
+    setBusinessName(config.name);
+    setBusinessCurrency(config.currency);
+    setOrganizationType(config.profileType);
+    setTenantAccountType(config.profileType);
+    setAppMode('app');
+    setActiveTab('desk');
+    setAuthMode('login');
+
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('eenvoq-organization-config', JSON.stringify(nextConfig));
+      localStorage.setItem('eenvoq-session', JSON.stringify({
+        isLoggedIn: true,
+        appMode: 'app',
+        activeTab: 'desk',
+        authMode: 'login',
+        userId: `demo-${demoKey}`,
+        accountType: config.profileType
+      }));
+    }
+  };
+
   const handleAuthSubmit = async (mode: 'login' | 'signup') => {
     setAuthError('');
     setAuthLoading(true);
@@ -1453,7 +1500,7 @@ export default function App() {
 
   const transactionTotals = getTransactionTotals();
 
-  const isOwnerSession = currentOperatorId === 'owner';
+  const isOwnerSession = currentOperatorId === 'owner' || Boolean(authUserId);
 
   const requestOwnerAccess = (detail: string) => {
     setConfirmAction({
@@ -1683,6 +1730,9 @@ export default function App() {
       details: {},
       attachments: []
     });
+    setRecordSupplierSelection('');
+    setShowRecordSupplierComposer(false);
+    setRecordSupplierDraft({ name: '', businessName: '', address: '', whatsappNumber: '', email: '' });
     setProductImageBase64('');
     setShowAddProductModal(true);
   };
@@ -1690,10 +1740,13 @@ export default function App() {
   const closeInventoryComposer = () => {
     setShowAddProductModal(false);
     setInventoryComposerStep('form');
+    setRecordSupplierSelection('');
+    setShowRecordSupplierComposer(false);
+    setRecordSupplierDraft({ name: '', businessName: '', address: '', whatsappNumber: '', email: '' });
     setProductImageBase64('');
   };
 
-  const handleInventoryComposerSubmit = async (event?: React.FormEvent) => {
+  const handleInventoryComposerSubmit = async (event?: React.FormEvent | React.MouseEvent<HTMLButtonElement>) => {
     if (event) {
       event.preventDefault();
     }
@@ -1759,6 +1812,11 @@ export default function App() {
       if (!detailsWithIds['admissionNumber']) detailsWithIds['admissionNumber'] = generatedRecordId;
     }
 
+    const unitPrice = Number(detailsWithIds.price || 0);
+    const costPrice = Number(detailsWithIds.cost || 0);
+    const stockValue = Number(detailsWithIds.stock || 0);
+    const minStockValue = Number(detailsWithIds.minStock || 0);
+
     const payload = {
       name: recordName,
       sku: generatedRecordId,
@@ -1771,7 +1829,12 @@ export default function App() {
       lastModifiedBy: getOperatorName(),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      image: productImageBase64 || ''
+      image: productImageBase64 || '',
+      price: unitPrice,
+      cost: costPrice,
+      stock: stockValue,
+      minStock: minStockValue,
+      currency: businessCurrency || organizationSetup.currency || 'NGN (₦)'
     };
 
     try {
@@ -1785,7 +1848,12 @@ export default function App() {
         throw new Error('Unable to save the intake record.');
       }
 
+      const savedRecord = await response.json();
       logAudit('Inventory', `Recorded ${recordName} under ${selectedCategory}.`);
+      setProducts((current) => [savedRecord, ...current]);
+      setSelectedInventoryRecord(savedRecord);
+      setInventoryType(selectedCategory === 'Product' ? 'Products' : selectedCategory === 'Supplier' || selectedCategory === 'Supplier/Vendor' ? 'Custom Inventory' : activeOrganizationProfile.id === 'institution' ? 'Students' : 'Products');
+      setActiveTab('stock');
       setShowAddProductModal(false);
       setInventoryComposerStep('form');
       setProductImageBase64('');
@@ -1801,6 +1869,10 @@ export default function App() {
         details: {},
         attachments: []
       });
+      setRecordSupplierSelection('');
+      setShowRecordSupplierComposer(false);
+      setRecordSupplierDraft({ name: '', businessName: '', address: '', whatsappNumber: '', email: '' });
+      setTransactionNotice(`Saved ${recordName} successfully. It is now visible in your ${inventoryLabel.toLowerCase()} workspace.`);
       await loadAllData();
     } catch (err) {
       console.error(err);
@@ -2061,7 +2133,8 @@ export default function App() {
 
   const handleCreateSupplier = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!supplierDraft.name.trim() || !supplierDraft.contact.trim() || !supplierDraft.email.trim()) {
+    if (!supplierDraft.name.trim() || !supplierDraft.email.trim()) {
+      setTransactionNotice('Please enter a supplier name and email before saving.');
       return;
     }
 
@@ -2069,17 +2142,23 @@ export default function App() {
       const response = await fetch('/api/suppliers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(supplierDraft)
+        body: JSON.stringify({
+          ...supplierDraft,
+          contact: supplierDraft.whatsappNumber || supplierDraft.contact,
+          specialty: supplierDraft.specialty || 'General Supply',
+          leadTime: Number(supplierDraft.leadTime) || 3
+        })
       });
 
       if (!response.ok) {
         throw new Error('Unable to save supplier.');
       }
 
-      setSupplierDraft({ name: '', specialty: 'Smart Devices & Security', leadTime: 5, contact: '', email: '' });
+      setSupplierDraft({ name: '', businessName: '', address: '', whatsappNumber: '', specialty: 'General Supply', leadTime: 3, contact: '', email: '' });
       setShowAddSupplierModal(false);
       await loadAllData();
       logAudit('Procurement', `Registered supplier partner ${supplierDraft.name}.`);
+      setTransactionNotice(`Saved ${supplierDraft.name} to your supplier roster.`);
     } catch (error) {
       console.error(error);
       setTransactionNotice(error instanceof Error ? error.message : 'Unable to save supplier.');
@@ -2142,6 +2221,13 @@ export default function App() {
     setInventorySearch('');
     setSelectedInventoryRecord(null);
   }, [inventoryType]);
+
+  useEffect(() => {
+    const allowedTypes = new Set(inventoryTypeOptions.map((option) => option.id));
+    if (!allowedTypes.has(inventoryType)) {
+      setInventoryType(inventoryTypeOptions[0]?.id ?? 'Products');
+    }
+  }, [inventoryType, inventoryTypeOptions]);
 
   const recordRows = products.map((record) => {
     const displayName = record.name || record.title || 'Untitled record';
@@ -2823,6 +2909,7 @@ export default function App() {
         setAuthPassword={setAuthPassword}
         setAppMode={setAppMode}
         onSubmit={handleAuthSubmit}
+        onSelectDemoAccount={applyDemoAccount}
         isLoading={authLoading}
         authError={authError}
         passwordVisible={passwordVisible}
@@ -3213,7 +3300,10 @@ export default function App() {
                     <div className="flex items-center justify-between gap-3"> 
                       <div>
                         <p className="text-[11px] uppercase tracking-[0.28em] text-neutral-500">Overview</p>
-                        <h2 className="mt-1 text-xl font-semibold text-black">Today's stats (click a card to view details)</h2>
+                        <div className="mt-1 flex flex-wrap items-center gap-2">
+                          <h2 className="text-xl font-semibold text-black">Today's stats</h2>
+                          <p className="text-sm italic text-neutral-500">(click a card to view details)</p>
+                        </div>
                       </div>
                     </div>
 
@@ -3241,14 +3331,15 @@ export default function App() {
 
                     <div className="rounded-none border-0 bg-transparent p-0 py-5 shadow-none sm:py-6 lg:py-6">
                       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                        <div>
-                          <p className="text-[11px] uppercase tracking-[0.25em] text-neutral-500">Performance overview</p>
-                          <h3 className="mt-1 text-lg font-semibold text-black">How it's going so far</h3>
+                        <div className="mt-1 flex flex-wrap items-center gap-2">
+                          <h2 className="text-xl font-semibold text-black">Graph representation</h2>
+                          <p className="text-sm italic text-neutral-500">(filter by date, stock type, etc.)</p>
                         </div>
                         <div className="rounded-full border border-[#021201]/30 bg-[#021201] px-3 py-1.5 text-sm font-medium text-[#a6ff00]">
                           {deskRange}
                         </div>
                       </div>
+
                       <div className="mt-4 h-56">
                         <ResponsiveContainer width="100%" height="100%">
                           <AreaChart data={deskChartData} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
@@ -3319,7 +3410,7 @@ export default function App() {
                     </div>
                   </div>
 
-                  <div className="grid gap-4 grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
+                  <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-2">
                     <div className="rounded-[24px] border border-neutral-200 bg-white p-4 shadow-[0_10px_22px_rgba(0,0,0,0.06)] sm:col-span-1">
                       <p className="text-[11px] uppercase tracking-[0.25em] text-neutral-500">Team performance</p>
                       <div className="mt-3 space-y-3">
@@ -3429,78 +3520,61 @@ export default function App() {
                   </div>
 
                   <div className="rounded-[24px] border border-neutral-200 bg-white p-4 shadow-[0_16px_60px_rgba(0,0,0,0.03)]">
-                    <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                      <div className="relative flex-1">
-                        <Search className="absolute left-3 top-3 h-4 w-4 text-neutral-400" />
-                        <input
-                          type="text"
-                          value={inventorySearch}
-                          onChange={(event) => setInventorySearch(event.target.value)}
-                          placeholder={`Search ${inventoryType.toLowerCase()} by name, id, SKU, tag, or custom field...`}
-                          className="w-full rounded-2xl border border-neutral-200 bg-neutral-50 px-3 py-2.5 pl-9 text-sm text-black outline-none focus:border-[#a6ff00]"
-                        />
-                      </div>
-                      <div className="grid gap-3 lg:hidden">
-                        <label className="grid gap-2 text-sm text-white">
-                          <span className="text-xs font-semibold uppercase tracking-[0.28em] text-[#021201]">Category</span>
-                          <select
-                            value={inventoryCategoryFilter}
-                            onChange={(event) => setInventoryCategoryFilter(event.target.value)}
-                            className="w-full rounded-[20px] border border-[#a6ff00] bg-[#021201] px-4 py-3 text-sm text-white shadow-[0_18px_40px_rgba(0,255,0,0.08)] outline-none transition hover:border-[#a6ff00]/80"
-                          >
-                            {categories.map((category) => (
-                              <option key={category} value={category} className="bg-[#021201] text-white">
-                                {category}
-                              </option>
-                            ))}
-                          </select>
-                        </label>
-
-                        <label className="grid gap-2 text-sm text-white">
-                          <span className="text-xs font-semibold uppercase tracking-[0.28em] text-[#021201]">Status</span>
-                          <select
-                            value={inventoryStatusFilter}
-                            onChange={(event) => setInventoryStatusFilter(event.target.value)}
-                            className="w-full rounded-[20px] border border-[#a6ff00] bg-[#021201] px-4 py-3 text-sm text-white shadow-[0_18px_40px_rgba(0,255,0,0.08)] outline-none transition hover:border-[#a6ff00]/80"
-                          >
-                            {statusOptions.map((option) => (
-                              <option key={option} value={option} className="bg-[#021201] text-white">
-                                {option}
-                              </option>
-                            ))}
-                          </select>
-                        </label>
-                      </div>
-
-                      <div className="hidden lg:flex flex-wrap gap-2">
-                        {categories.map((category) => (
-                          <button
-                            key={category}
-                            type="button"
-                            onClick={() => setInventoryCategoryFilter(category)}
-                            className={`rounded-full border px-3 py-1.5 text-sm ${inventoryCategoryFilter === category ? 'border-[#a6ff00] bg-[#a6ff00] text-black' : 'border-neutral-200 bg-white text-neutral-600'}`}
-                          >
-                            {category}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="hidden lg:flex mt-3 flex-wrap gap-2">
-                      {statusOptions.map((option) => (
-                        <button
-                          key={option}
-                          type="button"
-                          onClick={() => setInventoryStatusFilter(option)}
-                          className={`rounded-full border px-3 py-1.5 text-sm ${inventoryStatusFilter === option ? 'border-[#a6ff00] bg-[#a6ff00] text-black' : 'border-neutral-200 bg-white text-neutral-600'}`}
+                    <div className="grid gap-3 md:grid-cols-3">
+                      <label className="grid gap-2 text-sm">
+                        <span className="text-[11px] font-semibold uppercase tracking-[0.28em] text-neutral-500">Filter 1</span>
+                        <select
+                          value={inventoryCategoryFilter}
+                          onChange={(event) => setInventoryCategoryFilter(event.target.value)}
+                          className="w-full rounded-2xl border border-neutral-200 bg-neutral-50 px-3 py-2.5 text-sm text-black outline-none transition focus:border-[#a6ff00]"
                         >
-                          {option}
-                        </button>
-                      ))}
+                          {categories.map((category) => (
+                            <option key={category} value={category}>
+                              {category}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+
+                      <label className="grid gap-2 text-sm">
+                        <span className="text-[11px] font-semibold uppercase tracking-[0.28em] text-neutral-500">Filter 2</span>
+                        <select
+                          value={inventoryStatusFilter}
+                          onChange={(event) => setInventoryStatusFilter(event.target.value)}
+                          className="w-full rounded-2xl border border-neutral-200 bg-neutral-50 px-3 py-2.5 text-sm text-black outline-none transition focus:border-[#a6ff00]"
+                        >
+                          {statusOptions.map((option) => (
+                            <option key={option} value={option}>
+                              {option}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+
+                      <label className="grid gap-2 text-sm">
+                        <span className="text-[11px] font-semibold uppercase tracking-[0.28em] text-neutral-500">Search</span>
+                        <div className="relative">
+                          <Search className="absolute left-3 top-3 h-4 w-4 text-neutral-400" />
+                          <input
+                            type="text"
+                            value={inventorySearch}
+                            onChange={(event) => setInventorySearch(event.target.value)}
+                            placeholder={`Search ${inventoryType.toLowerCase()} by name, id, SKU, tag, or custom field...`}
+                            className="w-full rounded-2xl border border-neutral-200 bg-neutral-50 px-3 py-2.5 pl-9 text-sm text-black outline-none focus:border-[#a6ff00]"
+                          />
+                        </div>
+                      </label>
                     </div>
                   </div>
 
-                  <div className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
+                  <div className="grid gap-4 xl:grid-cols-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <div>
+                          <p className="text-[11px] uppercase tracking-[0.25em] text-neutral-500">Inventory in details</p>
+                          <h3 className="mt-1 text-base font-semibold text-black">{selectedInventoryRecord ? selectedInventoryRecord.name : 'Click to get full context'}</h3>
+                        </div>
+                        <div className="rounded-full border border-[#a6ff00]/30 bg-[#a6ff00] px-3 py-1 text-xs font-medium text-black">Smart view</div>
+                      </div>
                     <div className="overflow-hidden rounded-[24px] border border-neutral-200 bg-white shadow-[0_16px_60px_rgba(0,0,0,0.03)]">
                       <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-neutral-200 text-sm">
@@ -3533,13 +3607,6 @@ export default function App() {
                     </div>
 
                     <aside className="rounded-[24px] border border-neutral-200 bg-white p-4 shadow-[0_16px_60px_rgba(0,0,0,0.03)]">
-                      <div className="flex items-center justify-between gap-2">
-                        <div>
-                          <p className="text-[11px] uppercase tracking-[0.25em] text-neutral-500">Detail drawer</p>
-                          <h3 className="mt-1 text-base font-semibold text-black">{selectedInventoryRecord ? selectedInventoryRecord.name : 'Open a record for full context'}</h3>
-                        </div>
-                        <div className="rounded-full border border-[#a6ff00]/30 bg-[#a6ff00] px-3 py-1 text-xs font-medium text-black">Smart view</div>
-                      </div>
                       {selectedInventoryRecord ? (
                         <div className="mt-4 space-y-3">
                           <div className="rounded-[18px] border border-neutral-200 bg-[#a6ff00] p-3 text-sm text-neutral-700">
@@ -3729,31 +3796,7 @@ export default function App() {
                   {!showTransactionComposer ? (
                     <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
                       <div className="space-y-4">
-                        <div className="rounded-[24px] border border-neutral-200 bg-white p-4 shadow-[0_16px_60px_rgba(0,0,0,0.03)]">
-                          <div className="flex items-start justify-between gap-3">
-                            <div>
-                              <p className="text-[11px] uppercase tracking-[0.3em] text-neutral-500">Record a sale</p>
-                              <h3 className="mt-1 text-base font-semibold text-black">In 3 steps</h3>
-                            </div>
-                            <div className="rounded-full border border-[#021201]/30 bg-[#021201] px-3 py-1 text-xs font-medium text-[#a6ff00]">
-                              {canManageTransactions ? 'Owner / Manager' : 'Operator'}
-                            </div>
-                          </div>
-                          <div className="mt-4 grid gap-3 md:grid-cols-3">
-                            <div className="rounded-[18px] border border-neutral-200 bg-neutral-50 p-3">
-                              <p className="text-[11px] uppercase tracking-[0.25em] text-neutral-500">Step 1</p>
-                              <p className="mt-2 text-sm font-semibold text-black">Select customer (or create customer's profile)</p>
-                            </div>
-                            <div className="rounded-[18px] border border-neutral-200 bg-neutral-50 p-3">
-                              <p className="text-[11px] uppercase tracking-[0.25em] text-neutral-500">Step 2</p>
-                              <p className="mt-2 text-sm font-semibold text-black">Select the inventory (product, service, etc)</p>
-                            </div>
-                            <div className="rounded-[18px] border border-neutral-200 bg-neutral-50 p-3">
-                              <p className="text-[11px] uppercase tracking-[0.25em] text-neutral-500">Step 3</p>
-                              <p className="mt-2 text-sm font-semibold text-black">Review and submit to create transaction</p>
-                            </div>
-                          </div>
-                        </div>
+                      
 
                         <div className="rounded-[24px] border border-neutral-200 bg-white p-4 shadow-[0_16px_60px_rgba(0,0,0,0.03)]">
                           <div className="flex items-center justify-between gap-3">
@@ -3968,17 +4011,6 @@ export default function App() {
                                   </div>
                                 </label>
                               </div>
-
-                              <label className="space-y-2 text-sm text-black">
-                                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-500">Notes</span>
-                                <textarea
-                                  value={transactionDraft.notes}
-                                  onChange={(event) => setTransactionDraft((prev) => ({ ...prev, notes: event.target.value }))}
-                                  rows={3}
-                                  placeholder="Add a quick note or internal reference"
-                                  className="w-full rounded-2xl border border-neutral-200 bg-neutral-50 px-3 py-2.5 text-sm text-black"
-                                />
-                              </label>
 
                               <div className="flex justify-end">
                                 <button type="button" onClick={() => setTransactionComposerStep('preview')} className={primaryActionClasses}>
@@ -5202,7 +5234,7 @@ export default function App() {
               </button>
             </div>
             
-            <form onSubmit={handleInventoryComposerSubmit} className="space-y-3 p-3 sm:space-y-4 sm:p-5">
+            <form onSubmit={(event) => { event.preventDefault(); void handleInventoryComposerSubmit(event); }} className="space-y-3 p-3 sm:space-y-4 sm:p-5">
               {inventoryComposerStep === 'form' ? (
                 <>
                       <div className="grid gap-2.5 sm:gap-3 md:grid-cols-2">
@@ -5216,8 +5248,8 @@ export default function App() {
                       </select>
                     </label>
                     <label className="space-y-1.5 text-xs text-black sm:text-sm">
-                      <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-neutral-500 sm:text-xs">Record title</span>
-                      <input value={recordDraft.recordName} onChange={(event) => setRecordDraft((prev) => ({ ...prev, recordName: event.target.value }))} placeholder="Enter a record title" className="w-full rounded-2xl border border-neutral-200 bg-neutral-50 px-2.5 py-2 text-xs text-black sm:px-3 sm:py-2.5 sm:text-sm" required />
+                      <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-neutral-500 sm:text-xs">Record name</span>
+                      <input value={recordDraft.recordName} onChange={(event) => setRecordDraft((prev) => ({ ...prev, recordName: event.target.value }))} placeholder="Name this intake" className="w-full rounded-2xl border border-neutral-200 bg-neutral-50 px-2.5 py-2 text-xs text-black sm:px-3 sm:py-2.5 sm:text-sm" />
                     </label>
                   </div>
 
@@ -5237,39 +5269,121 @@ export default function App() {
 
                   {recordDraft.category && (
                     <div className="grid gap-3">
-                      {(generalCategoryFields[recordDraft.category] || []).map((field) => (
-                        <label key={field.key} className="space-y-1.5 text-xs text-black sm:text-sm">
-                          <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-neutral-500 sm:text-xs">{field.label}</span>
-                          {field.type === 'textarea' ? (
-                            <textarea
-                              rows={field.options ? 4 : 3}
-                              value={recordDraft.details[field.key] || ''}
-                              placeholder={field.placeholder || ''}
-                              onChange={(event) => setRecordDraft((prev) => ({ ...prev, details: { ...prev.details, [field.key]: event.target.value } }))}
-                              className="w-full rounded-2xl border border-neutral-200 bg-neutral-50 px-2.5 py-2 text-xs text-black sm:px-3 sm:py-2.5 sm:text-sm"
-                            />
-                          ) : field.type === 'select' ? (
-                            <select
-                              value={recordDraft.details[field.key] || ''}
-                              onChange={(event) => setRecordDraft((prev) => ({ ...prev, details: { ...prev.details, [field.key]: event.target.value } }))}
-                              className="w-full rounded-2xl border border-neutral-200 bg-neutral-50 px-2.5 py-2 text-xs text-black sm:px-3 sm:py-2.5 sm:text-sm"
-                            >
-                              <option value="">Select {field.label.toLowerCase()}</option>
-                              {field.options?.map((option) => (
-                                <option key={option} value={option}>{option}</option>
-                              ))}
-                            </select>
-                          ) : (
-                            <input
-                              type={field.type}
-                              value={recordDraft.details[field.key] || ''}
-                              placeholder={field.placeholder || ''}
-                              onChange={(event) => setRecordDraft((prev) => ({ ...prev, details: { ...prev.details, [field.key]: event.target.value } }))}
-                              className="w-full rounded-2xl border border-neutral-200 bg-neutral-50 px-2.5 py-2 text-xs text-black sm:px-3 sm:py-2.5 sm:text-sm"
-                            />
-                          )}
-                        </label>
-                      ))}
+                      {(generalCategoryFields[recordDraft.category] || []).map((field) => {
+                        const isPriceField = field.key === 'price' || field.key === 'cost';
+                        const isSupplierField = field.key === 'supplier' || field.key === 'supplierName' || field.key === 'vendorName';
+                        if (isSupplierField) {
+                          return (
+                            <div key={field.key} className="space-y-2">
+                              <div className="flex items-center justify-between gap-2">
+                                <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-neutral-500 sm:text-xs">{field.label}</span>
+                                <button type="button" onClick={() => setShowRecordSupplierComposer((value) => !value)} className="text-[11px] font-medium text-black underline">{showRecordSupplierComposer ? 'Hide' : 'Add supplier'}</button>
+                              </div>
+                              <select
+                                value={recordSupplierSelection}
+                                onChange={(event) => {
+                                  const selected = event.target.value;
+                                  setRecordSupplierSelection(selected);
+                                  if (selected) {
+                                    const supplier = suppliers.find((item) => item.id === selected);
+                                    if (supplier) {
+                                      setRecordDraft((prev) => ({ ...prev, details: { ...prev.details, supplier: supplier.name, supplierName: supplier.name, contactPerson: supplier.contact, phone: supplier.contact, email: supplier.email, businessName: supplier.businessName || '', address: supplier.address || '', whatsappNumber: supplier.whatsappNumber || '' } }));
+                                    }
+                                  }
+                                }}
+                                className="w-full rounded-2xl border border-neutral-200 bg-neutral-50 px-2.5 py-2 text-xs text-black sm:px-3 sm:py-2.5 sm:text-sm"
+                              >
+                                <option value="">Select existing supplier</option>
+                                {suppliers.map((supplier) => (
+                                  <option key={supplier.id} value={supplier.id}>{supplier.name} • {supplier.businessName || supplier.specialty}</option>
+                                ))}
+                              </select>
+                              {showRecordSupplierComposer && (
+                                <div className="rounded-[16px] border border-neutral-200 bg-neutral-50 p-3 space-y-2">
+                                  <input value={recordSupplierDraft.name} onChange={(event) => setRecordSupplierDraft((prev) => ({ ...prev, name: event.target.value }))} placeholder="Supplier name" className="w-full rounded-2xl border border-neutral-200 bg-white px-2.5 py-2 text-xs text-black sm:px-3 sm:py-2.5 sm:text-sm" />
+                                  <input value={recordSupplierDraft.businessName} onChange={(event) => setRecordSupplierDraft((prev) => ({ ...prev, businessName: event.target.value }))} placeholder="Business name" className="w-full rounded-2xl border border-neutral-200 bg-white px-2.5 py-2 text-xs text-black sm:px-3 sm:py-2.5 sm:text-sm" />
+                                  <input value={recordSupplierDraft.address} onChange={(event) => setRecordSupplierDraft((prev) => ({ ...prev, address: event.target.value }))} placeholder="Address" className="w-full rounded-2xl border border-neutral-200 bg-white px-2.5 py-2 text-xs text-black sm:px-3 sm:py-2.5 sm:text-sm" />
+                                  <input value={recordSupplierDraft.whatsappNumber} onChange={(event) => setRecordSupplierDraft((prev) => ({ ...prev, whatsappNumber: event.target.value }))} placeholder="WhatsApp number" className="w-full rounded-2xl border border-neutral-200 bg-white px-2.5 py-2 text-xs text-black sm:px-3 sm:py-2.5 sm:text-sm" />
+                                  <input type="email" value={recordSupplierDraft.email} onChange={(event) => setRecordSupplierDraft((prev) => ({ ...prev, email: event.target.value }))} placeholder="Email" className="w-full rounded-2xl border border-neutral-200 bg-white px-2.5 py-2 text-xs text-black sm:px-3 sm:py-2.5 sm:text-sm" />
+                                  <button type="button" onClick={() => {
+                                    if (!recordSupplierDraft.name.trim() || !recordSupplierDraft.email.trim()) return;
+                                    const nextSupplier = {
+                                      id: `sup-${Date.now().toString().slice(-4)}`,
+                                      name: recordSupplierDraft.name,
+                                      specialty: 'New supplier',
+                                      leadTime: 3,
+                                      contact: recordSupplierDraft.whatsappNumber || recordSupplierDraft.email,
+                                      email: recordSupplierDraft.email,
+                                      businessName: recordSupplierDraft.businessName,
+                                      address: recordSupplierDraft.address,
+                                      whatsappNumber: recordSupplierDraft.whatsappNumber
+                                    };
+                                    setSuppliers((current) => [nextSupplier, ...current]);
+                                    setRecordSupplierSelection(nextSupplier.id);
+                                    setRecordDraft((prev) => ({ ...prev, details: { ...prev.details, supplier: nextSupplier.name, supplierName: nextSupplier.name, contactPerson: nextSupplier.contact, phone: nextSupplier.contact, email: nextSupplier.email, businessName: nextSupplier.businessName || '', address: nextSupplier.address || '', whatsappNumber: nextSupplier.whatsappNumber || '' } }));
+                                    setRecordSupplierDraft({ name: '', businessName: '', address: '', whatsappNumber: '', email: '' });
+                                    setShowRecordSupplierComposer(false);
+                                  }} className="rounded-full border border-neutral-300 bg-white px-3 py-2 text-[11px] font-medium text-black">Save supplier</button>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        }
+
+                        if (isPriceField) {
+                          return (
+                            <label key={field.key} className="space-y-1.5 text-xs text-black sm:text-sm">
+                              <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-neutral-500 sm:text-xs">{field.label}</span>
+                              <div className="flex items-center gap-2 rounded-2xl border border-neutral-200 bg-neutral-50 px-2.5 py-2 text-xs text-black sm:px-3 sm:py-2.5 sm:text-sm">
+                                <span className="text-neutral-500">{businessCurrency || organizationSetup.currency || 'NGN (₦)'}</span>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  step="0.01"
+                                  value={recordDraft.details[field.key] || ''}
+                                  placeholder={field.placeholder || ''}
+                                  onChange={(event) => setRecordDraft((prev) => ({ ...prev, details: { ...prev.details, [field.key]: event.target.value } }))}
+                                  className="w-full border-0 bg-transparent text-xs text-black outline-none sm:text-sm"
+                                />
+                              </div>
+                            </label>
+                          );
+                        }
+
+                        return (
+                          <label key={field.key} className="space-y-1.5 text-xs text-black sm:text-sm">
+                            <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-neutral-500 sm:text-xs">{field.label}</span>
+                            {field.type === 'textarea' ? (
+                              <textarea
+                                rows={field.options ? 4 : 3}
+                                value={recordDraft.details[field.key] || ''}
+                                placeholder={field.placeholder || ''}
+                                onChange={(event) => setRecordDraft((prev) => ({ ...prev, details: { ...prev.details, [field.key]: event.target.value } }))}
+                                className="w-full rounded-2xl border border-neutral-200 bg-neutral-50 px-2.5 py-2 text-xs text-black sm:px-3 sm:py-2.5 sm:text-sm"
+                              />
+                            ) : field.type === 'select' ? (
+                              <select
+                                value={recordDraft.details[field.key] || ''}
+                                onChange={(event) => setRecordDraft((prev) => ({ ...prev, details: { ...prev.details, [field.key]: event.target.value } }))}
+                                className="w-full rounded-2xl border border-neutral-200 bg-neutral-50 px-2.5 py-2 text-xs text-black sm:px-3 sm:py-2.5 sm:text-sm"
+                              >
+                                <option value="">Select {field.label.toLowerCase()}</option>
+                                {field.options?.map((option) => (
+                                  <option key={option} value={option}>{option}</option>
+                                ))}
+                              </select>
+                            ) : (
+                              <input
+                                type={field.type}
+                                value={recordDraft.details[field.key] || ''}
+                                placeholder={field.placeholder || ''}
+                                onChange={(event) => setRecordDraft((prev) => ({ ...prev, details: { ...prev.details, [field.key]: event.target.value } }))}
+                                className="w-full rounded-2xl border border-neutral-200 bg-neutral-50 px-2.5 py-2 text-xs text-black sm:px-3 sm:py-2.5 sm:text-sm"
+                              />
+                            )}
+                          </label>
+                        );
+                      })}
                     </div>
                   )}
 
@@ -5298,16 +5412,24 @@ export default function App() {
                       <span className="font-semibold text-black">{recordDraft.category || 'Other'}</span>
                     </div>
                     <div className="mt-2 flex items-center justify-between gap-3">
-                      <span className="text-neutral-500">Record title</span>
-                      <span className="font-semibold text-black">{recordDraft.recordName || 'Untitled record'}</span>
+                      <span className="text-neutral-500">Name</span>
+                      <span className="font-semibold text-black">{recordDraft.recordName || 'Untitled intake'}</span>
                     </div>
                     <div className="mt-2 flex items-center justify-between gap-3">
                       <span className="text-neutral-500">Status</span>
                       <span className="font-semibold text-black">{recordDraft.status}</span>
                     </div>
                     <div className="mt-2 flex items-center justify-between gap-3">
+                      <span className="text-neutral-500">Unit price</span>
+                      <span className="font-semibold text-black">{(recordDraft.details.price || recordDraft.details.cost || '0')} {businessCurrency || organizationSetup.currency || 'NGN (₦)'}</span>
+                    </div>
+                    <div className="mt-2 flex items-center justify-between gap-3">
+                      <span className="text-neutral-500">Supplier</span>
+                      <span className="font-semibold text-black">{recordDraft.details.supplier || recordDraft.details.supplierName || 'Not selected'}</span>
+                    </div>
+                    <div className="mt-2 flex items-center justify-between gap-3">
                       <span className="text-neutral-500">Notes</span>
-                      <span className="font-semibold text-black">{recordDraft.note || 'No notes added'}</span>
+                      <span className="font-semibold text-black">{recordDraft.note || 'No notes'}</span>
                     </div>
                   </div>
                 </div>
@@ -5317,7 +5439,14 @@ export default function App() {
                 <button type="button" onClick={inventoryComposerStep === 'form' ? closeInventoryComposer : () => setInventoryComposerStep('form')} className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-xs font-normal text-black transition-colors hover:bg-neutral-50 sm:px-4 sm:py-2 sm:text-sm">
                   {inventoryComposerStep === 'form' ? 'Cancel' : 'Edit'}
                 </button>
-                <button type="submit" className="rounded-md bg-neutral-950 px-3 py-2 text-xs font-normal text-white transition-colors hover:bg-black sm:px-4 sm:py-2 sm:text-sm">
+                <button
+                  type="submit"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    void handleInventoryComposerSubmit(event);
+                  }}
+                  className="rounded-md bg-neutral-950 px-3 py-2 text-xs font-normal text-white transition-colors hover:bg-black sm:px-4 sm:py-2 sm:text-sm"
+                >
                   {inventoryComposerStep === 'form' ? 'Review' : 'Save intake'}
                 </button>
               </div>
@@ -5755,7 +5884,7 @@ export default function App() {
         <div className="fixed inset-0 bg-neutral-900/40 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg border border-neutral-300 w-full max-w-sm shadow-xl overflow-hidden">
             <div className="px-5 py-4 border-b border-neutral-100 flex justify-between items-center">
-              <h3 className="font-semibold text-sm text-black">Register Supplier Partner</h3>
+              <h3 className="font-semibold text-sm text-black">Register supplier partner</h3>
               <button 
                 onClick={() => setShowAddSupplierModal(false)}
                 className="text-neutral-400 hover:text-black"
@@ -5765,9 +5894,8 @@ export default function App() {
             </div>
             
             <form onSubmit={handleCreateSupplier} className="p-5 space-y-4">
-              
               <div className="space-y-1">
-                <label className="font-semibold text-black block">Supplier Name</label>
+                <label className="font-semibold text-black block">Supplier name</label>
                 <input
                   type="text"
                   placeholder="e.g. Optima Sensors"
@@ -5778,48 +5906,41 @@ export default function App() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="font-semibold text-black block">Specialty Category</label>
-                  <select
-                    value={supplierDraft.specialty}
-                    onChange={(e) => setSupplierDraft(prev => ({ ...prev, specialty: e.target.value }))}
-                    className="w-full bg-neutral-50 border border-neutral-200 focus:border-black focus:outline-none px-3 py-2 rounded-md text-sm font-normal text-black"
-                  >
-                    <option value="Smart Devices & Security">Smart Devices</option>
-                    <option value="Sensors & Electronics">Sensors</option>
-                    <option value="Networking & Cables">Networking</option>
-                    <option value="Electronics">Electronics</option>
-                  </select>
-                </div>
-
-                <div className="space-y-1">
-                  <label className="font-semibold text-black block">Lead Time (Days)</label>
-                  <input
-                    type="number"
-                    min="1"
-                    required
-                    value={supplierDraft.leadTime}
-                    onChange={(e) => setSupplierDraft(prev => ({ ...prev, leadTime: parseInt(e.target.value) || 1 }))}
-                    className="w-full bg-neutral-50 border border-neutral-200 focus:border-black focus:outline-none px-3 py-2 rounded-md text-sm font-normal text-black"
-                  />
-                </div>
-              </div>
-
               <div className="space-y-1">
-                <label className="font-semibold text-black block">Contact Number</label>
+                <label className="font-semibold text-black block">Business name</label>
                 <input
                   type="text"
-                  placeholder="e.g. +1 555-0199"
-                  required
-                  value={supplierDraft.contact}
-                  onChange={(e) => setSupplierDraft(prev => ({ ...prev, contact: e.target.value }))}
+                  placeholder="Business or company name"
+                  value={supplierDraft.businessName}
+                  onChange={(e) => setSupplierDraft(prev => ({ ...prev, businessName: e.target.value }))}
                   className="w-full bg-neutral-50 border border-neutral-200 focus:border-black focus:outline-none px-3 py-2 rounded-md text-sm font-normal text-black"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="font-semibold text-black block">Email Address</label>
+                <label className="font-semibold text-black block">Address</label>
+                <input
+                  type="text"
+                  placeholder="Physical or digital address"
+                  value={supplierDraft.address}
+                  onChange={(e) => setSupplierDraft(prev => ({ ...prev, address: e.target.value }))}
+                  className="w-full bg-neutral-50 border border-neutral-200 focus:border-black focus:outline-none px-3 py-2 rounded-md text-sm font-normal text-black"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-semibold text-black block">WhatsApp number</label>
+                <input
+                  type="text"
+                  placeholder="e.g. +1 555-0199"
+                  value={supplierDraft.whatsappNumber}
+                  onChange={(e) => setSupplierDraft(prev => ({ ...prev, whatsappNumber: e.target.value }))}
+                  className="w-full bg-neutral-50 border border-neutral-200 focus:border-black focus:outline-none px-3 py-2 rounded-md text-sm font-normal text-black"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-semibold text-black block">Email</label>
                 <input
                   type="email"
                   placeholder="e.g. sales@partner.com"
@@ -5842,7 +5963,7 @@ export default function App() {
                     type="submit"
                     className="bg-neutral-950 hover:bg-black text-white px-4 py-2 rounded-md font-normal text-sm transition-colors"
                   >
-                    Save Partner
+                    Save partner
                   </button>
                 </div>
               </form>

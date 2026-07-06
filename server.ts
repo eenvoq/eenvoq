@@ -12,7 +12,7 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 
-const PORT = Number(process.env.PORT || 3000);
+const PORT = Number(process.env.PORT || 3001);
 
 // Data persistence file
 const DATA_FILE = path.join(process.cwd(), 'data.json');
@@ -122,6 +122,9 @@ interface Supplier {
   leadTime: number;
   contact: string;
   email: string;
+  businessName?: string;
+  address?: string;
+  whatsappNumber?: string;
 }
 
 interface Expense {
@@ -1199,18 +1202,21 @@ app.get('/api/suppliers', (req, res) => {
 });
 
 app.post('/api/suppliers', (req, res) => {
-  const { name, specialty, leadTime, contact, email } = req.body;
-  if (!name || !specialty || !contact || !email) {
-    return res.status(400).json({ error: 'Supplier name, specialty, contact, and email are required.' });
+  const { name, specialty, leadTime, contact, email, businessName, address, whatsappNumber } = req.body;
+  if (!name || !email) {
+    return res.status(400).json({ error: 'Supplier name and email are required.' });
   }
 
   const newSupplier: Supplier = {
     id: `sup-${Date.now().toString().slice(-4)}`,
     name,
-    specialty,
+    specialty: specialty || 'General Supply',
     leadTime: Number(leadTime) || 3,
-    contact,
-    email
+    contact: contact || whatsappNumber || '',
+    email,
+    businessName,
+    address,
+    whatsappNumber
   };
 
   suppliers.push(newSupplier);

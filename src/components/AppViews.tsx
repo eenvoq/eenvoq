@@ -51,6 +51,7 @@ interface AuthPageProps {
   setAuthPassword: (value: string) => void;
   setAppMode: (mode: 'auth' | 'app' | 'onboarding') => void;
   onSubmit: (mode: 'login' | 'signup') => Promise<void>;
+  onSelectDemoAccount: (key: 'krakki' | 'valencia') => void;
   isLoading: boolean;
   authError?: string;
   passwordVisible: boolean;
@@ -956,7 +957,7 @@ function LandingPage({ setAuthMode, setAppMode }: LandingPageProps) {
   );
 }
 
-function AuthPage({ authMode, setAuthMode, authName, authEmail, authPassword, setAuthName, setAuthEmail, setAuthPassword, setAppMode, onSubmit, isLoading, authError, passwordVisible, setPasswordVisible }: AuthPageProps) {
+function AuthPage({ authMode, setAuthMode, authName, authEmail, authPassword, setAuthName, setAuthEmail, setAuthPassword, setAppMode, onSubmit, onSelectDemoAccount, isLoading, authError, passwordVisible, setPasswordVisible }: AuthPageProps) {
   return (
     <div className="flex min-h-screen items-start justify-center bg-[var(--primary-bg)] px-4 py-4 sm:px-6 sm:py-10 lg:items-center lg:px-8">
       <div className="grid w-full max-w-5xl gap-4 rounded-[24px] border border-[var(--border-color)] bg-[var(--white)] p-4 shadow-[0_12px_40px_rgba(15,23,42,0.06)] lg:grid-cols-[0.95fr_1.05fr] lg:p-6">
@@ -1006,7 +1007,19 @@ function AuthPage({ authMode, setAuthMode, authName, authEmail, authPassword, se
             </div>
             {authError ? <p className="text-sm text-red-600">{authError}</p> : null}
             <button type="submit" disabled={isLoading} className="w-full rounded-full bg-[#a6ff00] px-4 py-3 text-sm font-medium text-black transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70">{isLoading ? 'Please wait...' : authMode === 'signup' ? 'Create account' : 'Log in'}</button>
-            <button type="button" onClick={() => { setAppMode('app'); }} className="w-full rounded-full border-2 border-[var(--border-color)] bg-white px-4 py-3 text-sm font-medium text-[var(--text-primary)] transition hover:border-[var(--accent-color)] hover:bg-[var(--bg-secondary)]">Mock Sign In (Demo)</button>
+            <div className="space-y-2 rounded-[18px] border border-[var(--border-color)] bg-[var(--bg-secondary)] p-3">
+              <p className="text-sm font-semibold text-[var(--primary-color)]">Try a demo workspace</p>
+              <div className="grid gap-2 sm:grid-cols-2">
+                <button type="button" onClick={() => onSelectDemoAccount('krakki')} className="rounded-2xl border border-[var(--border-color)] bg-white px-3 py-2 text-left text-sm font-medium text-[var(--text-primary)] transition hover:border-[var(--accent-color)] hover:bg-[var(--bg-secondary)]">
+                  <span className="block text-[var(--primary-color)]">Krakki</span>
+                  <span className="mt-1 block text-xs text-[var(--text-color)]">Business demo</span>
+                </button>
+                <button type="button" onClick={() => onSelectDemoAccount('valencia')} className="rounded-2xl border border-[var(--border-color)] bg-white px-3 py-2 text-left text-sm font-medium text-[var(--text-primary)] transition hover:border-[var(--accent-color)] hover:bg-[var(--bg-secondary)]">
+                  <span className="block text-[var(--primary-color)]">Valencia Schools</span>
+                  <span className="mt-1 block text-xs text-[var(--text-color)]">Institution demo</span>
+                </button>
+              </div>
+            </div>
           </form>
 
 

@@ -1,69 +1,62 @@
 {
-  "products": [],
+  "products": [
+    {
+      "id": "1783364164356",
+      "name": "Test Stock Item",
+      "sku": "PRD-TEST-1",
+      "category": "Product",
+      "status": "Active",
+      "note": "Saved through API",
+      "details": {
+        "productName": "Test Stock Item",
+        "price": "10",
+        "cost": "6",
+        "stock": "5",
+        "minStock": "2",
+        "supplier": "Test Supplier"
+      },
+      "attachments": [],
+      "createdBy": "Tester",
+      "lastModifiedBy": "Tester",
+      "createdAt": "2026-07-06T18:56:04.330Z",
+      "updatedAt": "2026-07-06T18:56:04.333Z",
+      "image": "",
+      "price": 10,
+      "cost": 6,
+      "stock": 5,
+      "minStock": 2,
+      "currency": "NGN (₦)"
+    }
+  ],
   "orders": [
     {
-      "id": "ORD-4203",
+      "id": "ORD-7340",
       "customerName": "Walk-in customer",
       "items": [
         {
-          "productId": "inventory-1783005783873",
+          "productId": "inventory-1783363077240",
           "productName": "Selected item",
           "quantity": 1,
           "price": 0,
           "transactionType": "product-sale",
-          "inventoryId": "inventory-1783005783873",
+          "inventoryId": "inventory-1783363077240",
           "inventoryName": "Selected item",
           "inventoryPhoto": "",
-          "saleDate": "2026-07-02",
+          "saleDate": "2026-07-06",
           "currency": "USD ($)",
           "notes": ""
         }
       ],
       "totalAmount": 0,
-      "date": "2026-07-02T15:23:04.203Z",
+      "date": "2026-07-06T18:37:57.340Z",
       "status": "Completed",
-      "recordedBy": "Business Owner",
+      "recordedBy": "Krakki",
       "transactionType": "product-sale",
       "recipientId": "walk-in",
       "recipientName": "Walk-in customer",
       "inventoryName": "",
       "inventoryPhoto": "",
-      "saleDate": "2026-07-02",
-      "purchasePrice": 0,
-      "sellingPrice": 0,
-      "profit": 0,
-      "balanceDue": 0,
-      "currency": "USD ($)",
-      "notes": ""
-    },
-    {
-      "id": "ORD-6100",
-      "customerName": "Walk-in customer",
-      "items": [
-        {
-          "productId": "inventory-1783077844844",
-          "productName": "Selected item",
-          "quantity": 1,
-          "price": 0,
-          "transactionType": "product-sale",
-          "inventoryId": "inventory-1783077844844",
-          "inventoryName": "Selected item",
-          "inventoryPhoto": "",
-          "saleDate": "2026-07-03",
-          "currency": "USD ($)",
-          "notes": ""
-        }
-      ],
-      "totalAmount": 0,
-      "date": "2026-07-03T11:24:06.100Z",
-      "status": "Completed",
-      "recordedBy": "Business Owner",
-      "transactionType": "product-sale",
-      "recipientId": "walk-in",
-      "recipientName": "Walk-in customer",
-      "inventoryName": "",
-      "inventoryPhoto": "",
-      "saleDate": "2026-07-03",
+      "saleDate": "2026-07-06",
       "purchasePrice": 0,
       "sellingPrice": 0,
       "profit": 0,
@@ -82,11 +75,20 @@
       "company": "Walk-in customer",
       "status": "Active",
       "totalSpent": 0,
-      "ordersCount": 2,
-      "lastPurchaseDate": "2026-07-03"
+      "ordersCount": 3,
+      "lastPurchaseDate": "2026-07-06"
     }
   ],
-  "suppliers": [],
+  "suppliers": [
+    {
+      "id": "sup-8113",
+      "name": "Test Supplier",
+      "specialty": "General Supply",
+      "leadTime": 3,
+      "contact": "+15551234567",
+      "email": "test@example.com"
+    }
+  ],
   "expenses": [],
   "authUsers": [
     {
