@@ -174,7 +174,7 @@ function AppHeader({
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <button
             type="button"
             onClick={() => setSearchOpen(true)}
@@ -196,8 +196,15 @@ function AppHeader({
             </span>
           </button>
 
-          <div className="relative inline-flex h-10 w-10 overflow-hidden rounded-full border border-[#E6ECEA] bg-white">
-            <img src={profilePic} alt={ownerName} className="h-full w-full object-cover" referrerPolicy="no-referrer" />
+          <div className="flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-2 py-1.5 sm:px-2.5">
+            {!isDesktop && (
+              <div className="hidden sm:block">
+                <p className="text-[11px] font-semibold leading-none text-white">{ownerName}</p>
+              </div>
+            )}
+            <div className="relative inline-flex h-9 w-9 overflow-hidden rounded-full border border-[#E6ECEA] bg-white sm:h-10 sm:w-10">
+              <img src={profilePic} alt={ownerName} className="h-full w-full object-cover" referrerPolicy="no-referrer" />
+            </div>
           </div>
         </div>
       </header>
@@ -966,7 +973,7 @@ function AuthPage({ authMode, setAuthMode, authName, authEmail, authPassword, se
         <div className="order-1 rounded-[20px] border border-[var(--border-color)] bg-[var(--white)] p-6 lg:order-2 lg:p-8">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium uppercase tracking-[0.25em] text-[var(--text-color)]">{authMode === 'signup' ? 'Create account' : 'Welcome back'}</p>
+              <p className="text-sm font-medium uppercase tracking-[0.25em] text-[var(--text-color)]">{authMode === 'signup' ? 'Create account' : 'Welcome'}</p>
               <h2 className="mt-2 text-2xl font-semibold tracking-[-0.02em] text-[var(--primary-color)]">{authMode === 'signup' ? 'Start with Eenvoq' : 'Sign in to Eenvoq'}</h2>
             </div>
             <button onClick={() => setAppMode('onboarding')} className="text-sm text-[var(--text-color)] transition hover:text-[var(--primary-color)]">Back</button>
@@ -1024,13 +1031,11 @@ function OnboardingWizard({ onComplete, setAppMode }: OnboardingWizardProps) {
   const [subtype, setSubtype] = useState<string>('');
 
   const requiredModules: ModuleKey[] = ['transactions', 'inventory', 'staff', 'reports', 'ai'];
-  // Only keep industry options relevant to Business or Education
-  const industryOptions = ['Business', 'Education'];
+  const industryOptions = ['Business', 'Institution'];
   const locationOptions = ['Nigeria', 'Ghana', 'Kenya', 'United Kingdom (UK)', 'United States of America (USA)', 'Australia', 'Canada', 'South Africa'];
 
-  // Keep profileType and industry aligned; enforce only 'business' or 'school'
   useEffect(() => {
-    if (industry === 'Education') setProfileType('school');
+    if (industry === 'Institution') setProfileType('institution');
     else setProfileType('business');
   }, [industry]);
   const currencyOptions = [
@@ -1050,6 +1055,10 @@ function OnboardingWizard({ onComplete, setAppMode }: OnboardingWizardProps) {
   }, [profileType]);
 
   useEffect(() => {
+    setName(profileType === 'institution' ? 'Your Institution' : 'Your Business');
+  }, [profileType]);
+
+  useEffect(() => {
     if (location.includes('Nigeria')) {
       setCurrency('NGN (₦)');
     }
@@ -1065,7 +1074,7 @@ function OnboardingWizard({ onComplete, setAppMode }: OnboardingWizardProps) {
   const handleComplete = () => {
     if (!subtype) {
       // Prevent completion if subtype not selected
-      alert('Please select a specific type for your organization (e.g. Retail Store, Primary School).');
+      alert('Please select a specific type for your organization (e.g. Retail Store, Primary School, or Campus Unit).');
       return;
     }
     onComplete({
@@ -1089,7 +1098,7 @@ function OnboardingWizard({ onComplete, setAppMode }: OnboardingWizardProps) {
         <div className="flex flex-col gap-4 border-b border-[var(--border-color)] pb-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <p className="text-sm font-medium uppercase tracking-[0.25em] text-[var(--text-color)]">Personalize your workspace</p>
-            <h2 className="mt-2 text-2xl font-semibold tracking-[-0.02em] text-[var(--primary-color)]">Configure Eenvoq for your organization</h2>
+            <h2 className="mt-2 text-2xl font-semibold tracking-[-0.02em] text-[var(--primary-color)]">Configure Eenvoq for your workflow</h2>
           </div>
           <button onClick={() => setAppMode('auth')} className="text-sm text-[var(--text-color)] transition hover:text-[var(--primary-color)]">Back</button>
         </div>
@@ -1104,14 +1113,13 @@ function OnboardingWizard({ onComplete, setAppMode }: OnboardingWizardProps) {
 
         {step === 1 && (
           <div className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {/* Primary selection: Business or Education */}
             <button type="button" onClick={() => setIndustry('Business')} className={`rounded-[20px] border p-4 text-left transition ${profileType === 'business' ? 'border-[var(--accent-color)] bg-[var(--secondary-bg)]' : 'border-[var(--border-color)] bg-[var(--white)] hover:border-[var(--accent-color)]'}`}>
               <p className="text-sm font-semibold text-[var(--primary-color)]">Business</p>
-              <p className="mt-2 text-sm leading-6 text-[var(--text-color)]">Commercial businesses: retail, wholesale, services, hospitality, manufacturing, and e-commerce.</p>
+              <p className="mt-2 text-sm leading-6 text-[var(--text-color)]">Commerce-led operations for retail, wholesale, services, hospitality, manufacturing, and e-commerce.</p>
             </button>
-            <button type="button" onClick={() => setIndustry('Education')} className={`rounded-[20px] border p-4 text-left transition ${profileType === 'school' ? 'border-[var(--accent-color)] bg-[var(--secondary-bg)]' : 'border-[var(--border-color)] bg-[var(--white)] hover:border-[var(--accent-color)]'}`}>
-              <p className="text-sm font-semibold text-[var(--primary-color)]">Education</p>
-              <p className="mt-2 text-sm leading-6 text-[var(--text-color)]">Schools and institutions: primary, secondary, colleges, universities and training centers.</p>
+            <button type="button" onClick={() => setIndustry('Institution')} className={`rounded-[20px] border p-4 text-left transition ${profileType === 'institution' ? 'border-[var(--accent-color)] bg-[var(--secondary-bg)]' : 'border-[var(--border-color)] bg-[var(--white)] hover:border-[var(--accent-color)]'}`}>
+              <p className="text-sm font-semibold text-[var(--primary-color)]">Institution</p>
+              <p className="mt-2 text-sm leading-6 text-[var(--text-color)]">Campus and institutional operations for schools, colleges, universities, and training centers.</p>
             </button>
           </div>
         )}
@@ -1138,7 +1146,7 @@ function OnboardingWizard({ onComplete, setAppMode }: OnboardingWizardProps) {
                 {profileType === 'business' && businessSubtypes.map((s: string) => (
                   <option key={s} value={s}>{s}</option>
                 ))}
-                {profileType === 'school' && educationSubtypes.map((s: string) => (
+                {profileType === 'institution' && educationSubtypes.map((s: string) => (
                   <option key={s} value={s}>{s}</option>
                 ))}
               </select>

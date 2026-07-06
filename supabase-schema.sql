@@ -2,17 +2,22 @@
 
 create extension if not exists pgcrypto;
 
+create type if not exists account_type as enum ('business', 'institution');
+
 -- Compatibility-safe table repairs for production environments
 alter table if exists businesses
   add column if not exists contact_email text,
   add column if not exists contact_phone text,
   add column if not exists modules jsonb default '[]'::jsonb,
-  add column if not exists logo_url text;
+  add column if not exists logo_url text,
+  add column if not exists account_type account_type default 'business';
 
 alter table if exists profiles
   add column if not exists full_name text,
   add column if not exists email text,
   add column if not exists role text,
+  add column if not exists account_type account_type,
+  add column if not exists tenant_id uuid,
   add column if not exists profile_pic text,
   add column if not exists online boolean default false,
   add column if not exists last_active timestamptz,
@@ -40,6 +45,8 @@ create table if not exists profiles (
   id uuid primary key default gen_random_uuid(),
   user_id uuid references auth.users(id) on delete cascade,
   business_id uuid references businesses(id) on delete cascade,
+  tenant_id uuid references businesses(id) on delete cascade,
+  account_type account_type not null default 'business',
   full_name text not null,
   email text not null,
   role text not null check (role in ('owner', 'manager', 'staff')),
@@ -53,10 +60,14 @@ create table if not exists profiles (
   unique (business_id, email)
 );
 
+create index if not exists idx_profiles_account_type on profiles(account_type);
+create index if not exists idx_profiles_tenant_id on profiles(tenant_id);
+
 -- Business settings and defaults used during onboarding
 create table if not exists business_settings (
   id uuid primary key default gen_random_uuid(),
   business_id uuid references businesses(id) on delete cascade,
+  tenant_id uuid references businesses(id) on delete cascade,
   timezone text not null default 'UTC',
   currency text not null default 'USD ($)',
   locale text not null default 'en-US',
@@ -68,6 +79,7 @@ create table if not exists business_settings (
 create table if not exists application_preferences (
   id uuid primary key default gen_random_uuid(),
   business_id uuid references businesses(id) on delete cascade,
+  tenant_id uuid references businesses(id) on delete cascade,
   theme text not null default 'light',
   language text not null default 'en',
   default_view text not null default 'dashboard',
@@ -79,6 +91,7 @@ create table if not exists application_preferences (
 create table if not exists dashboard_configurations (
   id uuid primary key default gen_random_uuid(),
   business_id uuid references businesses(id) on delete cascade,
+  tenant_id uuid references businesses(id) on delete cascade,
   layout text not null default 'default',
   widgets jsonb not null default '[]'::jsonb,
   created_at timestamptz not null default now(),
@@ -89,6 +102,7 @@ create table if not exists dashboard_configurations (
 create table if not exists default_categories (
   id uuid primary key default gen_random_uuid(),
   business_id uuid references businesses(id) on delete cascade,
+  tenant_id uuid references businesses(id) on delete cascade,
   name text not null,
   category_type text not null default 'custom',
   sort_order int not null default 0,
@@ -99,6 +113,7 @@ create table if not exists default_categories (
 create table if not exists operator_roles (
   id uuid primary key default gen_random_uuid(),
   business_id uuid references businesses(id) on delete cascade,
+  tenant_id uuid references businesses(id) on delete cascade,
   name text not null,
   description text,
   is_system_default boolean not null default false,
@@ -110,6 +125,7 @@ create table if not exists operator_roles (
 create table if not exists permissions (
   id uuid primary key default gen_random_uuid(),
   business_id uuid references businesses(id) on delete cascade,
+  tenant_id uuid references businesses(id) on delete cascade,
   role_id uuid references operator_roles(id) on delete cascade,
   feature text not null,
   action text not null,
@@ -121,6 +137,7 @@ create table if not exists permissions (
 create table if not exists ai_configurations (
   id uuid primary key default gen_random_uuid(),
   business_id uuid references businesses(id) on delete cascade,
+  tenant_id uuid references businesses(id) on delete cascade,
   provider text not null default 'openai',
   model text not null default 'gpt-4o-mini',
   enabled boolean not null default true,
@@ -133,6 +150,7 @@ create table if not exists ai_configurations (
 create table if not exists notification_preferences (
   id uuid primary key default gen_random_uuid(),
   business_id uuid references businesses(id) on delete cascade,
+  tenant_id uuid references businesses(id) on delete cascade,
   email_enabled boolean not null default true,
   push_enabled boolean not null default true,
   sms_enabled boolean not null default false,
@@ -145,6 +163,7 @@ create table if not exists notification_preferences (
 create table if not exists products (
   id uuid primary key default gen_random_uuid(),
   business_id uuid references businesses(id) on delete cascade,
+  tenant_id uuid references businesses(id) on delete cascade,
   created_by uuid references profiles(id) on delete set null,
   name text not null,
   sku text not null,
@@ -173,6 +192,7 @@ create unique index if not exists idx_products_business_sku on products(business
 create table if not exists customers (
   id uuid primary key default gen_random_uuid(),
   business_id uuid references businesses(id) on delete cascade,
+  tenant_id uuid references businesses(id) on delete cascade,
   name text not null,
   email text,
   phone text,
@@ -190,6 +210,7 @@ create index if not exists idx_customers_business_id on customers(business_id);
 create table if not exists orders (
   id uuid primary key default gen_random_uuid(),
   business_id uuid references businesses(id) on delete cascade,
+  tenant_id uuid references businesses(id) on delete cascade,
   customer_id uuid references customers(id) on delete set null,
   customer_name text not null,
   items jsonb not null default '[]'::jsonb,
@@ -221,6 +242,7 @@ create index if not exists idx_orders_status on orders(status);
 create table if not exists suppliers (
   id uuid primary key default gen_random_uuid(),
   business_id uuid references businesses(id) on delete cascade,
+  tenant_id uuid references businesses(id) on delete cascade,
   name text not null,
   specialty text,
   lead_time int default 3,
@@ -235,6 +257,7 @@ create index if not exists idx_suppliers_business_id on suppliers(business_id);
 create table if not exists expenses (
   id uuid primary key default gen_random_uuid(),
   business_id uuid references businesses(id) on delete cascade,
+  tenant_id uuid references businesses(id) on delete cascade,
   title text not null,
   category text not null,
   amount numeric(14,2) not null default 0,
@@ -253,6 +276,7 @@ create index if not exists idx_expenses_business_id on expenses(business_id);
 create table if not exists audit_logs (
   id uuid primary key default gen_random_uuid(),
   business_id uuid references businesses(id) on delete cascade,
+  tenant_id uuid references businesses(id) on delete cascade,
   category text not null,
   message text not null,
   source_profile_id uuid references profiles(id) on delete set null,

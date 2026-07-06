@@ -29,7 +29,8 @@ import {
   History,
   ShieldCheck,
   Clock3,
-  KeyRound
+  KeyRound,
+  Wallet
 } from 'lucide-react';
 
 import {
@@ -175,7 +176,7 @@ interface ExpenseRecord {
 }
 
 type TransactionType = 'product-sale' | 'service-payment' | 'school-fee' | 'donation' | 'membership' | 'event-registration' | 'subscription' | 'custom';
-type OrganizationKind = 'business' | 'school';
+type OrganizationKind = 'business' | 'institution';
 type PaymentMethod = 'Cash' | 'Transfer' | 'POS' | 'Card' | 'Mobile Money' | 'Mixed';
 type AppMode = 'auth' | 'app' | 'onboarding';
 
@@ -211,7 +212,7 @@ interface ServiceTemplate {
 const transactionTypeOptions = [
   { id: 'product-sale' as TransactionType, label: 'Product Sale', copy: 'Fast checkout for inventory-led sales.' },
   { id: 'service-payment' as TransactionType, label: 'Service Payment', copy: 'Consultancy, repairs, and professional fees.' },
-  { id: 'school-fee' as TransactionType, label: 'School Fee', copy: 'Tuition, transport, hostel, and more.' },
+  { id: 'school-fee' as TransactionType, label: 'Institution Payment', copy: 'Tuition, transport, hostel, and other institutional charges.' },
   { id: 'donation' as TransactionType, label: 'Donation', copy: 'Contributions and sponsorships.' },
   { id: 'membership' as TransactionType, label: 'Membership', copy: 'Annual dues and renewals.' },
   { id: 'event-registration' as TransactionType, label: 'Event Registration', copy: 'Workshops, conferences, and gatherings.' },
@@ -221,7 +222,7 @@ const transactionTypeOptions = [
 
 const organizationTypeOptions = [
   { id: 'business' as OrganizationKind, label: 'Business', helper: 'Commercial businesses and retailers.' },
-  { id: 'school' as OrganizationKind, label: 'School', helper: 'Educational institutions and training centers.' }
+  { id: 'institution' as OrganizationKind, label: 'Institution', helper: 'Schools, campuses, and training organizations.' }
 ];
 
 const splashMessages = [
@@ -252,7 +253,7 @@ const recipientOptions: TransactionRecipient[] = [
 
 const inventoryTypeOptions: Array<{ id: InventoryType; label: string; description: string }> = [
   { id: 'Products', label: 'Products', description: 'Inventory-led commerce and stock control.' },
-  { id: 'Students', label: 'Students', description: 'Admissions, fees, attendance, and academic progress.' },
+  { id: 'Students', label: 'Students', description: 'Admissions, payments, attendance, and academic progress.' },
   { id: 'Members', label: 'Members', description: 'Membership records, dues, and engagement.' },
   { id: 'Patients', label: 'Patients', description: 'Patient records, visits, and follow-ups.' },
   { id: 'Assets', label: 'Assets', description: 'Facilities, shared resources, and long-term value.' },
@@ -674,7 +675,7 @@ const generalCategoryFields: Record<Exclude<RecordCategory, ''>, FieldDefinition
 };
 
 const getRecordCategories = (profileType: OrganizationTypeKey) =>
-  profileType === 'school' ? educationRecordCategories : businessRecordCategories;
+  profileType === 'institution' ? educationRecordCategories : businessRecordCategories;
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
@@ -693,6 +694,9 @@ export default function App() {
   const [authLoading, setAuthLoading] = useState(false);
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [authUserId, setAuthUserId] = useState<string | null>(null);
+  const [tenantAccountType, setTenantAccountType] = useState<OrganizationKind>('business');
+
+  const getWorkspaceRoute = (accountType: OrganizationKind) => (accountType === 'institution' ? '/institution' : '/business');
 
   // Dynamic Data States
   const [products, setProducts] = useState<Product[]>([]);
@@ -715,7 +719,7 @@ export default function App() {
   const [currentOperatorId, setCurrentOperatorId] = useState<string>('owner');
 
   // Business & Owner Profile Settings
-  const [ownerName, setOwnerName] = useState('Business Owner');
+  const [ownerName, setOwnerName] = useState('Workspace Owner');
   const [ownerEmail, setOwnerEmail] = useState('');
   const [ownerRole, setOwnerRole] = useState('Owner');
   const [profilePic, setProfilePic] = useState('https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80');
@@ -1116,13 +1120,18 @@ export default function App() {
     const sessionData = localStorage.getItem('eenvoq-session');
     if (sessionData) {
       try {
-        const savedSession = JSON.parse(sessionData) as { isLoggedIn: boolean; appMode: AppMode; activeTab: typeof activeTab; authMode: 'login' | 'signup'; userId?: string | null };
+        const savedSession = JSON.parse(sessionData) as { isLoggedIn: boolean; appMode: AppMode; activeTab: typeof activeTab; authMode: 'login' | 'signup'; userId?: string | null; accountType?: OrganizationKind };
         if (savedSession.isLoggedIn) {
           setAppMode(savedSession.appMode || 'app');
           setActiveTab(savedSession.activeTab);
           setAuthMode(savedSession.authMode);
           if (savedSession.userId) {
             setAuthUserId(savedSession.userId);
+          }
+          if (savedSession.accountType) {
+            const nextAccountType = savedSession.accountType === 'institution' ? 'institution' : 'business';
+            setTenantAccountType(nextAccountType);
+            setOrganizationType(nextAccountType);
           }
         } else {
           setAppMode('auth');
@@ -1151,6 +1160,19 @@ export default function App() {
     if (typeof window === 'undefined') return;
     localStorage.setItem('eenvoq-organization-config', JSON.stringify(organizationSetup));
   }, [organizationSetup]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || appMode !== 'app') return;
+    const currentPath = window.location.pathname.toLowerCase();
+    const expectedPath = getWorkspaceRoute(tenantAccountType);
+    if (!currentPath.startsWith('/business') && !currentPath.startsWith('/institution')) {
+      window.history.replaceState({}, '', expectedPath);
+      return;
+    }
+    if ((tenantAccountType === 'institution' && !currentPath.startsWith('/institution')) || (tenantAccountType === 'business' && !currentPath.startsWith('/business'))) {
+      window.history.replaceState({}, '', expectedPath);
+    }
+  }, [appMode, tenantAccountType]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
@@ -1315,8 +1337,11 @@ export default function App() {
       }
 
       setAuthUserId(payload.user?.id || null);
+      const nextAccountType = String(payload.profile?.account_type || payload.business?.account_type || organizationSetup.profileType || 'business').toLowerCase() === 'institution' ? 'institution' : 'business';
       setOwnerName(payload.profile?.full_name || authName.trim() || ownerName);
       setOwnerEmail(payload.profile?.email || authEmail.trim().toLowerCase());
+      setTenantAccountType(nextAccountType);
+      setOrganizationType(nextAccountType);
       setAuthPassword('');
       setPasswordVisible(false);
 
@@ -1326,7 +1351,8 @@ export default function App() {
           appMode: mode === 'signup' ? 'onboarding' : 'app',
           activeTab: 'desk',
           authMode: 'login',
-          userId: payload.user?.id || null
+          userId: payload.user?.id || null,
+          accountType: nextAccountType
         }));
       }
 
@@ -1349,6 +1375,7 @@ export default function App() {
   const handleLogout = () => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('eenvoq-session');
+      window.history.replaceState({}, '', '/');
     }
     setAppMode('onboarding');
     setActiveTab('desk');
@@ -1375,20 +1402,24 @@ export default function App() {
       const response = await fetch('/api/organization-config');
       if (!response.ok) return;
       const config = await response.json() as OrganizationSetupConfig;
+      const nextAccountType = (config.profileType === 'institution' ? 'institution' : 'business') as OrganizationKind;
       setOrganizationSetup(config);
-      setBusinessName(config.name || 'Your Business');
+      setBusinessName(config.name || (nextAccountType === 'institution' ? 'Your Institution' : 'Your Business'));
       setBusinessCurrency(config.currency || 'NGN (₦)');
-      setOrganizationType(config.profileType as OrganizationKind);
+      setOrganizationType(nextAccountType);
+      setTenantAccountType(nextAccountType);
     } catch (error) {
       console.error('Unable to load organization config', error);
     }
   };
 
   const handleOrganizationSetup = async (config: OrganizationSetupConfig) => {
+    const nextAccountType = (config.profileType === 'institution' ? 'institution' : 'business') as OrganizationKind;
     setOrganizationSetup(config);
-    setBusinessName(config.name || 'Your Business');
+    setBusinessName(config.name || (nextAccountType === 'institution' ? 'Your Institution' : 'Your Business'));
     setBusinessCurrency(config.currency || 'NGN (₦)');
-    setOrganizationType(config.profileType as OrganizationKind);
+    setOrganizationType(nextAccountType);
+    setTenantAccountType(nextAccountType);
     setAppMode('app');
     setActiveTab('desk');
 
@@ -2176,7 +2207,7 @@ export default function App() {
 
   const inventoryTypeCategoryMap: Record<InventoryType, string[]> = {
     Products: ['Product', 'Service', 'Brand', 'Product Category', 'Asset/Equipment', 'Vehicle', 'Warehouse/Store'],
-    Students: ['Student'],
+    Students: ['Student', 'Course/Class', 'Fee Structure', 'Academic Session', 'Campus/Branch'],
     Members: ['Subscription/Membership'],
     Patients: ['Patient'],
     Assets: ['Asset/Equipment'],
@@ -2215,7 +2246,7 @@ export default function App() {
   const statusOptions = inventoryType === 'Products'
     ? ['All', 'Healthy', 'Low Stock', 'Out of Stock']
     : inventoryType === 'Students'
-      ? ['All', 'Active', 'Outstanding Fees', 'Needs Attention']
+      ? ['All', 'Active', 'Outstanding Payments', 'Needs Attention']
       : inventoryType === 'Members'
         ? ['All', 'Active', 'Needs Attention']
         : inventoryType === 'Patients'
@@ -2245,7 +2276,7 @@ export default function App() {
           { label: 'Name', render: (record: any) => <div className="flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#a6ff00] text-sm font-semibold text-black">{record.name.charAt(0)}</div><div><p className="font-semibold text-black">{record.name}</p><p className="text-xs text-neutral-500">{record.subtitle}</p></div></div> },
           { label: 'Category', render: (record: any) => <span className="text-sm text-neutral-600">{record.category}</span> },
           { label: 'Class', render: (record: any) => <span className="text-sm text-neutral-600">{record.details?.Class || '—'}</span> },
-          { label: 'Fee Status', render: (record: any) => <span className="text-sm text-neutral-600">{record.secondaryMetric}</span> },
+          { label: 'Payment Status', render: (record: any) => <span className="text-sm text-neutral-600">{record.secondaryMetric}</span> },
           { label: 'Attendance', render: (record: any) => <span className="text-sm text-neutral-600">{record.primaryMetric}</span> },
           { label: 'Status', render: (record: any) => <span className={`rounded-full border px-2.5 py-1 text-xs font-medium ${record.status === 'Active' ? 'border-[#a6ff00] bg-[#a6ff00] text-black' : 'border-amber-300 bg-amber-50 text-amber-700'}`}>{record.status}</span> },
           { label: 'Owner/Assigned To', render: (record: any) => <span className="text-sm text-neutral-600">{record.owner || 'Guardian'}</span> },
@@ -2317,7 +2348,7 @@ export default function App() {
       ? [
           { label: 'Total Students', value: `${inventoryRows.length}` },
           { label: 'New Admissions', value: '24' },
-          { label: 'Outstanding Fees', value: '12' },
+          { label: 'Outstanding Payments', value: '12' },
           { label: 'At-Risk Students', value: '3' }
         ]
       : inventoryType === 'Members'
@@ -2355,7 +2386,7 @@ export default function App() {
                   { label: 'Custom Fields', value: '4' }
                 ];
 
-  const aiInsightText = organizationType === 'school'
+  const aiInsightText = organizationType === 'institution'
     ? inventoryType === 'Products'
       ? 'Supplies and inventory are tracked by categories and stock thresholds.'
       : inventoryType === 'Students'
@@ -2974,8 +3005,8 @@ export default function App() {
           ) : (
             <>
               {activeTab === 'tag' && (
-                <div className="space-y-4 p-3 sm:p-4 lg:p-5">
-                  <div className="rounded-[24px] border border-neutral-200 bg-white p-4 shadow-[0_16px_60px_rgba(0,0,0,0.03)]">
+                <div className="space-y-4 px-2 pt-4 pb-3 sm:px-2 sm:pt-4 sm:pb-4 lg:px-2 lg:pt-4 lg:pb-6">
+                  <div className="rounded-none border-0 bg-transparent p-0 py-4 shadow-none sm:py-5 lg:py-5">
                     <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
                       <div>
                         <p className="text-[11px] uppercase tracking-[0.3em] text-neutral-500">Tag workspace</p>
@@ -2990,7 +3021,7 @@ export default function App() {
                   </div>
 
                   {showTagComposer && (
-                    <div className="rounded-[24px] border border-neutral-200 bg-white p-4 shadow-[0_16px_60px_rgba(0,0,0,0.03)]">
+                    <div className="rounded-none border-0 bg-transparent p-0 py-4 shadow-none sm:py-5 lg:py-5">
                       <div className="flex items-start justify-between gap-3">
                         <div>
                           <p className="text-[11px] uppercase tracking-[0.25em] text-neutral-500">Quick tag</p>
@@ -3067,7 +3098,7 @@ export default function App() {
                   )}
 
                   <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-                    <div className="rounded-[24px] border border-neutral-200 bg-white p-4 shadow-[0_16px_60px_rgba(0,0,0,0.03)]">
+                    <div className="rounded-none border-0 bg-transparent p-0 py-4 shadow-none sm:py-5 lg:py-5">
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="text-[11px] uppercase tracking-[0.25em] text-neutral-500">Tagged requests</p>
@@ -3087,7 +3118,7 @@ export default function App() {
                         ))}
                       </div>
                     </div>
-                    <div className="rounded-[24px] border border-neutral-200 bg-white p-4 shadow-[0_16px_60px_rgba(0,0,0,0.03)]">
+                    <div className="rounded-none border-0 bg-transparent p-0 py-4 shadow-none sm:py-5 lg:py-5">
                       <p className="text-[11px] uppercase tracking-[0.25em] text-neutral-500">How it works</p>
                       <ul className="mt-3 space-y-2 text-sm text-neutral-700">
                         <li>• Mention a colleague, staff, or owner for stock, sales, or operational follow-up.</li>
@@ -3101,93 +3132,114 @@ export default function App() {
 
              {/* VIEW 1: DESK (DASHBOARD) */}
               {activeTab === 'desk' && (
-                <div className="space-y-0">
-                  {/* Dark Green Hero Section */}
-                  <div className="relative overflow-hidden -mt-4 bg-[#021201] px-4 pt-8 pb-8 sm:px-6 sm:pb-10 lg:px-8 lg:pb-12" style={{ borderRadius: '0 0 32px 32px' }}>
-                    <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#021201] via-[#021201] to-[#021201] opacity-100" aria-hidden="true" />
-                    <div className="hero-wave-pattern absolute inset-x-0 bottom-0 h-40 opacity-10" />
-
-                    {/* Content */}
-                    <div className="relative z-10">
-                      <div className="space-y-4">
-                        <p className="text-[11px] uppercase tracking-[0.3em] text-white/70">{dashboardHeroLabel}</p>
-                        <div>
-                          <h1 className="text-2xl font-semibold tracking-[-0.03em] text-white sm:text-3xl">
-                            Good morning, {userFirstName}
-                          </h1>
-                          <p className="mt-2 max-w-2xl text-sm font-medium leading-7 text-white/80 sm:text-base">
-                            Record a sale now or add to your inventory.
-                          </p>
-                        </div>
+                <div className="space-y-6 px-2 pt-4 pb-3 sm:px-2 sm:pt-4 sm:pb-4 lg:px-2 lg:pt-4 lg:pb-6">
+                  <div className="px-0 py-0 sm:px-0 lg:px-0">
+                    <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-[#021201] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] sm:p-7 lg:p-8">
+                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_18%,rgba(166,255,0,0.18),transparent_34%),radial-gradient(circle_at_82%_0%,rgba(95,232,210,0.16),transparent_24%),linear-gradient(135deg,#031204_0%,#021201_45%,#020d06_100%)]" aria-hidden="true" />
+                      <div className="absolute inset-0 opacity-70" aria-hidden="true">
+                        <svg viewBox="0 0 900 620" className="h-full w-full" preserveAspectRatio="none">
+                          <defs>
+                            <linearGradient id="hero-trace" x1="0%" y1="0%" x2="100%" y2="100%">
+                              <stop offset="0%" stopColor="#A6FF00" stopOpacity="0.95" />
+                              <stop offset="50%" stopColor="#5FE8D2" stopOpacity="0.75" />
+                              <stop offset="100%" stopColor="#A6FF00" stopOpacity="0.4" />
+                            </linearGradient>
+                          </defs>
+                          <path d="M-40 478C120 420 220 330 330 350C430 368 460 236 572 240C686 244 760 130 940 100" stroke="url(#hero-trace)" strokeWidth="1.4" fill="none" strokeLinecap="round" />
+                          <path d="M-20 160C96 112 154 176 272 208C386 240 462 164 590 166C700 168 786 92 926 82" stroke="url(#hero-trace)" strokeWidth="1" fill="none" strokeLinecap="round" opacity="0.8" />
+                          <path d="M78 622C170 560 240 500 346 504C448 508 520 430 636 428C742 426 804 488 924 470" stroke="url(#hero-trace)" strokeWidth="1.2" fill="none" strokeLinecap="round" opacity="0.7" />
+                          <path d="M144 116C212 144 286 140 340 98C392 58 438 48 498 58C552 68 610 104 660 128" stroke="#A6FF00" strokeWidth="0.8" fill="none" strokeLinecap="round" opacity="0.56" />
+                          <path d="M368 40C450 72 516 76 574 52C636 26 700 28 760 50" stroke="#5FE8D2" strokeWidth="0.8" fill="none" strokeLinecap="round" opacity="0.48" />
+                        </svg>
                       </div>
+                      <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(255,255,255,0.06),transparent_46%,rgba(255,255,255,0.03))]" aria-hidden="true" />
 
-                      <div className="mt-6 grid grid-cols-2 gap-3">
-                        <button
-                          type="button"
-                          onClick={() => { setActiveTab('orders'); setTransactionReviewMode('standard'); }}
-                          className="inline-flex items-center justify-center gap-2 rounded-[20px] bg-[#a6ff00] px-4 py-4 text-sm font-semibold text-[#042D17] transition hover:shadow-[0_14px_40px_rgba(6,255,0,0.35)]"
-                        >
-                          <Plus className="h-4 w-4" />
-                          Record Sale
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => { setActiveTab('stock'); setInventoryType('Products'); setInventoryAlertFilter('Low'); setInventoryStatusFilter('All'); }}
-                          className="inline-flex items-center justify-center gap-2 rounded-[20px] border border-[#a6ff00] bg-white/10 px-4 py-4 text-sm font-semibold text-white transition hover:bg-white/15"
-                        >
-                          Add Inventory
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => { setActiveTab('orders'); setTransactionReviewMode('standard'); }}
-                          className="inline-flex items-center justify-center gap-2 rounded-[20px] border border-[#a6ff00] bg-white/10 px-4 py-4 text-sm font-semibold text-white transition hover:bg-white/15"
-                        >
-                          View Orders
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setActiveTab('analytics')}
-                          className="inline-flex items-center justify-center gap-2 rounded-[20px] border border-[#a6ff00] bg-white/10 px-4 py-4 text-sm font-semibold text-white transition hover:bg-white/15"
-                        >
-                          Expenses
-                        </button>
+                      <div className="relative z-10 flex flex-col">
+                        <div className="space-y-3">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-white/60">{dashboardHeroLabel}</p>
+                          <div>
+                            <h1 className="text-2xl font-semibold tracking-[-0.03em] text-white sm:text-3xl">
+                              Good morning, {userFirstName}
+                            </h1>
+                            <div className="mt-2 flex flex-wrap items-center gap-2 text-[12px] leading-6 text-white/60 sm:text-sm">
+                              <span>Live overview</span>
+                              <span className="h-1 w-1 rounded-full bg-white/40" />
+                              <span>{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                              <span className="h-1 w-1 rounded-full bg-white/40" />
+                              <span>{new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className={`mt-8 ${isDesktop ? 'flex flex-wrap items-center gap-2' : 'grid grid-cols-2 gap-2'}`}>
+                          <button
+                            type="button"
+                            onClick={() => { setActiveTab('orders'); setTransactionReviewMode('standard'); }}
+                            className={`inline-flex items-center justify-center gap-2 rounded-full bg-[#a6ff00] px-4 py-3 text-sm font-semibold text-[#042D17] transition hover:shadow-[0_12px_34px_rgba(166,255,0,0.28)] ${isDesktop ? '' : 'w-full justify-start'}`}
+                          >
+                            <Plus className="h-4 w-4" />
+                            Record Sale
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => { setActiveTab('stock'); setInventoryType('Products'); setInventoryAlertFilter('Low'); setInventoryStatusFilter('All'); }}
+                            className={`inline-flex items-center justify-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-3 text-sm font-semibold text-white/90 backdrop-blur-sm transition hover:bg-white/15 ${isDesktop ? '' : 'w-full justify-start'}`}
+                          >
+                            <Package className="h-4 w-4" />
+                            Add Inventory
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => { setActiveTab('orders'); setTransactionReviewMode('standard'); }}
+                            className={`inline-flex items-center justify-center gap-2 rounded-full border border-white/20 bg-transparent px-4 py-3 text-sm font-semibold text-white/80 transition hover:bg-white/10 ${isDesktop ? '' : 'w-full justify-start'}`}
+                          >
+                            <ShoppingCart className="h-4 w-4" />
+                            View Orders
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setActiveTab('analytics')}
+                            className={`inline-flex items-center justify-center gap-2 rounded-full border border-white/20 bg-transparent px-4 py-3 text-sm font-semibold text-white/80 transition hover:bg-white/10 ${isDesktop ? '' : 'w-full justify-start'}`}
+                          >
+                            <Wallet className="h-4 w-4" />
+                            Expenses
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* White Content Area */}
-                  <div className="space-y-3 bg-white p-4 sm:p-5 lg:p-6">
-                    <div className="flex items-center justify-between gap-3">
+                  <div className="mt-6 space-y-3 bg-transparent p-0 shadow-none sm:p-0 lg:p-0">
+                    <div className="flex items-center justify-between gap-3"> 
                       <div>
                         <p className="text-[11px] uppercase tracking-[0.28em] text-neutral-500">Overview</p>
-                        <h2 className="mt-1 text-xl font-semibold text-black">Your stats today</h2>
+                        <h2 className="mt-1 text-xl font-semibold text-black">Today's stats (click a card to view details)</h2>
                       </div>
                     </div>
 
-                    <div className="-mx-4 px-4 pb-4 sm:-mx-5 sm:px-5 lg:-mx-6 lg:px-6">
-                      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                        {dashboardStats.map((card) => {
-                          const Icon = card.icon;
-                          return (
-                            <button
-                              key={card.id}
-                              type="button"
-                              onClick={() => setActiveTab(card.page)}
-                              className="min-h-[150px] rounded-[24px] border border-neutral-200 bg-white p-3 text-left shadow-[0_10px_22px_rgba(0,0,0,0.06)] transition hover:-translate-y-0.5"
-                            >
-                              <div className={`inline-flex h-10 w-10 items-center justify-center rounded-2xl ${card.iconBg} ${card.iconTint}`}>
-                                <Icon className="h-5 w-5" />
-                              </div>
-                              <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.25em] text-neutral-500">{card.label}</p>
-                              <p className="mt-2 text-base font-semibold text-black leading-tight">{card.value}</p>
-                              <p className="mt-1 text-[11px] leading-5 text-neutral-600">{card.detail}</p>
-                            </button>
-                          );
-                        })}
-                      </div>
+                    <div className="grid gap-3 grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
+                      {dashboardStats.map((card) => {
+                        const Icon = card.icon;
+                        return (
+                          <button
+                            key={card.id}
+                            type="button"
+                            onClick={() => setActiveTab(card.page)}
+                            className="min-h-[150px] rounded-[24px] border border-neutral-200 bg-white p-3 text-left shadow-[0_10px_22px_rgba(0,0,0,0.06)] transition hover:-translate-y-0.5"
+                          >
+                            <div className={`inline-flex h-10 w-10 items-center justify-center rounded-2xl ${card.iconBg} ${card.iconTint}`}>
+                              <Icon className="h-5 w-5" />
+                            </div>
+                            <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.25em] text-neutral-500">{card.label}</p>
+                            <p className="mt-2 text-base font-semibold text-black leading-tight">{card.value}</p>
+                            <p className="mt-1 text-[11px] leading-5 text-neutral-600">{card.detail}</p>
+                          </button>
+                        );
+                      })}
                     </div>
+                  </div>
 
-                    <div className="rounded-[28px] border border-neutral-200 bg-white p-5 shadow-[0_16px_60px_rgba(0,0,0,0.03)]">
+                    <div className="rounded-none border-0 bg-transparent p-0 py-5 shadow-none sm:py-6 lg:py-6">
                       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                         <div>
                           <p className="text-[11px] uppercase tracking-[0.25em] text-neutral-500">Performance overview</p>
@@ -3218,7 +3270,7 @@ export default function App() {
 
 
                   <div className="grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
-                    <div className="rounded-[28px] border border-neutral-200 bg-white p-5 shadow-[0_16px_60px_rgba(0,0,0,0.03)]">
+                    <div className="rounded-none border-0 bg-transparent p-0 py-5 shadow-none sm:py-6 lg:py-6">
                       <p className="text-[11px] uppercase tracking-[0.25em] text-neutral-500">Urgent attention</p>
                       <div className="mt-3 space-y-2">
                         {(() => {
@@ -3249,7 +3301,7 @@ export default function App() {
                       </div>
                     </div>
 
-                    <div className="rounded-[28px] border border-neutral-200 bg-white p-5 shadow-[0_16px_60px_rgba(0,0,0,0.03)]">
+                    <div className="rounded-none border-0 bg-transparent p-0 py-5 shadow-none sm:py-6 lg:py-6">
                       <p className="text-[11px] uppercase tracking-[0.25em] text-neutral-500">Recent activity</p>
                       <div className="mt-3 space-y-2">
                         {auditLogs.length > 0 ? auditLogs.slice(0, 4).map((log) => (
@@ -3267,8 +3319,8 @@ export default function App() {
                     </div>
                   </div>
 
-                  <div className="grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
-                    <div className="rounded-[28px] border border-neutral-200 bg-white p-5 shadow-[0_16px_60px_rgba(0,0,0,0.03)]">
+                  <div className="grid gap-4 grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
+                    <div className="rounded-[24px] border border-neutral-200 bg-white p-4 shadow-[0_10px_22px_rgba(0,0,0,0.06)] sm:col-span-1">
                       <p className="text-[11px] uppercase tracking-[0.25em] text-neutral-500">Team performance</p>
                       <div className="mt-3 space-y-3">
                         {[
@@ -3276,28 +3328,30 @@ export default function App() {
                           { name: 'Role coverage', role: `${new Set(staff.map((member) => member.role)).size} roles`, metric: `${staff.length > 0 ? 'Configured' : 'None'}` },
                           { name: 'Order pipeline', role: `${orders.filter((order) => order.status !== 'Completed').length} pending`, metric: `${orders.length} total` }
                         ].map((person) => (
-                          <div key={person.name} className="flex items-center justify-between rounded-[18px] border border-neutral-200 bg-neutral-50 px-3 py-3">
-                            <div>
-                              <p className="text-sm font-semibold text-black">{person.name}</p>
-                              <p className="text-sm text-neutral-600">{person.role}</p>
+                          <div key={person.name} className="rounded-[18px] border border-neutral-200 bg-neutral-50 px-3 py-3">
+                            <div className="flex items-center justify-between gap-2">
+                              <div>
+                                <p className="text-sm font-semibold text-black">{person.name}</p>
+                                <p className="text-sm text-neutral-600">{person.role}</p>
+                              </div>
+                              <p className="text-sm font-semibold text-black">{person.metric}</p>
                             </div>
-                            <p className="text-sm font-semibold text-black">{person.metric}</p>
                           </div>
                         ))}
                       </div>
                     </div>
 
-                    <div className="rounded-[28px] border border-neutral-200 bg-white p-5 shadow-[0_16px_60px_rgba(0,0,0,0.03)]">
+                    <div className="rounded-[24px] border border-[#a6ff00]/20 bg-[#021201] p-4 shadow-[0_10px_22px_rgba(0,0,0,0.06)] sm:col-span-1">
                       <p className="text-[11px] uppercase tracking-[0.25em] text-neutral-500">Verified transactions</p>
-                      <div className="mt-3 rounded-[22px] border border-[#a6ff00]/20 bg-[#021201] p-4">
+                      <div className="mt-3">
                         <p className="text-4xl font-semibold tracking-[-0.03em] text-[#a6ff00]">{orders.length > 0 ? `${Math.round((orders.filter((order) => order.status === 'Completed').length / orders.length) * 100)}%` : '0%'}</p>
                         <p className="mt-2 text-sm text-neutral-400">Completed order ratio based on current transaction activity.</p>
                       </div>
-                      <button type="button" className="mt-3 rounded-full border border-neutral-200 bg-white px-3 py-2 text-sm font-medium text-black">Review current order status</button>
+                      <button type="button" className="mt-4 rounded-full border border-neutral-200 bg-white px-3 py-2 text-sm font-medium text-black">Review current order status</button>
                     </div>
                   </div>
 
-                  <div className="rounded-[28px] border border-neutral-200 bg-white p-5 shadow-[0_16px_60px_rgba(0,0,0,0.03)]">
+                  <div className="rounded-none border-0 bg-transparent p-0 py-5 shadow-none sm:py-6 lg:py-6">
                     <p className="text-[11px] uppercase tracking-[0.25em] text-neutral-500">Eenvoq AI</p>
                     <div className="mt-3 flex flex-col gap-2 sm:flex-row">
                       <input
@@ -3308,13 +3362,12 @@ export default function App() {
                       <button type="button" onClick={() => { setActiveTab('ai'); handleSendPrompt('Summarize the most urgent priorities for my organization today.'); }} className="rounded-[18px] border border-black bg-[#a6ff00] px-4 py-3 text-sm font-semibold text-[#021201]">Eenvoq my data → </button>
                     </div>
                   </div>
-                </div> {/* <--- Added missing closing tag for the white content area */}
-              </div>
-            )}
+                </div>
+              )}
 
               {/* VIEW 2: STOCK (INVENTORY) */}
               {activeTab === 'stock' && (
-                <div className="p-3 sm:p-4 lg:p-5 space-y-4">
+                <div className="space-y-4 px-2 pt-4 pb-3 sm:px-2 sm:pt-4 sm:pb-4 lg:px-2 lg:pt-4 lg:pb-6">
                   <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
                     <div>
                       <p className="text-[11px] uppercase tracking-[0.3em] text-neutral-500">{inventoryLabel} intelligence center</p>
@@ -3654,7 +3707,7 @@ export default function App() {
 
               {/* VIEW 3: ORDERS (FULFILLMENT) */}
               {activeTab === 'orders' && (
-                <div className="p-3 sm:p-4 lg:p-5 space-y-4">
+                <div className="space-y-4 px-2 pt-4 pb-3 sm:px-2 sm:pt-4 sm:pb-4 lg:px-2 lg:pt-4 lg:pb-6">
                   <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
                     <div>
                       <p className="text-[11px] uppercase tracking-[0.3em] text-neutral-500">{transactionLabel} workspace</p>
@@ -3750,10 +3803,10 @@ export default function App() {
                             </div>
                           </div>
                           <div className="mt-4 space-y-3 rounded-[18px] border border-neutral-200 bg-neutral-50 p-3 text-sm text-neutral-700">
-                            <div>• Select a customer from CRM or choose walk-in.</div>
+                            <div>• Select a {customerLabel.toLowerCase()} from CRM or choose a walk-in guest.</div>
                             <div>• Pick an inventory category and the exact item from the matching catalog.</div>
                             <div>• Review profit, loss, and balance due before submitting.</div>
-                            <div>• Only owner and manager roles can edit or delete completed sales.</div>
+                            <div>• Only owner and manager roles can edit or delete completed {activeOrganizationProfile.terminology.salesLabel.toLowerCase()}.</div>
                           </div>
                           <div className="mt-4 rounded-[18px] border border-[#a6ff00]/30 bg-[#a6ff00] p-3 text-sm text-neutral-700">
                             Currency defaults to <span className="font-semibold text-black">{businessCurrency || organizationSetup.currency || 'NGN (₦)'}</span>. To choose your business currency, go to Profile & Settings.
@@ -3767,8 +3820,8 @@ export default function App() {
                         <div className="rounded-[24px] border border-neutral-200 bg-white p-4 shadow-[0_16px_60px_rgba(0,0,0,0.03)]">
                           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                             <div>
-                              <p className="text-[11px] uppercase tracking-[0.3em] text-neutral-500">Record transaction</p>
-                              <h3 className="mt-1 text-base font-semibold text-black">{transactionComposerStep === 'form' ? 'Fill in the sale details' : 'Review and confirm'}</h3>
+                              <p className="text-[11px] uppercase tracking-[0.3em] text-neutral-500">Record {transactionLabel.toLowerCase()}</p>
+                              <h3 className="mt-1 text-base font-semibold text-black">{transactionComposerStep === 'form' ? `Fill in the ${transactionLabel.toLowerCase()} details` : 'Review and confirm'}</h3>
                             </div>
                             <div className="flex gap-2">
                               <button type="button" onClick={() => { setShowTransactionComposer(false); setTransactionComposerStep('form'); setTransactionNotice(''); }} className="rounded-full border border-neutral-200 bg-white px-3 py-2 text-sm font-medium text-black">Cancel</button>
@@ -3794,7 +3847,7 @@ export default function App() {
                                   </select>
                                 </label>
                                 <label className="space-y-2 text-sm text-black">
-                                  <span className="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-500">Recipient</span>
+                                  <span className="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-500">{recipientLabel}</span>
                                   <select
                                     value={transactionDraft.recipientId}
                                     onChange={(event) => setTransactionDraft((prev) => ({ ...prev, recipientId: event.target.value }))}
@@ -4077,27 +4130,11 @@ export default function App() {
 
               {/* VIEW 4: AI COACH */}
               {activeTab === 'ai' && (
-                <div className="flex flex-col h-[520px] md:h-[580px]">
+                <div className="px-2 pt-4 pb-3 sm:px-2 sm:pt-4 sm:pb-4 lg:px-2 lg:pt-4 lg:pb-6">
+                  <div className="flex h-[520px] flex-col overflow-hidden rounded-[24px] border border-neutral-200 bg-white p-3 shadow-[0_16px_60px_rgba(0,0,0,0.03)] sm:p-4 md:h-[580px] lg:p-5">
                     <p className="text-[11px] uppercase tracking-[0.3em] text-neutral-500">Eenvoq your data</p>
                     <h2 className="text-lg font-semibold text-black">Eenvoq AI Consultant</h2>
-                  
-                  {/* Quick Audit suggested capsules row */}
-                  <div className="px-4 py-3 bg-neutral-50 border-b border-neutral-100 flex overflow-x-auto gap-2 no-scrollbar flex-shrink-0">
-                    <button
-                      onClick={() => handleSendPrompt('Evaluate current supply chain risks, highlight low stock items, and generate recommended reorder limits.')}
-                      className="bg-white hover:bg-neutral-100 text-black px-3 py-1.5 rounded-full border border-neutral-200 text-sm whitespace-nowrap font-normal"
-                      disabled={aiGenerating}
-                    >
-                      Stock safety assessment
-                    </button>
-                    <button
-                      onClick={() => handleSendPrompt('Provide a full financial health report including total revenues, operational cost of goods, net profits, and our most profitable categories.')}
-                      className="bg-white hover:bg-neutral-100 text-black px-3 py-1.5 rounded-full border border-neutral-200 text-sm whitespace-nowrap font-normal"
-                      disabled={aiGenerating}
-                    >
-                      Profit analysis
-                    </button>
-                  </div>
+
 
                   {/* Chat messages stream */}
                   <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-white">
@@ -4165,11 +4202,12 @@ export default function App() {
                   </form>
 
                 </div>
+                </div>
               )}
 
               {/* VIEW 5: ANALYTICS (PROJECTIONS & PERFORMANCE) */}
               {activeTab === 'analytics' && (
-                <div className="p-4 sm:p-5 lg:p-6 space-y-4">
+                <div className="space-y-4 px-2 pt-4 pb-3 sm:px-2 sm:pt-4 sm:pb-4 lg:px-2 lg:pt-4 lg:pb-6">
                   <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
                     <div>
                       <p className="text-[11px] uppercase tracking-[0.3em] text-neutral-500">Finance workspace</p>
@@ -4271,7 +4309,7 @@ export default function App() {
 
               {/* VIEW 6: PROCUREMENT & SUPPLIERS */}
               {activeTab === 'procurement' && (
-                <div className="p-5 space-y-4">
+                <div className="space-y-4 px-2 pt-4 pb-3 sm:px-2 sm:pt-4 sm:pb-4 lg:px-2 lg:pt-4 lg:pb-6">
                   <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
                     <div>
                       <p className="text-[11px] uppercase tracking-[0.3em] text-neutral-500">Supply chain</p>
@@ -4381,7 +4419,7 @@ export default function App() {
 
               {/* VIEW 7: AUDITING & SYSTEM LOGS */}
               {activeTab === 'audits' && (
-                <div className="p-5 space-y-4">
+                <div className="space-y-4 px-2 pt-4 pb-3 sm:px-2 sm:pt-4 sm:pb-4 lg:px-2 lg:pt-4 lg:pb-6">
                   <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
                     <div>
                       <p className="text-[11px] uppercase tracking-[0.3em] text-neutral-500">Operations intelligence</p>
@@ -4447,7 +4485,7 @@ export default function App() {
 
               {/* VIEW 8: PROFILE & BUSINESS SETTINGS */}
               {activeTab === 'settings' && (
-                <div className="p-5 space-y-4">
+                <div className="space-y-4 px-2 pt-4 pb-3 sm:px-2 sm:pt-4 sm:pb-4 lg:px-2 lg:pt-4 lg:pb-6">
                       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                       <h2 className="text-sm font-semibold text-black">Profile & Settings</h2>
@@ -4618,7 +4656,7 @@ export default function App() {
 
               {/* VIEW 9: CUSTOMER CRM */}
               {activeTab === 'crm' && (
-                <div className="p-5 space-y-4">
+                <div className="space-y-4 px-2 pt-4 pb-3 sm:px-2 sm:pt-4 sm:pb-4 lg:px-2 lg:pt-4 lg:pb-6">
                   {/* Action row with marketing campaigns */}
                   <div className="flex justify-between items-center">
                     <h2 className="text-sm font-semibold text-black">{customerLabel} CRM</h2>
@@ -4726,7 +4764,7 @@ export default function App() {
 
               {/* VIEW 10: STAFF & ACCESS */}
               {activeTab === 'staff' && (
-                <div className="space-y-4 p-4 sm:p-5 lg:p-6">
+                <div className="space-y-4 px-2 pt-4 pb-3 sm:px-2 sm:pt-4 sm:pb-4 lg:px-2 lg:pt-4 lg:pb-6">
                   <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                     <div className="max-w-3xl">
                       <p className="text-[11px] uppercase tracking-[0.3em] text-neutral-500">Governance & access</p>

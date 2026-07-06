@@ -697,7 +697,7 @@ app.post('/api/auth/login', async (req, res) => {
       let profileData: any = null;
 
       try {
-        const response = await supabaseAdmin?.from('profiles').select('business_id, full_name, email, role').eq('user_id', data.user.id).maybeSingle();
+        const response = await supabaseAdmin?.from('profiles').select('business_id, full_name, email, role, account_type').eq('user_id', data.user.id).maybeSingle();
         profileData = response?.data || null;
       } catch (profileError: any) {
         console.warn('Unable to read Supabase profile record during login, continuing with auth fallback.', profileError?.message || profileError);
@@ -732,7 +732,7 @@ app.post('/api/auth/login', async (req, res) => {
         message: 'Signed in successfully.',
         user: data.user,
         session: data.session,
-        profile: profileData || { full_name: data.user.user_metadata?.full_name || 'Business Owner', email: normalizedEmail, role: normalizedRole },
+        profile: profileData || { full_name: data.user.user_metadata?.full_name || 'Business Owner', email: normalizedEmail, role: normalizedRole, account_type: 'business' },
         business: businessId ? { id: businessId } : null
       });
     } catch (supabaseError: any) {

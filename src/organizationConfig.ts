@@ -1,11 +1,9 @@
-export type OrganizationTypeKey = 'business' | 'school';
+export type OrganizationTypeKey = 'business' | 'institution';
 
 export type ModuleKey =
   | 'transactions'
   | 'inventory'
   | 'students'
-  | 'members'
-  | 'patients'
   | 'donations'
   | 'attendance'
   | 'staff'
@@ -83,16 +81,15 @@ export const organizationProfiles: Record<OrganizationTypeKey, OrganizationProfi
     aiGreeting: 'Hello. I am Eenvoq AI, your retail operations advisor. I can help you optimize demand, inventory, and customer follow-up with business-ready recommendations. ',
     aiFocus: 'Revenue, replenishment, customer conversion, and sales reliability.'
   },
-  school: {
-    id: 'school',
-    label: 'School / Educational Institution',
-    description: 'Education operations with students, fees, attendance, inventory, and staff visibility.',
-    // Education profile focuses on students, staff, classes, fees and reporting
+  institution: {
+    id: 'institution',
+    label: 'Institution / Campus Operations',
+    description: 'Institution operations with admissions, payments, attendance, inventory, and staff visibility.',
     defaultModules: ['transactions', 'inventory', 'students', 'attendance', 'staff', 'reports', 'ai', 'assets'],
     navigation: [
       { id: 'desk', label: 'Dashboard', tab: 'desk' },
       { id: 'students', label: 'Students', tab: 'crm' },
-      { id: 'fees', label: 'Fees', tab: 'orders' },
+      { id: 'fees', label: 'Payments', tab: 'orders' },
       { id: 'attendance', label: 'Attendance', tab: 'orders' },
       { id: 'inventory', label: 'Inventory', tab: 'stock' },
       { id: 'staff', label: 'Staff', tab: 'staff' },
@@ -107,21 +104,21 @@ export const organizationProfiles: Record<OrganizationTypeKey, OrganizationProfi
     ],
     dashboardActions: [
       { title: 'Students with low attendance need follow-up', detail: 'Open the student view and support retention before it becomes a trend.', targetTab: 'crm' },
-      { title: 'Fee reminders are due for 12 accounts', detail: 'Route the reminder workflow and keep the bursary timeline healthy.', targetTab: 'orders' },
-      { title: 'Campus supplies need attention', detail: 'Review inventory levels and prevent disruption in school operations.', targetTab: 'stock' }
+      { title: 'Payment reminders are due for 12 accounts', detail: 'Route the reminder workflow and keep the finance timeline healthy.', targetTab: 'orders' },
+      { title: 'Campus supplies need attention', detail: 'Review inventory levels and prevent disruption in institutional operations.', targetTab: 'stock' }
     ],
     terminology: {
       customerLabel: 'Student',
-      transactionLabel: 'Fee',
-      salesLabel: 'Fees',
+      transactionLabel: 'Payment',
+      salesLabel: 'Payments',
       inventoryLabel: 'Inventory',
       staffLabel: 'Staff',
       dashboardLabel: 'Dashboard',
       recipientLabel: 'Student',
-      summaryLabel: 'School operations summary'
+      summaryLabel: 'Institution operations summary'
     },
-    aiGreeting: 'Hello. I am Eenvoq AI, your education operations guide. I can help you improve attendance, fee follow-up, planning, and classroom resource readiness. ',
-    aiFocus: 'Attendance, fee collection, school operations, and student support.'
+    aiGreeting: 'Hello. I am Eenvoq AI, your institution operations guide. I can help you improve attendance, payment follow-up, planning, and campus resource readiness. ',
+    aiFocus: 'Attendance, payment collection, campus operations, and student support.'
   },
 };
 
@@ -166,5 +163,6 @@ export const organizationTypeOptions = Object.values(organizationProfiles).map((
 }));
 
 export function getOrganizationProfile(type: string | undefined) {
-  return organizationProfiles[(type as OrganizationTypeKey) || 'business'] || organizationProfiles.business;
+  const normalizedType = (type === 'school' ? 'institution' : type) as OrganizationTypeKey | undefined;
+  return organizationProfiles[normalizedType || 'business'] || organizationProfiles.business;
 }

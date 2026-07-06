@@ -65,6 +65,11 @@ function normalizeRole(role?: string) {
   return normalized === 'manager' || normalized === 'staff' || normalized === 'owner' ? normalized : 'owner';
 }
 
+function normalizeAccountType(profileType?: string) {
+  const normalized = String(profileType || 'business').trim().toLowerCase();
+  return normalized === 'institution' ? 'institution' : 'business';
+}
+
 function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
 }
@@ -507,6 +512,7 @@ export async function performTransactionalRegistration(
 
     const businessPayload = {
       name: String(config.name || '').trim() || 'Your Business',
+      account_type: normalizeAccountType(String(config.profileType || 'business')),
       industry: String(config.industry || '').trim() || 'Business',
       subtype: String(config.subtype || '').trim() || '',
       location: String(config.location || '').trim() || '',
@@ -536,6 +542,8 @@ export async function performTransactionalRegistration(
       .insert({
         user_id: authenticatedUser.id,
         business_id: resources.businessId,
+        tenant_id: resources.businessId,
+        account_type: normalizeAccountType(String(config.profileType || 'business')),
         full_name: fullName,
         email: normalizedEmail,
         role: normalizedRole,

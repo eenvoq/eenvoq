@@ -1,4 +1,5 @@
-﻿@import "tailwindcss";
+﻿@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
+@import "tailwindcss";
 
 :root {
   /* Primary Brand Colors */
@@ -35,10 +36,11 @@
   --primary-bg: #F8FAFC;
   --secondary-bg: #F8FAFC;
   --border-color-legacy: #E2E8F0;
-  
-  /* Typography */
-  --_text-style---font-family--dm-sans: "Dmsans Variable", Arial, sans-serif;
-  --_text-style---font-family--sagace: Sagace, Arial, sans-serif;
+
+/* Typography */
+--font-sans: "Plus Jakarta Sans", Arial, sans-serif;
+--_text-style---font-family--dm-sans: var(--font-sans);
+--_text-style---font-family--sagace: var(--font-sans);
   
   /* Font Sizes */
   --_text-style---main-font-sizes--main-title-80: 80px;
@@ -114,7 +116,7 @@ html, body, #root {
   min-height: 100%;
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  font-family: var(--_text-style---font-family--dm-sans);
+  font-family: var(--font-sans);
 }
 
 body {
