@@ -26,6 +26,30 @@
       "stock": 5,
       "minStock": 2,
       "currency": "NGN (₦)"
+    },
+    {
+      "id": "1783440411903",
+      "name": "Perfume (Hayaati)",
+      "sku": "PRD-411254",
+      "category": "Product",
+      "status": "Active",
+      "note": "",
+      "details": {
+        "price": "10",
+        "stock": "10",
+        "productId": "PRD-411254"
+      },
+      "attachments": [],
+      "createdBy": "Krakki",
+      "lastModifiedBy": "Krakki",
+      "createdAt": "2026-07-07T16:06:51.254Z",
+      "updatedAt": "2026-07-07T16:06:51.254Z",
+      "image": "",
+      "price": 10,
+      "cost": 0,
+      "stock": 10,
+      "minStock": 0,
+      "currency": "USD ($)"
     }
   ],
   "orders": [
@@ -65,7 +89,15 @@
       "notes": ""
     }
   ],
-  "staff": [],
+  "staff": [
+    {
+      "id": "st-1783441296313",
+      "name": "Pamela",
+      "role": "Sales Assistant",
+      "online": true,
+      "lastActive": "2026-07-07 16:21"
+    }
+  ],
   "customers": [
     {
       "id": "c-1783005784203",
@@ -77,6 +109,17 @@
       "totalSpent": 0,
       "ordersCount": 3,
       "lastPurchaseDate": "2026-07-06"
+    },
+    {
+      "id": "c-1783441350239",
+      "name": "Henry",
+      "email": "email@gmail.com",
+      "phone": "+234902823374",
+      "company": "",
+      "status": "Active",
+      "totalSpent": 0,
+      "ordersCount": 0,
+      "lastPurchaseDate": ""
     }
   ],
   "suppliers": [

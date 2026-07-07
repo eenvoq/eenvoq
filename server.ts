@@ -106,6 +106,7 @@ interface OrganizationConfig {
   profileType: string;
   name: string;
   industry: string;
+  subtype: string;
   location: string;
   currency: string;
   contactEmail: string;
@@ -698,19 +699,33 @@ app.post('/api/auth/login', async (req, res) => {
 
       let businessId: string | null = null;
       let profileData: any = null;
+      let businessData: any = null;
 
-      try {
-        const response = await supabaseAdmin?.from('profiles').select('business_id, full_name, email, role, account_type').eq('user_id', data.user.id).maybeSingle();
-        profileData = response?.data || null;
-      } catch (profileError: any) {
-        console.warn('Unable to read Supabase profile record during login, continuing with auth fallback.', profileError?.message || profileError);
+      if (supabaseAdmin) {
+        try {
+          const response = await supabaseAdmin.from('profiles').select('business_id, full_name, email, role, account_type').eq('user_id', data.user.id).maybeSingle();
+          profileData = response?.data || null;
+        } catch (profileError: any) {
+          console.warn('Unable to read Supabase profile record during login, continuing with auth success.', profileError?.message || profileError);
+        }
       }
 
-      if (profileData?.business_id) {
-        businessId = profileData.business_id;
-      } else if (supabaseAdmin) {
+      if (supabaseAdmin && profileData?.business_id) {
         try {
-          const { data: businessData } = await supabaseAdmin.from('businesses').insert({
+          const businessResponse = await supabaseAdmin
+            .from('businesses')
+            .select('id, name, industry, subtype, location, currency, contact_email, contact_phone, modules, logo_url, account_type')
+            .eq('id', profileData.business_id)
+            .maybeSingle();
+          businessData = businessResponse?.data || null;
+        } catch (businessError: any) {
+          console.warn('Unable to read Supabase business record during login, continuing with auth success.', businessError?.message || businessError);
+        }
+      }
+
+      if (!businessData && supabaseAdmin && !profileData?.business_id) {
+        try {
+          const { data: insertedBusiness } = await supabaseAdmin.from('businesses').insert({
             name: 'Your Business',
             industry: 'Business',
             subtype: '',
@@ -720,11 +735,11 @@ app.post('/api/auth/login', async (req, res) => {
             contact_phone: '',
             modules: ['transactions', 'inventory', 'customers', 'staff', 'reports', 'ai'],
             logo_url: ''
-          }).select('id').single();
+          }).select('id, name, industry, subtype, location, currency, contact_email, contact_phone, modules, logo_url, account_type').single();
 
-          if (businessData?.id) {
-            businessId = businessData.id;
-            await ensureProfileRecord(data.user.id, businessData.id, data.user.user_metadata?.full_name || 'Business Owner', normalizedEmail, normalizedRole, normalizedPin);
+          if (insertedBusiness?.id) {
+            businessData = insertedBusiness;
+            await ensureProfileRecord(data.user.id, insertedBusiness.id, data.user.user_metadata?.full_name || 'Business Owner', normalizedEmail, normalizedRole, normalizedPin);
           }
         } catch (businessError: any) {
           console.warn('Unable to create a Supabase business record during login, continuing with auth success.', businessError?.message || businessError);
@@ -736,7 +751,7 @@ app.post('/api/auth/login', async (req, res) => {
         user: data.user,
         session: data.session,
         profile: profileData || { full_name: data.user.user_metadata?.full_name || 'Business Owner', email: normalizedEmail, role: normalizedRole, account_type: 'business' },
-        business: businessId ? { id: businessId } : null
+        business: businessData || (profileData?.business_id ? { id: profileData.business_id } : null)
       });
     } catch (supabaseError: any) {
       const fallback = signInLocalAuthAccount(normalizedEmail, String(password), normalizedRole, normalizedPin);
@@ -758,7 +773,45 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
-app.get('/api/organization-config', (req, res) => {
+app.get('/api/organization-config', async (req, res) => {
+  const requestedUserId = String(req.query.userId || '').trim();
+
+  if (requestedUserId && supabaseAdmin) {
+    try {
+      const { data: profileData, error: profileError } = await supabaseAdmin
+        .from('profiles')
+        .select('business_id')
+        .eq('user_id', requestedUserId)
+        .maybeSingle();
+
+      if (!profileError && profileData?.business_id) {
+        const { data: businessData, error: businessError } = await supabaseAdmin
+          .from('businesses')
+          .select('id, name, industry, subtype, location, currency, contact_email, contact_phone, modules, logo_url, account_type')
+          .eq('id', profileData.business_id)
+          .maybeSingle();
+
+        if (!businessError && businessData) {
+          return res.json({
+            profileType: String(businessData.account_type || 'business'),
+            name: String(businessData.name || organizationConfig.name),
+            industry: String(businessData.industry || organizationConfig.industry),
+            subtype: String(businessData.subtype || organizationConfig.subtype),
+            location: String(businessData.location || organizationConfig.location),
+            currency: String(businessData.currency || organizationConfig.currency),
+            contactEmail: String(businessData.contact_email || organizationConfig.contactEmail),
+            contactPhone: String(businessData.contact_phone || organizationConfig.contactPhone),
+            staffCount: organizationConfig.staffCount,
+            modules: Array.isArray(businessData.modules) ? businessData.modules : organizationConfig.modules,
+            logoUrl: String(businessData.logo_url || organizationConfig.logoUrl)
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Unable to load organization config from Supabase', error);
+    }
+  }
+
   res.json(organizationConfig);
 });
 

@@ -434,46 +434,32 @@ const businessCategoryFields: Record<BusinessRecordCategory, FieldDefinition[]> 
     { key: 'email', label: 'Email', type: 'email' },
     { key: 'phone', label: 'Phone', type: 'tel' },
     { key: 'specialization', label: 'Specialization', type: 'text' }
+  ],
+  Other: [
+    { key: 'name', label: 'Name', type: 'text' },
+    { key: 'description', label: 'Description', type: 'textarea' }
   ]
 };
 
 const educationCategoryFields: Record<EducationRecordCategory, FieldDefinition[]> = {
   Student: [
     { key: 'admissionNumber', label: 'Admission Number', type: 'text', placeholder: 'School admission number' },
-    { key: 'passportPhotograph', label: 'Passport Photograph URL', type: 'text', placeholder: 'Image or upload link' },
     { key: 'firstName', label: 'First Name', type: 'text' },
     { key: 'middleName', label: 'Middle Name', type: 'text' },
     { key: 'lastName', label: 'Last Name', type: 'text' },
     { key: 'preferredName', label: 'Preferred Name', type: 'text' },
     { key: 'gender', label: 'Gender', type: 'select', options: ['Female', 'Male', 'Non-binary', 'Prefer not to say'] },
     { key: 'dateOfBirth', label: 'Date of Birth', type: 'date' },
-    { key: 'nationality', label: 'Nationality', type: 'text' },
     { key: 'stateRegion', label: 'State or Region', type: 'text' },
-    { key: 'localGovernment', label: 'Local Government', type: 'text' },
-    { key: 'religion', label: 'Religion', type: 'text' },
-    { key: 'bloodGroup', label: 'Blood Group', type: 'text' },
-    { key: 'medicalConditions', label: 'Medical Conditions', type: 'textarea' },
     { key: 'admissionDate', label: 'Admission Date', type: 'date' },
-    { key: 'currentAcademicSession', label: 'Current Academic Session', type: 'text' },
-    { key: 'currentTermSemester', label: 'Current Term or Semester', type: 'text' },
     { key: 'currentClassCourse', label: 'Current Class or Course', type: 'text' },
-    { key: 'department', label: 'Department', type: 'text' },
-    { key: 'assignedClassTeacher', label: 'Assigned Class Teacher', type: 'text' },
-    { key: 'studentStatus', label: 'Student Status', type: 'select', options: ['Active', 'Inactive', 'Alumni', 'Suspended'] },
-    { key: 'homeAddress', label: 'Home Address', type: 'textarea' },
-    { key: 'city', label: 'City', type: 'text' },
-    { key: 'country', label: 'Country', type: 'text' },
-    { key: 'postalCode', label: 'Postal Code', type: 'text' },
     { key: 'studentPhoneNumber', label: 'Student Phone Number', type: 'tel' },
     { key: 'studentEmailAddress', label: 'Student Email Address', type: 'email' },
     { key: 'parentGuardianInformation', label: 'Parent / Guardian Information', type: 'textarea', placeholder: 'Multiple guardians and contact details' },
-    { key: 'emergencyContactInformation', label: 'Emergency Contact Information', type: 'textarea' },
     { key: 'tuitionHistory', label: 'Tuition History', type: 'textarea' },
     { key: 'outstandingBalance', label: 'Outstanding Balance', type: 'text' },
     { key: 'discountsScholarships', label: 'Discounts / Scholarships', type: 'text' },
-    { key: 'paymentPlans', label: 'Payment Plans', type: 'textarea' },
     { key: 'paymentHistory', label: 'Payment History', type: 'textarea' },
-    { key: 'supportingDocuments', label: 'Supporting Documents', type: 'textarea', placeholder: 'Birth certificate, admission letter, reports, records, etc.' }
   ],
   Staff: [
     { key: 'staffId', label: 'Staff ID', type: 'text', placeholder: 'Auto-generated staff ID' },
@@ -488,44 +474,22 @@ const educationCategoryFields: Record<EducationRecordCategory, FieldDefinition[]
     { key: 'employmentDate', label: 'Employment Date', type: 'date' },
     { key: 'employmentType', label: 'Employment Type', type: 'select', options: ['Full time', 'Part time', 'Contract', 'Temporary', 'Internship'] },
     { key: 'staffRole', label: 'Staff Role', type: 'text' },
-    { key: 'department', label: 'Department', type: 'text' },
-    { key: 'assignedClassesCourses', label: 'Assigned Classes / Courses', type: 'text' },
-    { key: 'reportingManager', label: 'Reporting Manager', type: 'text' },
-    { key: 'employmentStatus', label: 'Employment Status', type: 'select', options: ['Active', 'Inactive', 'Suspended', 'On leave'] },
     { key: 'salaryAmount', label: 'Salary Amount', type: 'text' },
     { key: 'paymentFrequency', label: 'Payment Frequency', type: 'select', options: ['Monthly', 'Biweekly', 'Weekly', 'Contract'] },
     { key: 'bankName', label: 'Bank Name', type: 'text' },
     { key: 'accountNumber', label: 'Account Number', type: 'text' },
-    { key: 'taxInformation', label: 'Tax Information', type: 'textarea' },
-    { key: 'employmentContract', label: 'Employment Contract', type: 'textarea' },
-    { key: 'curriculumVitae', label: 'Curriculum Vitae', type: 'textarea' },
-    { key: 'professionalCertificates', label: 'Professional Certificates', type: 'textarea' },
-    { key: 'identificationDocuments', label: 'Identification Documents', type: 'textarea' },
-    { key: 'otherUploadedFiles', label: 'Other Uploaded Files', type: 'textarea' }
   ],
   'Course/Class': [
     { key: 'courseName', label: 'Course or Class Name', type: 'text' },
     { key: 'courseCode', label: 'Course Code', type: 'text' },
-    { key: 'description', label: 'Description', type: 'textarea' },
-    { key: 'department', label: 'Department', type: 'text' },
-    { key: 'academicLevel', label: 'Academic Level', type: 'text' },
-    { key: 'duration', label: 'Duration', type: 'text' },
-    { key: 'capacity', label: 'Capacity', type: 'number' },
-    { key: 'assignedTeachers', label: 'Assigned Teacher(s)', type: 'text' },
-    { key: 'assistantTeachers', label: 'Assistant Teacher(s)', type: 'text' },
     { key: 'academicSession', label: 'Academic Session', type: 'text' },
-    { key: 'termSemester', label: 'Term or Semester', type: 'text' },
-    { key: 'classSchedule', label: 'Class Schedule', type: 'text', placeholder: 'Days and times' },
-    { key: 'assignedClassroom', label: 'Assigned Classroom', type: 'text' },
     { key: 'totalStudents', label: 'Total Students', type: 'number' },
     { key: 'availableSpaces', label: 'Available Spaces', type: 'number' },
-    { key: 'completionRate', label: 'Completion Rate', type: 'text' }
   ],
   Classroom: [
     { key: 'classroomName', label: 'Classroom Name', type: 'text' },
     { key: 'classroomCode', label: 'Classroom Code', type: 'text' },
     { key: 'capacity', label: 'Capacity', type: 'number' },
-    { key: 'floor', label: 'Floor / Location', type: 'text' },
     { key: 'resources', label: 'Resources', type: 'textarea' },
     { key: 'status', label: 'Status', type: 'select', options: ['Active', 'Inactive', 'Under maintenance'] }
   ],
@@ -645,6 +609,10 @@ const educationCategoryFields: Record<EducationRecordCategory, FieldDefinition[]
     { key: 'phoneNumber', label: 'Phone Number', type: 'tel' },
     { key: 'emailAddress', label: 'Email Address', type: 'email' },
     { key: 'address', label: 'Address', type: 'textarea' }
+  ],
+  Other: [
+    { key: 'name', label: 'Name', type: 'text' },
+    { key: 'description', label: 'Description', type: 'textarea' }
   ]
 };
 
@@ -956,6 +924,9 @@ export default function App() {
   const [showAddOrderModal, setShowAddOrderModal] = useState(false);
   const [showAddSupplierModal, setShowAddSupplierModal] = useState(false);
   const [showAddStaffModal, setShowAddStaffModal] = useState(false);
+  const [showInventorySavedModal, setShowInventorySavedModal] = useState(false);
+  const [lastActiveTab, setLastActiveTab] = useState<typeof activeTab>('desk');
+  const [formSuccessType, setFormSuccessType] = useState<'order' | 'staff' | 'supplier' | null>(null);
   const [supplierDraft, setSupplierDraft] = useState({ name: '', businessName: '', address: '', whatsappNumber: '', specialty: 'General Supply', leadTime: 3, contact: '', email: '' });
   const [recordSupplierSelection, setRecordSupplierSelection] = useState('');
   const [showRecordSupplierComposer, setShowRecordSupplierComposer] = useState(false);
@@ -1111,10 +1082,12 @@ export default function App() {
       isLoggedIn: appMode === 'app',
       appMode,
       activeTab,
-      authMode
+      authMode,
+      userId: authUserId,
+      accountType: tenantAccountType
     };
     localStorage.setItem('eenvoq-session', JSON.stringify(session));
-  }, [appMode, activeTab, authMode]);
+  }, [appMode, activeTab, authMode, authUserId, tenantAccountType]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -1385,10 +1358,28 @@ export default function App() {
 
       setAuthUserId(payload.user?.id || null);
       const nextAccountType = String(payload.profile?.account_type || payload.business?.account_type || organizationSetup.profileType || 'business').toLowerCase() === 'institution' ? 'institution' : 'business';
-      setOwnerName(payload.profile?.full_name || authName.trim() || ownerName);
-      setOwnerEmail(payload.profile?.email || authEmail.trim().toLowerCase());
+      const businessPayload = payload.business || {};
+      const profilePayload = payload.profile || {};
+
+      setOwnerName(profilePayload.full_name || authName.trim() || ownerName);
+      setOwnerEmail(profilePayload.email || authEmail.trim().toLowerCase());
+      setBusinessName(businessPayload.name || businessName);
+      setBusinessCurrency(businessPayload.currency || businessCurrency || organizationSetup.currency || 'NGN (₦)');
       setTenantAccountType(nextAccountType);
       setOrganizationType(nextAccountType);
+      setOrganizationSetup((current) => ({
+        ...current,
+        profileType: nextAccountType,
+        name: businessPayload.name || current.name,
+        industry: businessPayload.industry || current.industry,
+        subtype: businessPayload.subtype || current.subtype,
+        location: businessPayload.location || current.location,
+        currency: businessPayload.currency || current.currency,
+        contactEmail: businessPayload.contact_email || profilePayload.email || current.contactEmail,
+        contactPhone: businessPayload.contact_phone || current.contactPhone,
+        modules: Array.isArray(businessPayload.modules) ? businessPayload.modules : current.modules,
+        logoUrl: businessPayload.logo_url || current.logoUrl
+      }));
       setAuthPassword('');
       setPasswordVisible(false);
 
@@ -1446,7 +1437,8 @@ export default function App() {
 
   const loadOrganizationConfig = async () => {
     try {
-      const response = await fetch('/api/organization-config');
+      const url = authUserId ? `/api/organization-config?userId=${encodeURIComponent(authUserId)}` : '/api/organization-config';
+      const response = await fetch(url);
       if (!response.ok) return;
       const config = await response.json() as OrganizationSetupConfig;
       const nextAccountType = (config.profileType === 'institution' ? 'institution' : 'business') as OrganizationKind;
@@ -1853,7 +1845,6 @@ export default function App() {
       setProducts((current) => [savedRecord, ...current]);
       setSelectedInventoryRecord(savedRecord);
       setInventoryType(selectedCategory === 'Product' ? 'Products' : selectedCategory === 'Supplier' || selectedCategory === 'Supplier/Vendor' ? 'Custom Inventory' : activeOrganizationProfile.id === 'institution' ? 'Students' : 'Products');
-      setActiveTab('stock');
       setShowAddProductModal(false);
       setInventoryComposerStep('form');
       setProductImageBase64('');
@@ -1872,13 +1863,24 @@ export default function App() {
       setRecordSupplierSelection('');
       setShowRecordSupplierComposer(false);
       setRecordSupplierDraft({ name: '', businessName: '', address: '', whatsappNumber: '', email: '' });
-      setTransactionNotice(`Saved ${recordName} successfully. It is now visible in your ${inventoryLabel.toLowerCase()} workspace.`);
+      setShowInventorySavedModal(true);
       await loadAllData();
     } catch (err) {
       console.error(err);
       setTransactionNotice(err instanceof Error ? err.message : 'Unable to save the intake record.');
     }
   };
+
+  // Auto-dismiss success modal and navigate to stock page
+  useEffect(() => {
+    if (showInventorySavedModal) {
+      const timer = setTimeout(() => {
+        setShowInventorySavedModal(false);
+        setActiveTab('stock');
+      }, 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [showInventorySavedModal]);
 
   // API Call: Edit product
   const handleExpenseDraftSubmit = async (e: React.FormEvent) => {
@@ -2006,6 +2008,7 @@ export default function App() {
 
       if (response.ok) {
         setShowAddOrderModal(false);
+        setFormSuccessType('order');
         setNewOrder({
           customerName: '',
           items: [{ productId: '', quantity: 1 }],
@@ -2049,6 +2052,7 @@ export default function App() {
       });
       if (response.ok) {
         setShowAddStaffModal(false);
+        setFormSuccessType('staff');
         setNewStaffMember({ name: '', role: 'Sales Assistant', online: true });
         logAudit('Security', `Business owner registered new staff member: ${newStaffMember.name}.`);
         await loadAllData();
@@ -2156,6 +2160,7 @@ export default function App() {
 
       setSupplierDraft({ name: '', businessName: '', address: '', whatsappNumber: '', specialty: 'General Supply', leadTime: 3, contact: '', email: '' });
       setShowAddSupplierModal(false);
+      setFormSuccessType('supplier');
       await loadAllData();
       logAudit('Procurement', `Registered supplier partner ${supplierDraft.name}.`);
       setTransactionNotice(`Saved ${supplierDraft.name} to your supplier roster.`);
@@ -2228,6 +2233,22 @@ export default function App() {
       setInventoryType(inventoryTypeOptions[0]?.id ?? 'Products');
     }
   }, [inventoryType, inventoryTypeOptions]);
+
+  // Track active tab changes to enable returning to previous page
+  useEffect(() => {
+    setLastActiveTab(activeTab);
+  }, [activeTab]);
+
+  // Handle form success modals - auto-close and navigate back
+  useEffect(() => {
+    if (formSuccessType) {
+      const timer = setTimeout(() => {
+        setFormSuccessType(null);
+        setActiveTab(lastActiveTab);
+      }, 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [formSuccessType, lastActiveTab]);
 
   const recordRows = products.map((record) => {
     const displayName = record.name || record.title || 'Untitled record';
@@ -3100,7 +3121,7 @@ export default function App() {
                         <h2 className="text-lg font-semibold text-black">Tag business owner, manager or staff and leave requests they can respond to</h2>
                         <p className="mt-1 text-sm text-neutral-600">Use tags for stock checks, sales follow-ups, and operating requests that need another teammate to act on.</p>
                       </div>
-                      <button type="button" onClick={() => setShowTagComposer(true)} className="inline-flex items-center justify-center gap-2 rounded-2xl border border-black bg-[#a6ff00] px-3 py-2 text-sm font-semibold text-black">
+                      <button type="button" onClick={() => setShowTagComposer(true)} className="flex md:inline-flex w-3/4 md:w-3/5 lg:w-auto items-center justify-center gap-2 rounded-2xl border border-black bg-[#a6ff00] px-3 py-2 text-sm font-semibold text-black">
                         <Plus className="h-4 w-4" />
                         New tag
                       </button>
@@ -3262,7 +3283,7 @@ export default function App() {
                           <button
                             type="button"
                             onClick={() => { setActiveTab('orders'); setTransactionReviewMode('standard'); }}
-                            className={`inline-flex items-center justify-center gap-2 rounded-full bg-[#a6ff00] px-4 py-3 text-sm font-semibold text-[#042D17] transition hover:shadow-[0_12px_34px_rgba(166,255,0,0.28)] ${isDesktop ? '' : 'w-full justify-start'}`}
+                            className={`flex md:inline-flex items-center justify-center gap-2 rounded-full bg-[#a6ff00] px-4 py-3 text-sm font-semibold text-[#042D17] transition hover:shadow-[0_12px_34px_rgba(166,255,0,0.28)] ${isDesktop ? '' : 'w-3/4 md:w-3/5 justify-start'}`}
                           >
                             <Plus className="h-4 w-4" />
                             Record Sale
@@ -3468,10 +3489,10 @@ export default function App() {
                     <button
                       type="button"
                       onClick={openInventoryComposer}
-                      className="inline-flex items-center justify-center gap-2 rounded-2xl border border-black bg-[#a6ff00] px-3 py-2 text-sm font-semibold text-black transition hover:bg-[#a6ff00]"
+                      className="flex md:inline-flex w-2/4 md:w-3/5 lg:w-auto items-center justify-center gap-2 rounded-2xl border border-black bg-[#a6ff00] px-3 py-2 text-sm font-semibold text-black transition hover:bg-[#a6ff00]"
                     >
                       <Plus className="h-4 w-4" />
-                      <span>Add Record</span>
+                      <span>Record Inventory</span>
                     </button>
                   </div>
 
@@ -4350,7 +4371,7 @@ export default function App() {
                     </div>
                     <button 
                       onClick={() => setShowAddSupplierModal(true)}
-                      className="inline-flex items-center gap-2 rounded-[12px] border border-black bg-[#a6ff00] px-3 py-2 text-sm font-semibold text-black transition-all hover:-translate-y-0.5"
+                      className="flex md:inline-flex w-3/4 md:w-3/5 lg:w-auto items-center gap-2 rounded-[12px] border border-black bg-[#a6ff00] px-3 py-2 text-sm font-semibold text-black transition-all hover:-translate-y-0.5"
                     >
                       <Plus className="h-4 w-4" />
                       <span>Register partner</span>
@@ -4702,7 +4723,7 @@ export default function App() {
                       </button>
                       <button 
                         onClick={() => setShowAddCustomerModal(true)}
-                        className="bg-neutral-950 hover:bg-black text-white px-2.5 py-1.5 rounded-md font-normal text-xs transition-colors inline-flex items-center space-x-1"
+                        className="flex md:inline-flex w-3/4 md:w-3/5 lg:w-auto bg-neutral-950 hover:bg-black text-white px-2.5 py-1.5 rounded-md font-normal text-xs transition-colors items-center space-x-1"
                       >
                         <Plus className="w-3.5 h-3.5" />
                         <span>Add {customerLabel}</span>
@@ -4818,7 +4839,7 @@ export default function App() {
                         setShowAddStaffModal(true);
                       }}
                       disabled={currentOperatorId !== 'owner'}
-                      className={`inline-flex items-center gap-2 rounded-[12px] border px-3 py-2 text-sm font-semibold transition-all ${
+                      className={`flex md:inline-flex w-3/4 md:w-3/5 lg:w-auto items-center gap-2 rounded-[12px] border px-3 py-2 text-sm font-semibold transition-all ${
                         currentOperatorId === 'owner'
                           ? 'border-black bg-[#a6ff00] text-black hover:-translate-y-0.5 hover:bg-[#a6ff00]'
                           : 'cursor-not-allowed border-neutral-200 bg-neutral-100 text-neutral-400'
@@ -5160,7 +5181,7 @@ export default function App() {
                   }`}
                 >
                   <ShoppingCart className="w-5 h-5" />
-                  <span>Orders</span>
+                  <span>Sales</span>
                 </button>
 
                 <button
@@ -5184,7 +5205,7 @@ export default function App() {
                   }`}
                 >
                   <Send className="w-5 h-5" />
-                  <span>Tag</span>
+                  <span>Tags</span>
                 </button>
               </nav>
             </div>
@@ -5196,6 +5217,58 @@ export default function App() {
       {/* ---------------------------------------------------- */}
       {/* DIALOG MODALS SECTION (STRICT MINIMAL STYLING) */}
       {/* ---------------------------------------------------- */}
+
+      {/* SUCCESS MODAL: INVENTORY SAVED */}
+      {showInventorySavedModal && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-neutral-900/45 p-4">
+          <div className="w-full max-w-sm rounded-[24px] border border-neutral-200 bg-white p-6 shadow-[0_24px_90px_rgba(0,0,0,0.16)] flex flex-col items-center text-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#a6ff00] text-black mb-4">
+              <ShieldCheck className="h-8 w-8" />
+            </div>
+            <h3 className="text-lg font-semibold text-black mb-2">Inventory Saved</h3>
+            <p className="text-sm text-neutral-600">Your record has been successfully stored. Redirecting to stock page...</p>
+          </div>
+        </div>
+      )}
+
+      {/* SUCCESS MODAL: SALE RECORDED */}
+      {formSuccessType === 'order' && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-neutral-900/45 p-4">
+          <div className="w-full max-w-sm rounded-[24px] border border-neutral-200 bg-white p-6 shadow-[0_24px_90px_rgba(0,0,0,0.16)] flex flex-col items-center text-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#a6ff00] text-black mb-4">
+              <ShieldCheck className="h-8 w-8" />
+            </div>
+            <h3 className="text-lg font-semibold text-black mb-2">Sale Successfully Recorded</h3>
+            <p className="text-sm text-neutral-600">Your sale has been recorded. Returning to previous page...</p>
+          </div>
+        </div>
+      )}
+
+      {/* SUCCESS MODAL: STAFF ADDED */}
+      {formSuccessType === 'staff' && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-neutral-900/45 p-4">
+          <div className="w-full max-w-sm rounded-[24px] border border-neutral-200 bg-white p-6 shadow-[0_24px_90px_rgba(0,0,0,0.16)] flex flex-col items-center text-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#a6ff00] text-black mb-4">
+              <ShieldCheck className="h-8 w-8" />
+            </div>
+            <h3 className="text-lg font-semibold text-black mb-2">Staff Member Added Successfully</h3>
+            <p className="text-sm text-neutral-600">New staff member has been registered. Returning to previous page...</p>
+          </div>
+        </div>
+      )}
+
+      {/* SUCCESS MODAL: SUPPLIER REGISTERED */}
+      {formSuccessType === 'supplier' && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-neutral-900/45 p-4">
+          <div className="w-full max-w-sm rounded-[24px] border border-neutral-200 bg-white p-6 shadow-[0_24px_90px_rgba(0,0,0,0.16)] flex flex-col items-center text-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#a6ff00] text-black mb-4">
+              <ShieldCheck className="h-8 w-8" />
+            </div>
+            <h3 className="text-lg font-semibold text-black mb-2">Partner Registered Successfully</h3>
+            <p className="text-sm text-neutral-600">New supplier partner has been registered. Returning to previous page...</p>
+          </div>
+        </div>
+      )}
 
       {/* MODAL 1: ADD PRODUCT */}
       {confirmAction && (
@@ -5439,15 +5512,8 @@ export default function App() {
                 <button type="button" onClick={inventoryComposerStep === 'form' ? closeInventoryComposer : () => setInventoryComposerStep('form')} className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-xs font-normal text-black transition-colors hover:bg-neutral-50 sm:px-4 sm:py-2 sm:text-sm">
                   {inventoryComposerStep === 'form' ? 'Cancel' : 'Edit'}
                 </button>
-                <button
-                  type="submit"
-                  onClick={(event) => {
-                    event.preventDefault();
-                    void handleInventoryComposerSubmit(event);
-                  }}
-                  className="rounded-md bg-neutral-950 px-3 py-2 text-xs font-normal text-white transition-colors hover:bg-black sm:px-4 sm:py-2 sm:text-sm"
-                >
-                  {inventoryComposerStep === 'form' ? 'Review' : 'Save intake'}
+                <button type="submit" className={primaryActionClasses}>
+                  {inventoryComposerStep === 'form' ? 'Review & Save' : 'Confirm Submission'}
                 </button>
               </div>
             </form>
