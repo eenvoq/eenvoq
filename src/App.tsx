@@ -3283,7 +3283,7 @@ export default function App() {
                           <button
                             type="button"
                             onClick={() => { setActiveTab('orders'); setTransactionReviewMode('standard'); }}
-                            className={`flex md:inline-flex items-center justify-center gap-2 rounded-full bg-[#a6ff00] px-4 py-3 text-sm font-semibold text-[#042D17] transition hover:shadow-[0_12px_34px_rgba(166,255,0,0.28)] ${isDesktop ? '' : 'w-3/4 md:w-3/5 justify-start'}`}
+                            className={`inline-flex items-center justify-center gap-2 rounded-full bg-[#a6ff00] px-4 py-3 text-sm font-semibold text-[#042D17] transition ${isDesktop ? '' : 'w-3/4 md:w-3/5 justify-start'}`}
                           >
                             <Plus className="h-4 w-4" />
                             Record Sale
