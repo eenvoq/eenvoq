@@ -3682,9 +3682,13 @@ export default function App() {
                       <h2 className="text-lg font-semibold text-black">{transactionLabel}s</h2>
                       <p className="mt-1 text-sm text-neutral-600">Record a sale from the inventory catalog, review it carefully, and submit it once everything is verified.</p>
                     </div>
-                    <button type="button" onClick={() => openTransactionComposer(null)} className={primaryActionClasses}>
+                    <button
+                      type="button"
+                      onClick={() => openTransactionComposer(null)}
+                      className="flex md:inline-flex w-2/4 md:w-3/5 lg:w-auto items-center justify-center gap-2 rounded-2xl border border-black bg-[#a6ff00] px-3 py-2 text-sm font-semibold text-black transition hover:bg-[#a6ff00]"
+                    >
                       <Plus className="h-4 w-4" />
-                      Record Sale
+                      <span>Record a Sale</span>
                     </button>
                   </div>
 
@@ -3743,7 +3747,7 @@ export default function App() {
                           <div className="flex items-center justify-between gap-3">
                             <div>
                               <p className="text-[11px] uppercase tracking-[0.3em] text-neutral-500">Transaction rules</p>
-                              <h3 className="mt-1 text-base font-semibold text-black">What happens next</h3>
+                              <h3 className="mt-1 text-base font-semibold text-black">How to record a sale</h3>
                             </div>
                           </div>
                           <div className="mt-4 space-y-3 rounded-[18px] border border-neutral-200 bg-neutral-50 p-3 text-sm text-neutral-700">
@@ -4590,23 +4594,26 @@ export default function App() {
               {/* VIEW 9: CUSTOMER CRM */}
               {activeTab === 'crm' && (
                 <div className="space-y-4 px-2 pt-4 pb-3 sm:px-2 sm:pt-4 sm:pb-4 lg:px-2 lg:pt-4 lg:pb-6">
-                  {/* Action row with marketing campaigns */}
-                  <div className="flex justify-between items-center">
-                    <h2 className="text-sm font-semibold text-black">{customerLabel} CRM</h2>
+                  <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+                    <div>
+                      <p className="text-[11px] uppercase tracking-[0.3em] text-neutral-500">{customerLabel} workspace</p>
+                      <h2 className="text-lg font-semibold text-black">{customerLabel} CRM</h2>
+                      <p className="mt-1 text-sm text-neutral-600">Manage your {customerLabel.toLowerCase()} relationships, track interactions, and nurture your customer base.</p>
+                    </div>
                     <div className="flex gap-1.5">
                       <button 
                         onClick={() => setShowEmailBlastModal(true)}
-                        className="bg-white hover:bg-neutral-50 text-black border border-neutral-300 px-2.5 py-1.5 rounded-md font-normal text-xs transition-colors inline-flex items-center space-x-1"
+                        className="rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-sm font-medium text-black transition hover:border-[#a6ff00]"
                       >
-                        <Sparkles className="w-3 h-3" />
-                        <span>Outreach Blast</span>
+                        <Sparkles className="w-3 h-3 inline-block mr-1" />
+                        Outreach Blast
                       </button>
                       <button 
                         onClick={() => setShowAddCustomerModal(true)}
-                        className="flex md:inline-flex w-3/4 md:w-3/5 lg:w-auto bg-neutral-950 hover:bg-black text-white px-2.5 py-1.5 rounded-md font-normal text-xs transition-colors items-center space-x-1"
+                        className="rounded-full border border-black bg-[#a6ff00] px-3 py-1.5 text-sm font-semibold text-black transition hover:bg-[#a6ff00]"
                       >
-                        <Plus className="w-3.5 h-3.5" />
-                        <span>Add {customerLabel}</span>
+                        <Plus className="w-3.5 h-3.5 inline-block mr-1" />
+                        Add {customerLabel}
                       </button>
                     </div>
                   </div>
@@ -4614,13 +4621,13 @@ export default function App() {
                   {/* CRM Search and Status Filters */}
                   <div className="space-y-2">
                     <div className="relative">
-                      <Search className="absolute left-3 top-3 w-4 h-4 text-neutral-400" />
+                      <Search className="absolute left-3 top-2.5 w-4 h-4 text-neutral-400" />
                       <input 
                         type="text" 
                         placeholder="Search name, company or email..."
                         value={crmSearch}
                         onChange={(e) => setCrmSearch(e.target.value)}
-                        className="w-full bg-neutral-50 border border-neutral-200 focus:border-black focus:outline-none p-2.5 pl-9 rounded-md text-sm font-normal text-black"
+                        className="w-full rounded-2xl border border-neutral-200 bg-neutral-50 px-3 py-2.5 pl-9 text-sm text-black focus:border-black focus:outline-none"
                       />
                     </div>
 
@@ -4659,20 +4666,20 @@ export default function App() {
                       }
 
                       return filtered.map(c => (
-                        <div key={c.id} className="bg-neutral-50 border border-neutral-200/50 rounded-lg p-3.5 space-y-3">
+                        <div key={c.id} className="rounded-[24px] border border-neutral-200 bg-white p-4 shadow-[0_16px_60px_rgba(0,0,0,0.03)]">
                           <div className="flex justify-between items-start">
                             <div>
                               <h3 className="text-sm font-semibold text-black">{c.name}</h3>
-                              <p className="text-xs font-normal text-neutral-400">{c.company} | {c.email}</p>
-                              <p className="text-xs font-normal text-neutral-400">{c.phone}</p>
+                              <p className="text-xs font-normal text-neutral-500">{c.company} | {c.email}</p>
+                              <p className="text-xs font-normal text-neutral-500">{c.phone}</p>
                             </div>
-                            <span className="text-xs font-normal px-2 py-0.5 bg-white border border-neutral-200 rounded text-black">
+                            <span className="text-xs font-normal px-2.5 py-1 bg-neutral-50 border border-neutral-200 rounded-full text-black">
                               {c.status}
                             </span>
                           </div>
 
                           {/* Purchase indicators */}
-                          <div className="grid grid-cols-2 gap-2 pt-2 border-t border-neutral-200/50 text-xs text-black">
+                          <div className="grid grid-cols-2 gap-3 pt-3 mt-3 border-t border-neutral-200 text-xs text-black">
                             <div>
                               <span className="text-neutral-400 block">Total Spent:</span>
                               <span className="font-semibold">${c.totalSpent.toFixed(2)}</span>
@@ -4684,7 +4691,7 @@ export default function App() {
                           </div>
 
                           {c.lastPurchaseDate && (
-                            <p className="text-[11px] font-normal text-neutral-400">
+                            <p className="text-[11px] font-normal text-neutral-400 mt-2">
                               Last interaction: {c.lastPurchaseDate}
                             </p>
                           )}
