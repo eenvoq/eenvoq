@@ -750,7 +750,7 @@ export default function App() {
         { id: 'Assets', label: 'Assets', description: 'Facilities, shared resources, and long-term value.' },
         { id: 'Equipment', label: 'Equipment', description: 'Tools, devices, and operational gear.' },
         { id: 'Vehicles', label: 'Vehicles', description: 'Fleet vehicles, transport, and assigned mobility assets.' },
-        { id: 'Custom Inventory', label: 'Custom Records', description: 'Flexible records for any operational need.' }
+        { id: 'Custom Inventory', label: 'All Records', description: 'Flexible records for any operational need.' }
       ];
     }
 
@@ -759,7 +759,7 @@ export default function App() {
       { id: 'Assets', label: 'Assets', description: 'Facilities, shared resources, and long-term value.' },
       { id: 'Equipment', label: 'Equipment', description: 'Tools, devices, and operational gear.' },
       { id: 'Vehicles', label: 'Vehicles', description: 'Fleet vehicles, transport, and assigned mobility assets.' },
-      { id: 'Custom Inventory', label: 'Custom Records', description: 'Flexible records for any operational need.' }
+      { id: 'Custom Inventory', label: 'All Records', description: 'Flexible records for any operational need.' }
     ];
   }, [activeOrganizationProfile.id]);
   const [headerSearchQuery, setHeaderSearchQuery] = useState('');
@@ -2487,7 +2487,7 @@ export default function App() {
                   { label: 'Downtime', value: '0%' }
                 ]
               : [
-                  { label: 'Custom Records', value: `${inventoryRows.length}` },
+                  { label: 'All Records', value: `${inventoryRows.length}` },
                   { label: 'Active', value: '1' },
                   { label: 'Needs Attention', value: '0' },
                   { label: 'Custom Fields', value: '4' }
@@ -3540,129 +3540,9 @@ export default function App() {
                     </div>
                   </div>
 
-                  <div className="rounded-[24px] border border-neutral-200 bg-white p-4 shadow-[0_16px_60px_rgba(0,0,0,0.03)]">
-                    <div className="grid gap-3 md:grid-cols-3">
-                      <label className="grid gap-2 text-sm">
-                        <span className="text-[11px] font-semibold uppercase tracking-[0.28em] text-neutral-500">Filter 1</span>
-                        <select
-                          value={inventoryCategoryFilter}
-                          onChange={(event) => setInventoryCategoryFilter(event.target.value)}
-                          className="w-full rounded-2xl border border-neutral-200 bg-neutral-50 px-3 py-2.5 text-sm text-black outline-none transition focus:border-[#a6ff00]"
-                        >
-                          {categories.map((category) => (
-                            <option key={category} value={category}>
-                              {category}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
+                  
 
-                      <label className="grid gap-2 text-sm">
-                        <span className="text-[11px] font-semibold uppercase tracking-[0.28em] text-neutral-500">Filter 2</span>
-                        <select
-                          value={inventoryStatusFilter}
-                          onChange={(event) => setInventoryStatusFilter(event.target.value)}
-                          className="w-full rounded-2xl border border-neutral-200 bg-neutral-50 px-3 py-2.5 text-sm text-black outline-none transition focus:border-[#a6ff00]"
-                        >
-                          {statusOptions.map((option) => (
-                            <option key={option} value={option}>
-                              {option}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-
-                      <label className="grid gap-2 text-sm">
-                        <span className="text-[11px] font-semibold uppercase tracking-[0.28em] text-neutral-500">Search</span>
-                        <div className="relative">
-                          <Search className="absolute left-3 top-3 h-4 w-4 text-neutral-400" />
-                          <input
-                            type="text"
-                            value={inventorySearch}
-                            onChange={(event) => setInventorySearch(event.target.value)}
-                            placeholder={`Search ${inventoryType.toLowerCase()} by name, id, SKU, tag, or custom field...`}
-                            className="w-full rounded-2xl border border-neutral-200 bg-neutral-50 px-3 py-2.5 pl-9 text-sm text-black outline-none focus:border-[#a6ff00]"
-                          />
-                        </div>
-                      </label>
-                    </div>
-                  </div>
-
-                  <div className="grid gap-4 xl:grid-cols-1">
-                      <div className="flex items-center justify-between gap-2">
-                        <div>
-                          <p className="text-[11px] uppercase tracking-[0.25em] text-neutral-500">Inventory in details</p>
-                          <h3 className="mt-1 text-base font-semibold text-black">{selectedInventoryRecord ? selectedInventoryRecord.name : 'Click to get full context'}</h3>
-                        </div>
-                        <div className="rounded-full border border-[#a6ff00]/30 bg-[#a6ff00] px-3 py-1 text-xs font-medium text-black">Smart view</div>
-                      </div>
-                    <div className="overflow-hidden rounded-[24px] border border-neutral-200 bg-white shadow-[0_16px_60px_rgba(0,0,0,0.03)]">
-                      <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-neutral-200 text-sm">
-                          <thead className="bg-neutral-50">
-                            <tr>
-                              {inventoryTableColumns.map((column) => (
-                                <th key={column.label} className="px-4 py-3 text-left font-semibold text-black">{column.label}</th>
-                              ))}
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-neutral-100 bg-white">
-                            {filteredInventory.length === 0 ? (
-                              <tr>
-                                <td colSpan={inventoryTableColumns.length} className="px-4 py-8 text-center text-sm text-neutral-500">No matching records found for this inventory view.</td>
-                              </tr>
-                            ) : (
-                              filteredInventory.map((record) => (
-                                <tr key={record.id} className="cursor-pointer transition hover:bg-neutral-50" onClick={() => setSelectedInventoryRecord(record)}>
-                                  {inventoryTableColumns.map((column) => (
-                                    <td key={`${record.id}-${column.label}`} className="px-4 py-3 align-middle">
-                                      {column.render(record)}
-                                    </td>
-                                  ))}
-                                </tr>
-                              ))
-                            )}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-
-                    <aside className="rounded-[24px] border border-neutral-200 bg-white p-4 shadow-[0_16px_60px_rgba(0,0,0,0.03)]">
-                      {selectedInventoryRecord ? (
-                        <div className="mt-4 space-y-3">
-                          <div className="rounded-[18px] border border-neutral-200 bg-[#a6ff00] p-3 text-sm text-neutral-700">
-                            <p className="font-semibold text-black">{selectedInventoryRecord.aiInsight || 'AI insight ready.'}</p>
-                          </div>
-                          <div className="rounded-[18px] border border-neutral-200 bg-neutral-50 p-3 text-sm text-neutral-700">
-                            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-500">Overview</p>
-                            <div className="mt-2 space-y-2">
-                              {Object.entries(selectedInventoryRecord.details || {}).slice(0, 5).map(([label, value]) => (
-                                <div key={label} className="flex items-center justify-between gap-3 border-b border-neutral-200 pb-2 last:border-b-0 last:pb-0">
-                                  <span className="text-neutral-500">{label}</span>
-                                  <span className="text-right font-medium text-black">{String(value)}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                          <div className="rounded-[18px] border border-neutral-200 bg-neutral-50 p-3 text-sm text-neutral-700">
-                            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-500">Timeline</p>
-                            <div className="mt-2 space-y-2">
-                              {(selectedInventoryRecord.timeline || []).map((item: any) => (
-                                <div key={item.label} className="rounded-[12px] border border-neutral-200 bg-white p-2">
-                                  <p className="text-sm font-semibold text-black">{item.label}</p>
-                                  <p className="text-xs text-neutral-500">{item.detail}</p>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="mt-4 rounded-[18px] border border-neutral-200 bg-neutral-50 p-3 text-sm text-neutral-700">
-                          Click any row to open a focused side view with history, notes, supplier context, timeline, AI insights, and audit-ready details without crowding the table.
-                        </div>
-                      )}
-                    </aside>
-                  </div>
+                  
 
                   <div className="rounded-[24px] border border-neutral-200 bg-white p-4 shadow-[0_16px_60px_rgba(0,0,0,0.03)]">
                     <div className="flex items-center justify-between gap-3">
