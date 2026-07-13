@@ -1227,7 +1227,7 @@ const availabilityResponse = await fetch('/api/auth/check-email', {
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return 'Good Morning';
-    if (hour < 18) return 'Good Afternoon';
+    if (hour < 16) return 'Good Afternoon';
     return 'Good Evening';
   };
 
@@ -2715,14 +2715,10 @@ const availabilityResponse = await fetch('/api/auth/check-email', {
               <div className="flex h-16 w-16 items-center justify-center rounded-full border-4 border-white/10 border-t-[#a6ff00] animate-spin" />
               <div className="space-y-2">
                 <p className="text-3xl sm:text-4xl font-black tracking-[-0.03em] text-transparent bg-clip-text bg-gradient-to-r from-[#a6ff00] via-white to-[#7cffb4] drop-shadow-[0_0_20px_rgba(166,255,0,0.5)]">
-                  Wᴇʟᴄᴏᴍᴇ ᴛᴏ ʏᴏᴜʀ ᴅᴀsʜʙᴏᴀʀᴅ
+                  Welcome, {businessName}
                 </p>
-                <p className="text-sm uppercase tracking-[0.35em] text-[#a6ff00]/90">Loading your workspace...</p>
+                <p className="text-sm font-medium text-white/75">Loading your dashboard...</p>
               </div>
-            </div>
-            <div className="flex items-center gap-2 text-xs uppercase tracking-[0.35em] text-white/75">
-              <span className="inline-flex h-3 w-3 rounded-full bg-[#a6ff00] animate-pulse" />
-              <span>Preparing your dashboard experience</span>
             </div>
           </div>
         </div>

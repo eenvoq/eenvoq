@@ -314,7 +314,6 @@ async function insertInitializationRecords(
       provider: 'openai',
       model: 'gpt-4o-mini',
       enabled: true,
-      default_prompt: `Welcome ${ownerName} to your dashboard.`,
       created_at: now,
       updated_at: now
     })
