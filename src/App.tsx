@@ -179,8 +179,8 @@ interface ExpenseRecord {
   recordedBy?: string;
 }
 
-type TransactionType = 'product-sale' | 'service-payment' | 'school-fee' | 'donation' | 'membership' | 'event-registration' | 'subscription' | 'custom';
-type OrganizationKind = 'business' | 'institution';
+type TransactionType = 'product-sale' | 'service-payment' | 'donation' | 'membership' | 'event-registration' | 'subscription' | 'custom';
+type OrganizationKind = 'business';
 type PaymentMethod = 'Cash' | 'Transfer' | 'POS' | 'Card' | 'Mobile Money' | 'Mixed';
 type AppMode = 'auth' | 'app' | 'onboarding';
 
@@ -197,7 +197,7 @@ interface OrganizationSetupConfig {
   modules: ModuleKey[];
   logoUrl: string;
 }
-type InventoryType = 'Products' | 'Students' | 'Members' | 'Patients' | 'Assets' | 'Equipment' | 'Vehicles' | 'Custom Inventory';
+type InventoryType = 'Products' | 'Members' | 'Patients' | 'Assets' | 'Equipment' | 'Vehicles' | 'Custom Inventory';
 
 interface TransactionRecipient {
   id: string;
@@ -216,7 +216,6 @@ interface ServiceTemplate {
 const transactionTypeOptions = [
   { id: 'product-sale' as TransactionType, label: 'Product Sale', copy: 'Fast checkout for inventory-led sales.' },
   { id: 'service-payment' as TransactionType, label: 'Service Payment', copy: 'Consultancy, repairs, and professional fees.' },
-  { id: 'school-fee' as TransactionType, label: 'Institution Payment', copy: 'Tuition, transport, hostel, and other institutional charges.' },
   { id: 'donation' as TransactionType, label: 'Donation', copy: 'Contributions and sponsorships.' },
   { id: 'membership' as TransactionType, label: 'Membership', copy: 'Annual dues and renewals.' },
   { id: 'event-registration' as TransactionType, label: 'Event Registration', copy: 'Workshops, conferences, and gatherings.' },
@@ -225,8 +224,7 @@ const transactionTypeOptions = [
 ];
 
 const organizationTypeOptions = [
-  { id: 'business' as OrganizationKind, label: 'Business', helper: 'Commercial businesses and retailers.' },
-  { id: 'institution' as OrganizationKind, label: 'Institution', helper: 'Schools, campuses, and training organizations.' }
+  { id: 'business' as OrganizationKind, label: 'Business', helper: 'Commercial businesses and retailers.' }
 ];
 
 const splashMessages = [
@@ -276,34 +274,7 @@ const businessRecordCategories = [
 
 type BusinessRecordCategory = (typeof businessRecordCategories)[number];
 
-const educationRecordCategories = [
-  'Student',
-  'Staff',
-  'Course/Class',
-  'Classroom',
-  'Subject',
-  'Parent/Guardian',
-  'Department',
-  'Campus/Branch',
-  'Library Book',
-  'Examination',
-  'Academic Session',
-  'Term/Semester',
-  'Fee Structure',
-  'Transportation',
-  'Hostel/Accommodation',
-  'Scholarship',
-  'Event',
-  'Product',
-  'Service',
-  'Supplier/Vendor',
-  'Asset/Equipment',
-  'Other'
-] as const;
-
-type EducationRecordCategory = (typeof educationRecordCategories)[number];
-
-type RecordCategory = BusinessRecordCategory | EducationRecordCategory | '';
+type RecordCategory = BusinessRecordCategory | '';
 
 interface RecordDraft {
   category: RecordCategory | '';
@@ -441,188 +412,9 @@ const businessCategoryFields: Record<BusinessRecordCategory, FieldDefinition[]> 
   ]
 };
 
-const educationCategoryFields: Record<EducationRecordCategory, FieldDefinition[]> = {
-  Student: [
-    { key: 'admissionNumber', label: 'Admission Number', type: 'text', placeholder: 'School admission number' },
-    { key: 'firstName', label: 'First Name', type: 'text' },
-    { key: 'middleName', label: 'Middle Name', type: 'text' },
-    { key: 'lastName', label: 'Last Name', type: 'text' },
-    { key: 'preferredName', label: 'Preferred Name', type: 'text' },
-    { key: 'gender', label: 'Gender', type: 'select', options: ['Female', 'Male', 'Non-binary', 'Prefer not to say'] },
-    { key: 'dateOfBirth', label: 'Date of Birth', type: 'date' },
-    { key: 'stateRegion', label: 'State or Region', type: 'text' },
-    { key: 'admissionDate', label: 'Admission Date', type: 'date' },
-    { key: 'currentClassCourse', label: 'Current Class or Course', type: 'text' },
-    { key: 'studentPhoneNumber', label: 'Student Phone Number', type: 'tel' },
-    { key: 'studentEmailAddress', label: 'Student Email Address', type: 'email' },
-    { key: 'parentGuardianInformation', label: 'Parent / Guardian Information', type: 'textarea', placeholder: 'Multiple guardians and contact details' },
-    { key: 'tuitionHistory', label: 'Tuition History', type: 'textarea' },
-    { key: 'outstandingBalance', label: 'Outstanding Balance', type: 'text' },
-    { key: 'discountsScholarships', label: 'Discounts / Scholarships', type: 'text' },
-    { key: 'paymentHistory', label: 'Payment History', type: 'textarea' },
-  ],
-  Staff: [
-    { key: 'staffId', label: 'Staff ID', type: 'text', placeholder: 'Auto-generated staff ID' },
-    { key: 'passportPhotograph', label: 'Passport Photograph URL', type: 'text' },
-    { key: 'fullName', label: 'Full Name', type: 'text' },
-    { key: 'gender', label: 'Gender', type: 'select', options: ['Female', 'Male', 'Non-binary', 'Prefer not to say'] },
-    { key: 'dateOfBirth', label: 'Date of Birth', type: 'date' },
-    { key: 'phoneNumber', label: 'Phone Number', type: 'tel' },
-    { key: 'whatsappNumber', label: 'WhatsApp Number', type: 'tel' },
-    { key: 'emailAddress', label: 'Email Address', type: 'email' },
-    { key: 'homeAddress', label: 'Home Address', type: 'textarea' },
-    { key: 'employmentDate', label: 'Employment Date', type: 'date' },
-    { key: 'employmentType', label: 'Employment Type', type: 'select', options: ['Full time', 'Part time', 'Contract', 'Temporary', 'Internship'] },
-    { key: 'staffRole', label: 'Staff Role', type: 'text' },
-    { key: 'salaryAmount', label: 'Salary Amount', type: 'text' },
-    { key: 'paymentFrequency', label: 'Payment Frequency', type: 'select', options: ['Monthly', 'Biweekly', 'Weekly', 'Contract'] },
-    { key: 'bankName', label: 'Bank Name', type: 'text' },
-    { key: 'accountNumber', label: 'Account Number', type: 'text' },
-  ],
-  'Course/Class': [
-    { key: 'courseName', label: 'Course or Class Name', type: 'text' },
-    { key: 'courseCode', label: 'Course Code', type: 'text' },
-    { key: 'academicSession', label: 'Academic Session', type: 'text' },
-    { key: 'totalStudents', label: 'Total Students', type: 'number' },
-    { key: 'availableSpaces', label: 'Available Spaces', type: 'number' },
-  ],
-  Classroom: [
-    { key: 'classroomName', label: 'Classroom Name', type: 'text' },
-    { key: 'classroomCode', label: 'Classroom Code', type: 'text' },
-    { key: 'capacity', label: 'Capacity', type: 'number' },
-    { key: 'resources', label: 'Resources', type: 'textarea' },
-    { key: 'status', label: 'Status', type: 'select', options: ['Active', 'Inactive', 'Under maintenance'] }
-  ],
-  Subject: [
-    { key: 'subjectName', label: 'Subject Name', type: 'text' },
-    { key: 'subjectCode', label: 'Subject Code', type: 'text' },
-    { key: 'description', label: 'Description', type: 'textarea' },
-    { key: 'department', label: 'Department', type: 'text' },
-    { key: 'assignedTeacher', label: 'Assigned Teacher', type: 'text' },
-    { key: 'creditUnits', label: 'Credit Units', type: 'text' }
-  ],
-  'Parent/Guardian': [
-    { key: 'fullName', label: 'Full Name', type: 'text' },
-    { key: 'relationship', label: 'Relationship', type: 'text' },
-    { key: 'phoneNumber', label: 'Phone Number', type: 'tel' },
-    { key: 'whatsappNumber', label: 'WhatsApp Number', type: 'tel' },
-    { key: 'emailAddress', label: 'Email Address', type: 'email' },
-    { key: 'occupation', label: 'Occupation', type: 'text' },
-    { key: 'employer', label: 'Employer', type: 'text' },
-    { key: 'homeAddress', label: 'Home Address', type: 'textarea' },
-    { key: 'useStudentAddress', label: 'Use student address', type: 'select', options: ['Yes', 'No'] }
-  ],
-  Department: [
-    { key: 'departmentName', label: 'Department Name', type: 'text' },
-    { key: 'departmentCode', label: 'Department Code', type: 'text' },
-    { key: 'headOfDepartment', label: 'Head of Department', type: 'text' },
-    { key: 'description', label: 'Description', type: 'textarea' }
-  ],
-  'Campus/Branch': [
-    { key: 'campusName', label: 'Campus / Branch Name', type: 'text' },
-    { key: 'location', label: 'Location', type: 'text' },
-    { key: 'contactPhone', label: 'Contact Phone', type: 'tel' },
-    { key: 'contactEmail', label: 'Contact Email', type: 'email' },
-    { key: 'capacity', label: 'Capacity', type: 'number' }
-  ],
-  'Asset/Equipment': [
-    { key: 'assetName', label: 'Asset / Equipment Name', type: 'text' },
-    { key: 'assetTag', label: 'Asset Tag', type: 'text' },
-    { key: 'category', label: 'Category', type: 'text' },
-    { key: 'location', label: 'Location', type: 'text' },
-    { key: 'condition', label: 'Condition', type: 'select', options: ['New', 'Good', 'Fair', 'Needs repair'] },
-    { key: 'maintenanceSchedule', label: 'Maintenance Schedule', type: 'text' }
-  ],
-  'Library Book': [
-    { key: 'title', label: 'Book / Resource Title', type: 'text' },
-    { key: 'author', label: 'Author', type: 'text' },
-    { key: 'isbn', label: 'ISBN / Reference', type: 'text' },
-    { key: 'libraryLocation', label: 'Library Location', type: 'text' },
-    { key: 'copiesAvailable', label: 'Copies Available', type: 'number' },
-    { key: 'status', label: 'Status', type: 'select', options: ['Available', 'Checked out', 'Reserved'] }
-  ],
-  Examination: [
-    { key: 'examName', label: 'Examination Name', type: 'text' },
-    { key: 'examCode', label: 'Exam Code', type: 'text' },
-    { key: 'date', label: 'Date', type: 'date' },
-    { key: 'duration', label: 'Duration', type: 'text' },
-    { key: 'weighting', label: 'Weighting', type: 'text' },
-    { key: 'relatedSubject', label: 'Related Subject', type: 'text' }
-  ],
-  'Academic Session': [
-    { key: 'sessionName', label: 'Session Name', type: 'text' },
-    { key: 'startDate', label: 'Start Date', type: 'date' },
-    { key: 'endDate', label: 'End Date', type: 'date' },
-  ],
-  'Term/Semester': [
-    { key: 'termName', label: 'Term / Semester Name', type: 'text' },
-    { key: 'startDate', label: 'Start Date', type: 'date' },
-    { key: 'endDate', label: 'End Date', type: 'date' },
-  ],
-  'Fee Structure': [
-    { key: 'feeName', label: 'Fee Structure Name', type: 'text' },
-    { key: 'description', label: 'Description', type: 'textarea' },
-    { key: 'amount', label: 'Amount', type: 'number' },
-    { key: 'paymentFrequency', label: 'Payment Frequency', type: 'select', options: ['One-time', 'Monthly', 'Termly', 'Yearly'] }
-  ],
-  Scholarship: [
-    { key: 'scholarshipName', label: 'Scholarship Name', type: 'text' },
-    { key: 'eligibility', label: 'Eligibility', type: 'textarea' },
-    { key: 'amount', label: 'Amount', type: 'number' },
-    { key: 'applicationDeadline', label: 'Application Deadline', type: 'date' }
-  ],
-  Event: [
-    { key: 'eventName', label: 'Event Name', type: 'text' },
-    { key: 'eventDate', label: 'Event Date', type: 'date' },
-    { key: 'location', label: 'Location', type: 'text' },
-    { key: 'description', label: 'Description', type: 'textarea' }
-  ],
-  Transportation: [
-    { key: 'routeName', label: 'Route Name', type: 'text' },
-    { key: 'vehicle', label: 'Vehicle', type: 'text' },
-    { key: 'driver', label: 'Driver', type: 'text' },
-    { key: 'capacity', label: 'Capacity', type: 'number' }
-  ],
-  'Hostel/Accommodation': [
-    { key: 'hostelName', label: 'Hostel Name', type: 'text' },
-    { key: 'roomNumber', label: 'Room Number', type: 'text' },
-    { key: 'capacity', label: 'Capacity', type: 'number' },
-    { key: 'availableSpaces', label: 'Available Spaces', type: 'number' },
-    { key: 'supervisor', label: 'Supervisor', type: 'text' }
-  ],
-  Product: [
-    { key: 'productName', label: 'Product Name', type: 'text' },
-    { key: 'price', label: 'Unit Price', type: 'number' },
-    { key: 'stock', label: 'Stock Quantity', type: 'number' },
-    { key: 'supplier', label: 'Supplier', type: 'text' }
-  ],
-  Service: [
-    { key: 'serviceName', label: 'Service Name', type: 'text' },
-    { key: 'description', label: 'Service Description', type: 'textarea' },
-    { key: 'price', label: 'Service Price', type: 'number' },
-    { key: 'provider', label: 'Service Provider', type: 'text' }
-  ],
-  'Supplier/Vendor': [
-    { key: 'vendorName', label: 'Vendor / Supplier Name', type: 'text' },
-    { key: 'vendorCategory', label: 'Category', type: 'text' },
-    { key: 'contactPerson', label: 'Contact Person', type: 'text' },
-    { key: 'phoneNumber', label: 'Phone Number', type: 'tel' },
-    { key: 'emailAddress', label: 'Email Address', type: 'email' },
-    { key: 'address', label: 'Address', type: 'textarea' }
-  ],
-  Other: [
-    { key: 'name', label: 'Name', type: 'text' },
-    { key: 'description', label: 'Description', type: 'textarea' }
-  ]
-};
+const generalCategoryFields: Record<BusinessRecordCategory, FieldDefinition[]> = businessCategoryFields;
 
-const generalCategoryFields: Record<Exclude<RecordCategory, ''>, FieldDefinition[]> = {
-  ...businessCategoryFields,
-  ...educationCategoryFields
-};
-
-const getRecordCategories = (profileType: OrganizationTypeKey) =>
-  profileType === 'institution' ? educationRecordCategories : businessRecordCategories;
+const getRecordCategories = () => businessRecordCategories;
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
@@ -643,7 +435,16 @@ export default function App() {
   const [authUserId, setAuthUserId] = useState<string | null>(null);
   const [tenantAccountType, setTenantAccountType] = useState<OrganizationKind>('business');
 
-  const getWorkspaceRoute = (accountType: OrganizationKind) => (accountType === 'institution' ? '/institution' : '/business');
+  const getWorkspaceRoute = (tab?: typeof activeTab) => tab === 'desk' || !tab ? '/business' : `/business/${tab}`;
+
+  const parsePathToTab = (path: string): typeof activeTab => {
+    const segments = path.toLowerCase().split('/').filter(Boolean);
+    if (segments[0] !== 'business') return 'desk';
+    if (segments.length < 2) return 'desk';
+    const tab = segments[1] as typeof activeTab;
+    const validTabs: Array<typeof activeTab> = ['desk', 'stock', 'orders', 'ai', 'analytics', 'procurement', 'audits', 'settings', 'crm', 'staff', 'tag'];
+    return validTabs.includes(tab) ? tab : 'desk';
+  };
 
   // Dynamic Data States
   const [products, setProducts] = useState<Product[]>([]);
@@ -715,6 +516,8 @@ export default function App() {
   const [logoVisible, setLogoVisible] = useState(false);
   const [glowVisible, setGlowVisible] = useState(false);
   const [splashMessageIndex, setSplashMessageIndex] = useState(0);
+  const [showDashboardLoader, setShowDashboardLoader] = useState(false);
+  const [dashboardLoaderFadeOut, setDashboardLoaderFadeOut] = useState(false);
   const [transactionType, setTransactionType] = useState<TransactionType>('product-sale');
   const [transactionTypeMenuOpen, setTransactionTypeMenuOpen] = useState(false);
   const [confirmAction, setConfirmAction] = useState<{ title: string; description: string; onConfirm: () => void } | null>(null);
@@ -734,7 +537,7 @@ export default function App() {
       createdAt: 'Just now'
     }
   ]);
-  const activeOrganizationProfile = getOrganizationProfile(organizationSetup.profileType || organizationType);
+  const activeOrganizationProfile = getOrganizationProfile('business');
   const transactionLabel = activeOrganizationProfile.terminology.transactionLabel;
   const customerLabel = activeOrganizationProfile.terminology.customerLabel;
   const inventoryLabel = activeOrganizationProfile.terminology.inventoryLabel;
@@ -742,26 +545,14 @@ export default function App() {
   const dashboardLabel = activeOrganizationProfile.terminology.dashboardLabel;
   const recipientLabel = activeOrganizationProfile.terminology.recipientLabel;
   const summaryLabel = activeOrganizationProfile.terminology.summaryLabel;
-  const allRecordCategories = getRecordCategories(organizationSetup.profileType || organizationType);
-  const inventoryTypeOptions = useMemo<Array<{ id: InventoryType; label: string; description: string }>>(() => {
-    if (activeOrganizationProfile.id === 'institution') {
-      return [
-        { id: 'Students', label: 'Students', description: 'Admissions, payments, attendance, and academic progress.' },
-        { id: 'Assets', label: 'Assets', description: 'Facilities, shared resources, and long-term value.' },
-        { id: 'Equipment', label: 'Equipment', description: 'Tools, devices, and operational gear.' },
-        { id: 'Vehicles', label: 'Vehicles', description: 'Fleet vehicles, transport, and assigned mobility assets.' },
-        { id: 'Custom Inventory', label: 'All Records', description: 'Flexible records for any operational need.' }
-      ];
-    }
-
-    return [
-      { id: 'Products', label: 'Products', description: 'Inventory-led commerce and stock control.' },
-      { id: 'Assets', label: 'Assets', description: 'Facilities, shared resources, and long-term value.' },
-      { id: 'Equipment', label: 'Equipment', description: 'Tools, devices, and operational gear.' },
-      { id: 'Vehicles', label: 'Vehicles', description: 'Fleet vehicles, transport, and assigned mobility assets.' },
-      { id: 'Custom Inventory', label: 'All Records', description: 'Flexible records for any operational need.' }
-    ];
-  }, [activeOrganizationProfile.id]);
+  const allRecordCategories = getRecordCategories();
+  const inventoryTypeOptions = useMemo<Array<{ id: InventoryType; label: string; description: string }>>(() => [
+    { id: 'Products', label: 'Products', description: 'Inventory-led commerce and stock control.' },
+    { id: 'Assets', label: 'Assets', description: 'Facilities, shared resources, and long-term value.' },
+    { id: 'Equipment', label: 'Equipment', description: 'Tools, devices, and operational gear.' },
+    { id: 'Vehicles', label: 'Vehicles', description: 'Fleet vehicles, transport, and operational assets.' },
+    { id: 'Custom Inventory', label: 'All Records', description: 'Flexible records for any operational need.' }
+  ], []);
   const [headerSearchQuery, setHeaderSearchQuery] = useState('');
   const [headerSearchOpen, setHeaderSearchOpen] = useState(false);
 
@@ -1096,17 +887,16 @@ export default function App() {
       try {
         const savedSession = JSON.parse(sessionData) as { isLoggedIn: boolean; appMode: AppMode; activeTab: typeof activeTab; authMode: 'login' | 'signup'; userId?: string | null; accountType?: OrganizationKind };
         if (savedSession.isLoggedIn) {
+          const pathTab = parsePathToTab(window.location.pathname);
+          const initialTab = pathTab !== 'desk' || window.location.pathname.toLowerCase().includes('/business/') ? pathTab : savedSession.activeTab;
+          setActiveTab(initialTab || 'desk');
           setAppMode(savedSession.appMode || 'app');
-          setActiveTab(savedSession.activeTab);
           setAuthMode(savedSession.authMode);
           if (savedSession.userId) {
             setAuthUserId(savedSession.userId);
           }
-          if (savedSession.accountType) {
-            const nextAccountType = savedSession.accountType === 'institution' ? 'institution' : 'business';
-            setTenantAccountType(nextAccountType);
-            setOrganizationType(nextAccountType);
-          }
+          setTenantAccountType('business');
+          setOrganizationType('business');
         } else {
           setAppMode('auth');
           setAuthMode(savedSession.authMode || 'login');
@@ -1120,10 +910,10 @@ export default function App() {
     if (savedConfig) {
       try {
         const parsed = JSON.parse(savedConfig) as OrganizationSetupConfig;
-        setOrganizationSetup(parsed);
+        setOrganizationSetup({ ...parsed, profileType: 'business' });
         setBusinessName(parsed.name || 'Your Business');
         setBusinessCurrency(parsed.currency || 'NGN (₦)');
-        setOrganizationType(parsed.profileType as OrganizationKind);
+        setOrganizationType('business');
       } catch (error) {
         console.error('Unable to restore organization config', error);
       }
@@ -1137,16 +927,12 @@ export default function App() {
 
   useEffect(() => {
     if (typeof window === 'undefined' || appMode !== 'app') return;
-    const currentPath = window.location.pathname.toLowerCase();
-    const expectedPath = getWorkspaceRoute(tenantAccountType);
-    if (!currentPath.startsWith('/business') && !currentPath.startsWith('/institution')) {
-      window.history.replaceState({}, '', expectedPath);
-      return;
-    }
-    if ((tenantAccountType === 'institution' && !currentPath.startsWith('/institution')) || (tenantAccountType === 'business' && !currentPath.startsWith('/business'))) {
+    const expectedPath = getWorkspaceRoute(activeTab);
+    const currentPath = window.location.pathname;
+    if (currentPath !== expectedPath) {
       window.history.replaceState({}, '', expectedPath);
     }
-  }, [appMode, tenantAccountType]);
+  }, [appMode, activeTab]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
@@ -1201,6 +987,17 @@ export default function App() {
       window.clearInterval(messageTimer);
     };
   }, [appMode, splashMessages.length]);
+
+  useEffect(() => {
+    if (!showDashboardLoader) return;
+    setDashboardLoaderFadeOut(false);
+    const fadeTimer = window.setTimeout(() => setDashboardLoaderFadeOut(true), 1000);
+    const hideTimer = window.setTimeout(() => setShowDashboardLoader(false), 1400);
+    return () => {
+      window.clearTimeout(fadeTimer);
+      window.clearTimeout(hideTimer);
+    };
+  }, [showDashboardLoader]);
 
   // Initial Data Fetching
   const loadAllData = async () => {
@@ -1289,13 +1086,14 @@ export default function App() {
     setAuthError('');
     setOwnerName(config.name);
     setOwnerEmail(config.contactEmail);
-    setOwnerRole(config.profileType === 'institution' ? 'Administrator' : 'Owner');
+    setOwnerRole('Owner');
     setProfilePic('https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=160&q=80');
     setOrganizationSetup(nextConfig);
     setBusinessName(config.name);
     setBusinessCurrency(config.currency);
-    setOrganizationType(config.profileType);
-    setTenantAccountType(config.profileType);
+    setOrganizationType('business');
+    setTenantAccountType('business');
+    setShowDashboardLoader(true);
     setAppMode('app');
     setActiveTab('desk');
     setAuthMode('login');
@@ -1319,7 +1117,7 @@ export default function App() {
 
     try {
       if (mode === 'signup') {
-        const availabilityResponse = await fetch(`${import.meta.env.VITE_APP_URL || ''}/api/auth/check-email`, {
+const availabilityResponse = await fetch('/api/auth/check-email', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: authEmail.trim().toLowerCase() })
@@ -1335,7 +1133,7 @@ export default function App() {
         }
       }
 
-      const response = await fetch(`${import.meta.env.VITE_APP_URL || ''}/api/auth/${mode}`, {
+      const response = await fetch(`/api/auth/${mode}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1357,7 +1155,7 @@ export default function App() {
       }
 
       setAuthUserId(payload.user?.id || null);
-      const nextAccountType = String(payload.profile?.account_type || payload.business?.account_type || organizationSetup.profileType || 'business').toLowerCase() === 'institution' ? 'institution' : 'business';
+      const nextAccountType = 'business';
       const businessPayload = payload.business || {};
       const profilePayload = payload.profile || {};
 
@@ -1399,6 +1197,7 @@ export default function App() {
         setActiveTab('desk');
         setAuthMode('login');
       } else {
+        setShowDashboardLoader(true);
         setAppMode('app');
         setActiveTab('desk');
         setAuthMode('login');
@@ -1441,9 +1240,9 @@ export default function App() {
       const response = await fetch(url);
       if (!response.ok) return;
       const config = await response.json() as OrganizationSetupConfig;
-      const nextAccountType = (config.profileType === 'institution' ? 'institution' : 'business') as OrganizationKind;
+      const nextAccountType = 'business' as OrganizationKind;
       setOrganizationSetup(config);
-      setBusinessName(config.name || (nextAccountType === 'institution' ? 'Your Institution' : 'Your Business'));
+      setBusinessName(config.name || 'Your Business');
       setBusinessCurrency(config.currency || 'NGN (₦)');
       setOrganizationType(nextAccountType);
       setTenantAccountType(nextAccountType);
@@ -1453,9 +1252,9 @@ export default function App() {
   };
 
   const handleOrganizationSetup = async (config: OrganizationSetupConfig) => {
-    const nextAccountType = (config.profileType === 'institution' ? 'institution' : 'business') as OrganizationKind;
+    const nextAccountType = 'business' as OrganizationKind;
     setOrganizationSetup(config);
-    setBusinessName(config.name || (nextAccountType === 'institution' ? 'Your Institution' : 'Your Business'));
+    setBusinessName(config.name || 'Your Business');
     setBusinessCurrency(config.currency || 'NGN (₦)');
     setOrganizationType(nextAccountType);
     setTenantAccountType(nextAccountType);
@@ -1844,7 +1643,7 @@ export default function App() {
       logAudit('Inventory', `Recorded ${recordName} under ${selectedCategory}.`);
       setProducts((current) => [savedRecord, ...current]);
       setSelectedInventoryRecord(savedRecord);
-      setInventoryType(selectedCategory === 'Product' ? 'Products' : selectedCategory === 'Supplier' || selectedCategory === 'Supplier/Vendor' ? 'Custom Inventory' : activeOrganizationProfile.id === 'institution' ? 'Students' : 'Products');
+      setInventoryType(selectedCategory === 'Product' ? 'Products' : selectedCategory === 'Supplier' || selectedCategory === 'Vendor' ? 'Custom Inventory' : 'Products');
       setShowAddProductModal(false);
       setInventoryComposerStep('form');
       setProductImageBase64('');
@@ -2314,7 +2113,6 @@ export default function App() {
 
   const inventoryTypeCategoryMap: Record<InventoryType, string[]> = {
     Products: ['Product', 'Service', 'Brand', 'Product Category', 'Asset/Equipment', 'Vehicle', 'Warehouse/Store'],
-    Students: ['Student', 'Course/Class', 'Fee Structure', 'Academic Session', 'Campus/Branch'],
     Members: ['Subscription/Membership'],
     Patients: ['Patient'],
     Assets: ['Asset/Equipment'],
@@ -2352,19 +2150,17 @@ export default function App() {
   const categories = ['All', ...allRecordCategories];
   const statusOptions = inventoryType === 'Products'
     ? ['All', 'Healthy', 'Low Stock', 'Out of Stock']
-    : inventoryType === 'Students'
-      ? ['All', 'Active', 'Outstanding Payments', 'Needs Attention']
-      : inventoryType === 'Members'
-        ? ['All', 'Active', 'Needs Attention']
-        : inventoryType === 'Patients'
-          ? ['All', 'Active', 'Follow-Up Required']
-          : inventoryType === 'Assets'
+    : inventoryType === 'Members'
+      ? ['All', 'Active', 'Needs Attention']
+      : inventoryType === 'Patients'
+        ? ['All', 'Active', 'Follow-Up Required']
+        : inventoryType === 'Assets'
+          ? ['All', 'Healthy', 'Needs Review']
+          : inventoryType === 'Equipment'
             ? ['All', 'Healthy', 'Needs Review']
-            : inventoryType === 'Equipment'
+            : inventoryType === 'Vehicles'
               ? ['All', 'Healthy', 'Needs Review']
-              : inventoryType === 'Vehicles'
-                ? ['All', 'Healthy', 'Needs Review']
-                : ['All', 'Active', 'Needs Attention'];
+              : ['All', 'Active', 'Needs Attention'];
 
   const inventoryTableColumns = inventoryType === 'Products'
     ? [
@@ -2378,19 +2174,7 @@ export default function App() {
         { label: 'Last Updated', render: (record: any) => <span className="text-sm text-neutral-600">{record.lastUpdated || record.updated || '—'}</span> },
         { label: 'Actions', render: (record: any) => <button type="button" onClick={(event) => { event.stopPropagation(); setSelectedInventoryRecord(record); }} className="rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-xs font-semibold text-black">View</button> }
       ]
-    : inventoryType === 'Students'
-      ? [
-          { label: 'Name', render: (record: any) => <div className="flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#a6ff00] text-sm font-semibold text-black">{record.name.charAt(0)}</div><div><p className="font-semibold text-black">{record.name}</p><p className="text-xs text-neutral-500">{record.subtitle}</p></div></div> },
-          { label: 'Category', render: (record: any) => <span className="text-sm text-neutral-600">{record.category}</span> },
-          { label: 'Class', render: (record: any) => <span className="text-sm text-neutral-600">{record.details?.Class || '—'}</span> },
-          { label: 'Payment Status', render: (record: any) => <span className="text-sm text-neutral-600">{record.secondaryMetric}</span> },
-          { label: 'Attendance', render: (record: any) => <span className="text-sm text-neutral-600">{record.primaryMetric}</span> },
-          { label: 'Status', render: (record: any) => <span className={`rounded-full border px-2.5 py-1 text-xs font-medium ${record.status === 'Active' ? 'border-[#a6ff00] bg-[#a6ff00] text-black' : 'border-amber-300 bg-amber-50 text-amber-700'}`}>{record.status}</span> },
-          { label: 'Owner/Assigned To', render: (record: any) => <span className="text-sm text-neutral-600">{record.owner || 'Guardian'}</span> },
-          { label: 'Last Updated', render: (record: any) => <span className="text-sm text-neutral-600">{record.lastUpdated || record.updated || '—'}</span> },
-          { label: 'Actions', render: (record: any) => <button type="button" onClick={(event) => { event.stopPropagation(); setSelectedInventoryRecord(record); }} className="rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-xs font-semibold text-black">View</button> }
-        ]
-      : inventoryType === 'Members'
+    : inventoryType === 'Members'
         ? [
             { label: 'Name', render: (record: any) => <div className="flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#a6ff00] text-sm font-semibold text-black">{record.name.charAt(0)}</div><div><p className="font-semibold text-black">{record.name}</p><p className="text-xs text-neutral-500">{record.subtitle}</p></div></div> },
             { label: 'Category', render: (record: any) => <span className="text-sm text-neutral-600">{record.category}</span> },
@@ -2451,65 +2235,48 @@ export default function App() {
         { label: 'Low Stock Items', value: `${inventoryRows.filter((record) => record.status === 'Low Stock').length}` },
         { label: 'Out Of Stock Items', value: `${inventoryRows.filter((record) => record.status === 'Out of Stock').length}` }
       ]
-    : inventoryType === 'Students'
+    : inventoryType === 'Members'
       ? [
-          { label: 'Total Students', value: `${inventoryRows.length}` },
-          { label: 'New Admissions', value: '24' },
-          { label: 'Outstanding Payments', value: '12' },
-          { label: 'At-Risk Students', value: '3' }
+          { label: 'Total Members', value: `${inventoryRows.length}` },
+          { label: 'New Members', value: '8' },
+          { label: 'Active Members', value: '19' },
+          { label: 'Inactive Members', value: '3' }
         ]
-      : inventoryType === 'Members'
+      : inventoryType === 'Patients'
         ? [
-            { label: 'Total Members', value: `${inventoryRows.length}` },
-            { label: 'New Members', value: '8' },
-            { label: 'Active Members', value: '19' },
-            { label: 'Inactive Members', value: '3' }
+            { label: 'Total Patients', value: `${inventoryRows.length}` },
+            { label: 'Active Patients', value: '18' },
+            { label: 'Pending Appointments', value: '6' },
+            { label: 'Critical Follow-Ups', value: '2' }
           ]
-        : inventoryType === 'Patients'
+        : inventoryType === 'Assets'
           ? [
-              { label: 'Total Patients', value: `${inventoryRows.length}` },
-              { label: 'Active Patients', value: '18' },
-              { label: 'Pending Appointments', value: '6' },
-              { label: 'Critical Follow-Ups', value: '2' }
+              { label: 'Managed Assets', value: `${inventoryRows.length}` },
+              { label: 'Healthy Assets', value: '1' },
+              { label: 'Needs Review', value: '1' },
+              { label: 'Utilization', value: '72%' }
             ]
-          : inventoryType === 'Assets'
+          : inventoryType === 'Equipment'
             ? [
-                { label: 'Managed Assets', value: `${inventoryRows.length}` },
-                { label: 'Healthy Assets', value: '1' },
-                { label: 'Needs Review', value: '1' },
-                { label: 'Utilization', value: '72%' }
+                { label: 'Tracked Equipment', value: `${inventoryRows.length}` },
+                { label: 'Available', value: '4' },
+                { label: 'Maintenance', value: '0' },
+                { label: 'Downtime', value: '0%' }
               ]
-            : inventoryType === 'Equipment'
-              ? [
-                  { label: 'Tracked Equipment', value: `${inventoryRows.length}` },
-                  { label: 'Available', value: '4' },
-                  { label: 'Maintenance', value: '0' },
-                  { label: 'Downtime', value: '0%' }
-                ]
-              : [
-                  { label: 'All Records', value: `${inventoryRows.length}` },
-                  { label: 'Active', value: '1' },
-                  { label: 'Needs Attention', value: '0' },
-                  { label: 'Custom Fields', value: '4' }
-                ];
+            : [
+                { label: 'All Records', value: `${inventoryRows.length}` },
+                { label: 'Active', value: '1' },
+                { label: 'Needs Attention', value: '0' },
+                { label: 'Custom Fields', value: '4' }
+              ];
 
-  const aiInsightText = organizationType === 'institution'
-    ? inventoryType === 'Products'
-      ? 'Supplies and inventory are tracked by categories and stock thresholds.'
-      : inventoryType === 'Students'
-        ? 'Student records show a handful of accounts with outstanding follow-up and fee action needed.'
-        : inventoryType === 'Members'
-          ? 'Member accounts are active. Track renewals and benefits for continuing engagement.'
-          : inventoryType === 'Patients'
-            ? 'Patient records are set up for follow-up and care coordination.'
-            : 'Academic records are ready for review and can be extended with additional data.'
-    : inventoryType === 'Products'
-      ? 'I am tracking your product catalog using your categories and stock thresholds.'
-      : inventoryType === 'Members'
-        ? 'Membership records are current. Monitor renewals and engagement activity.'
-        : inventoryType === 'Patients'
-          ? 'Patient records are organized by status and follow-up readiness.'
-          : 'Business records can be used for inventory, finance, or operations needs.';
+  const aiInsightText = inventoryType === 'Products'
+    ? 'I am tracking your product catalog using your categories and stock thresholds.'
+    : inventoryType === 'Members'
+      ? 'Membership records are current. Monitor renewals and engagement activity.'
+      : inventoryType === 'Patients'
+        ? 'Patient records are organized by status and follow-up readiness.'
+        : 'Business records can be used for inventory, finance, or operations needs.';
 
   // Minimal Markdown UI Parser
   function renderMarkdown(text: string) {
@@ -2940,7 +2707,27 @@ export default function App() {
   }
 
   return (
-    <div className={`min-h-screen bg-white text-sm font-normal text-black select-none transition-opacity duration-300 ${(splashActive || !startupComplete) && appMode === 'app' ? 'opacity-0' : 'opacity-100'}`}>
+    <>
+      {showDashboardLoader && (
+        <div className={`fixed inset-0 z-50 flex items-center justify-center bg-[#021201]/95 p-6 backdrop-blur-sm transition-opacity duration-500 ${dashboardLoaderFadeOut ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+          <div className={`flex w-full max-w-3xl flex-col items-center gap-6 rounded-[2rem] border border-white/10 bg-white/5 px-10 py-12 text-center shadow-[0_0_60px_rgba(166,255,0,0.16)] backdrop-blur-xl transition-transform duration-500 ${dashboardLoaderFadeOut ? '-translate-y-4' : 'translate-y-0'}`}>
+            <div className="flex items-center gap-4">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full border-4 border-white/10 border-t-[#a6ff00] animate-spin" />
+              <div className="space-y-2">
+                <p className="text-3xl sm:text-4xl font-black tracking-[-0.03em] text-transparent bg-clip-text bg-gradient-to-r from-[#a6ff00] via-white to-[#7cffb4] drop-shadow-[0_0_20px_rgba(166,255,0,0.5)]">
+                  Wᴇʟᴄᴏᴍᴇ ᴛᴏ ʏᴏᴜʀ ᴅᴀsʜʙᴏᴀʀᴅ
+                </p>
+                <p className="text-sm uppercase tracking-[0.35em] text-[#a6ff00]/90">Loading your workspace...</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 text-xs uppercase tracking-[0.35em] text-white/75">
+              <span className="inline-flex h-3 w-3 rounded-full bg-[#a6ff00] animate-pulse" />
+              <span>Preparing your dashboard experience</span>
+            </div>
+          </div>
+        </div>
+      )}
+      <div className={`min-h-screen bg-white text-sm font-normal text-black select-none transition-opacity duration-300 ${(splashActive || !startupComplete) && appMode === 'app' ? 'opacity-0' : 'opacity-100'}`}>
       <div className="relative min-h-screen w-full overflow-hidden bg-white">
         {(menuOpen || isDesktop) && (
           <div className={`${isDesktop ? 'fixed inset-y-0 left-0 z-40 hidden w-72 flex-col border-r border-[#021201] bg-[#021201] p-5 lg:flex' : 'fixed inset-0 z-50 flex bg-[#021201]/90 lg:hidden'}`}>
@@ -5924,5 +5711,6 @@ export default function App() {
           </div>
         )}
       </div>
+    </>
   );
 }

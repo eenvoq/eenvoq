@@ -6,7 +6,7 @@ create extension if not exists pgcrypto;
 do $$
 begin
   if not exists (select 1 from pg_type where typname = 'account_type') then
-    create type account_type as enum ('business', 'institution');
+    create type account_type as enum ('business');
   end if;
 end $$;
 

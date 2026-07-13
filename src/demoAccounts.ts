@@ -1,6 +1,6 @@
 import type { OrganizationTypeKey } from './organizationConfig';
 
-export type DemoAccountKey = 'krakki' | 'valencia';
+export type DemoAccountKey = 'krakki';
 
 export interface DemoAccountConfig {
   key: DemoAccountKey;
@@ -28,19 +28,6 @@ const demoAccounts: Record<DemoAccountKey, DemoAccountConfig> = {
     contactEmail: 'hello@krakki.co',
     contactPhone: '+234 812 000 0000',
     staffCount: 12,
-    logoUrl: ''
-  },
-  valencia: {
-    key: 'valencia',
-    profileType: 'institution',
-    name: 'Valencia Schools',
-    industry: 'Institution',
-    subtype: 'Primary / Secondary School',
-    location: 'Abuja, Nigeria',
-    currency: 'NGN (₦)',
-    contactEmail: 'admin@valenciaschools.edu.ng',
-    contactPhone: '+234 803 111 2222',
-    staffCount: 34,
     logoUrl: ''
   }
 };

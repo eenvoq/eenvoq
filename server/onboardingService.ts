@@ -66,8 +66,7 @@ function normalizeRole(role?: string) {
 }
 
 function normalizeAccountType(profileType?: string) {
-  const normalized = String(profileType || 'business').trim().toLowerCase();
-  return normalized === 'institution' ? 'institution' : 'business';
+  return 'business';
 }
 
 function isValidEmail(email: string) {
@@ -109,8 +108,8 @@ function validateRegistrationInput(input: RegistrationInput) {
     return { valid: false, error: 'Please provide your currency.' };
   }
 
-  if (!['business', 'institution', 'education'].includes(String(organizationConfig.profileType || 'business').toLowerCase())) {
-    return { valid: false, error: 'Please select a valid account type.' };
+  if (String(organizationConfig.profileType || 'business').toLowerCase() !== 'business') {
+    return { valid: false, error: 'Please select a valid business account type.' };
   }
 
   if (normalizedRole !== 'owner' && String(input.pin || '').trim().length < 4) {
@@ -315,7 +314,7 @@ async function insertInitializationRecords(
       provider: 'openai',
       model: 'gpt-4o-mini',
       enabled: true,
-      default_prompt: `Welcome ${ownerName} to your operating workspace.`,
+      default_prompt: `Welcome ${ownerName} to your dashboard.`,
       created_at: now,
       updated_at: now
     })

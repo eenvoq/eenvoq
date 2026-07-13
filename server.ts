@@ -202,6 +202,7 @@ let organizationConfig: OrganizationConfig = {
   profileType: 'business',
   name: 'Your Business',
   industry: '',
+  subtype: '',
   location: '',
   currency: 'USD ($)',
   contactEmail: '',

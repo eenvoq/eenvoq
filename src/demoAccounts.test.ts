@@ -11,14 +11,6 @@ test('returns the Krakki business demo account', () => {
   assert.equal(account.subtype, 'Retail Store');
 });
 
-test('returns the Valencia Schools institution demo account', () => {
-  const account = getDemoLoginConfig('valencia');
-
-  assert.equal(account.profileType, 'institution');
-  assert.equal(account.name, 'Valencia Schools');
-  assert.equal(account.subtype, 'Primary / Secondary School');
-});
-
 test('throws for unknown demo accounts', () => {
   assert.throws(() => getDemoLoginConfig('unknown'));
 });

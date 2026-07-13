@@ -1,7 +1,7 @@
 ﻿import React, { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { getOrganizationProfile, businessSubtypes, educationSubtypes, type ModuleKey, type OrganizationTypeKey } from '../organizationConfig';
+import { getOrganizationProfile, businessSubtypes, type ModuleKey, type OrganizationTypeKey } from '../organizationConfig';
 import {
   CheckCircle,
   ArrowRight,
@@ -51,7 +51,7 @@ interface AuthPageProps {
   setAuthPassword: (value: string) => void;
   setAppMode: (mode: 'auth' | 'app' | 'onboarding') => void;
   onSubmit: (mode: 'login' | 'signup') => Promise<void>;
-  onSelectDemoAccount: (key: 'krakki' | 'valencia') => void;
+  onSelectDemoAccount: (key: 'krakki') => void;
   isLoading: boolean;
   authError?: string;
   passwordVisible: boolean;
@@ -966,7 +966,7 @@ function AuthPage({ authMode, setAuthMode, authName, authEmail, authPassword, se
             <img src="/eenvoq-app-logo.png" alt="Eenvoq logo" className="h-10 w-10 object-contain" referrerPolicy="no-referrer" />
             <div>
               <p className="text-sm font-semibold text-[var(--primary-color)]">Eenvoq</p>
-              <p className="text-xs text-[var(--text-color)]">AI Operations for Businesses & Institutions</p>
+              <p className="text-xs text-[var(--text-color)]">AI Operations for Businesses</p>
             </div>
           </div>
         </div>
@@ -1014,10 +1014,6 @@ function AuthPage({ authMode, setAuthMode, authName, authEmail, authPassword, se
                   <span className="block text-[var(--primary-color)]">Krakki</span>
                   <span className="mt-1 block text-xs text-[var(--text-color)]">Business demo</span>
                 </button>
-                <button type="button" onClick={() => onSelectDemoAccount('valencia')} className="rounded-2xl border border-[var(--border-color)] bg-white px-3 py-2 text-left text-sm font-medium text-[var(--text-primary)] transition hover:border-[var(--accent-color)] hover:bg-[var(--bg-secondary)]">
-                  <span className="block text-[var(--primary-color)]">Valencia Schools</span>
-                  <span className="mt-1 block text-xs text-[var(--text-color)]">Institution demo</span>
-                </button>
               </div>
             </div>
           </form>
@@ -1044,13 +1040,12 @@ function OnboardingWizard({ onComplete, setAppMode }: OnboardingWizardProps) {
   const [subtype, setSubtype] = useState<string>('');
 
   const requiredModules: ModuleKey[] = ['transactions', 'inventory', 'staff', 'reports', 'ai'];
-  const industryOptions = ['Business', 'Institution'];
+  const industryOptions = ['Business'];
   const locationOptions = ['Nigeria', 'Ghana', 'Kenya', 'United Kingdom (UK)', 'United States of America (USA)', 'Australia', 'Canada', 'South Africa'];
 
   useEffect(() => {
-    if (industry === 'Institution') setProfileType('institution');
-    else setProfileType('business');
-  }, [industry]);
+    setProfileType('business');
+  }, []);
   const currencyOptions = [
     { value: 'NGN (₦)', label: 'NGN' },
     { value: 'Ghana Cedis (₵)', label: 'Ghana cedis' },
@@ -1068,8 +1063,8 @@ function OnboardingWizard({ onComplete, setAppMode }: OnboardingWizardProps) {
   }, [profileType]);
 
   useEffect(() => {
-    setName(profileType === 'institution' ? 'Your Institution' : 'Your Business');
-  }, [profileType]);
+    setName('Your Business');
+  }, []);
 
   useEffect(() => {
     if (location.includes('Nigeria')) {
@@ -1126,13 +1121,9 @@ function OnboardingWizard({ onComplete, setAppMode }: OnboardingWizardProps) {
 
         {step === 1 && (
           <div className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            <button type="button" onClick={() => setIndustry('Business')} className={`rounded-[20px] border p-4 text-left transition ${profileType === 'business' ? 'border-[var(--accent-color)] bg-[var(--secondary-bg)]' : 'border-[var(--border-color)] bg-[var(--white)] hover:border-[var(--accent-color)]'}`}>
+            <button type="button" onClick={() => setIndustry('Business')} className="rounded-[20px] border p-4 text-left transition border-[var(--accent-color)] bg-[var(--secondary-bg)]">
               <p className="text-sm font-semibold text-[var(--primary-color)]">Business</p>
               <p className="mt-2 text-sm leading-6 text-[var(--text-color)]">Commerce-led operations for retail, wholesale, services, hospitality, manufacturing, and e-commerce.</p>
-            </button>
-            <button type="button" onClick={() => setIndustry('Institution')} className={`rounded-[20px] border p-4 text-left transition ${profileType === 'institution' ? 'border-[var(--accent-color)] bg-[var(--secondary-bg)]' : 'border-[var(--border-color)] bg-[var(--white)] hover:border-[var(--accent-color)]'}`}>
-              <p className="text-sm font-semibold text-[var(--primary-color)]">Institution</p>
-              <p className="mt-2 text-sm leading-6 text-[var(--text-color)]">Campus and institutional operations for schools, colleges, universities, and training centers.</p>
             </button>
           </div>
         )}
@@ -1151,15 +1142,12 @@ function OnboardingWizard({ onComplete, setAppMode }: OnboardingWizardProps) {
                 ))}
               </select>
             </label>
-            {/* Subtype: depends on Business vs Education */}
+            {/* Subtype: business category only */}
             <label className="space-y-2 text-sm text-[var(--primary-color)]">
               <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--text-color)]">Type</span>
               <select value={subtype} onChange={(e) => setSubtype(e.target.value)} className="w-full rounded-2xl border border-[var(--border-color)] bg-[var(--white)] px-4 py-3 text-sm text-[var(--primary-color)] focus:border-[var(--accent-color)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]/20">
                 <option value="">Select a type</option>
-                {profileType === 'business' && businessSubtypes.map((s: string) => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
-                {profileType === 'institution' && educationSubtypes.map((s: string) => (
+                {businessSubtypes.map((s: string) => (
                   <option key={s} value={s}>{s}</option>
                 ))}
               </select>

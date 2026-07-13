@@ -1,21 +1,17 @@
-export type OrganizationTypeKey = 'business' | 'institution';
+export type OrganizationTypeKey = 'business';
 
 export type ModuleKey =
   | 'transactions'
   | 'inventory'
-  | 'students'
-  | 'donations'
-  | 'attendance'
-  | 'staff'
   | 'customers'
   | 'suppliers'
   | 'purchases'
-  | 'debtors'
   | 'expenses'
+  | 'debtors'
   | 'cash'
   | 'bank'
   | 'assets'
-  | 'projects'
+  | 'staff'
   | 'ai'
   | 'reports'
   ;
@@ -46,7 +42,6 @@ export const organizationProfiles: Record<OrganizationTypeKey, OrganizationProfi
     id: 'business',
     label: 'Business / Retail Store',
     description: 'Fast-moving commerce with transactions, inventory, customers, and growth insight.',
-    // Business profile should include extended commerce and financial modules
     defaultModules: ['transactions', 'inventory', 'customers', 'suppliers', 'purchases', 'expenses', 'debtors', 'cash', 'bank', 'staff', 'assets', 'ai', 'reports'],
     navigation: [
       { id: 'desk', label: 'Dashboard', tab: 'desk' },
@@ -80,49 +75,10 @@ export const organizationProfiles: Record<OrganizationTypeKey, OrganizationProfi
     },
     aiGreeting: 'Hello. I am Eenvoq AI, your retail operations advisor. I can help you optimize demand, inventory, and customer follow-up with business-ready recommendations. ',
     aiFocus: 'Revenue, replenishment, customer conversion, and sales reliability.'
-  },
-  institution: {
-    id: 'institution',
-    label: 'Institution / Campus Operations',
-    description: 'Institution operations with admissions, payments, attendance, inventory, and staff visibility.',
-    defaultModules: ['transactions', 'inventory', 'students', 'attendance', 'staff', 'reports', 'ai', 'assets'],
-    navigation: [
-      { id: 'desk', label: 'Dashboard', tab: 'desk' },
-      { id: 'students', label: 'Students', tab: 'crm' },
-      { id: 'fees', label: 'Payments', tab: 'orders' },
-      { id: 'attendance', label: 'Attendance', tab: 'orders' },
-      { id: 'inventory', label: 'Inventory', tab: 'stock' },
-      { id: 'staff', label: 'Staff', tab: 'staff' },
-      { id: 'reports', label: 'Reports', tab: 'analytics' },
-      { id: 'ai', label: 'AI Assistant', tab: 'ai' }
-    ],
-    dashboardMetrics: [
-      { label: 'Student Count', value: '842', hint: 'Enrollment remains strong' },
-      { label: 'Attendance', value: '94%', hint: 'Attendance is steady' },
-      { label: 'Fee Collection', value: '82%', hint: 'Collections are improving' },
-      { label: 'Outstanding Balances', value: '27', hint: 'A few accounts need follow-up' }
-    ],
-    dashboardActions: [
-      { title: 'Students with low attendance need follow-up', detail: 'Open the student view and support retention before it becomes a trend.', targetTab: 'crm' },
-      { title: 'Payment reminders are due for 12 accounts', detail: 'Route the reminder workflow and keep the finance timeline healthy.', targetTab: 'orders' },
-      { title: 'Campus supplies need attention', detail: 'Review inventory levels and prevent disruption in institutional operations.', targetTab: 'stock' }
-    ],
-    terminology: {
-      customerLabel: 'Student',
-      transactionLabel: 'Payment',
-      salesLabel: 'Payments',
-      inventoryLabel: 'Inventory',
-      staffLabel: 'Staff',
-      dashboardLabel: 'Dashboard',
-      recipientLabel: 'Student',
-      summaryLabel: 'Institution operations summary'
-    },
-    aiGreeting: 'Hello. I am Eenvoq AI, your institution operations guide. I can help you improve attendance, payment follow-up, planning, and campus resource readiness. ',
-    aiFocus: 'Attendance, payment collection, campus operations, and student support.'
-  },
+  }
 };
 
-// Subtype lists used during onboarding to capture a more specific commercial or educational category
+// Subtype lists used during onboarding to capture a more specific commercial category
 export const businessSubtypes = [
   'Retail Store',
   'Supermarket',
@@ -145,24 +101,14 @@ export const businessSubtypes = [
   'Other Commercial Business'
 ];
 
-export const educationSubtypes = [
-  'Primary / Secondary School',
-  'College',
-  'University',
-  'Technical Institute',
-  'Language School',
-  'Tutoring Center',
-  'Vocational Training Center',
-  'Other Educational Institution'
+export const organizationTypeOptions = [
+  {
+    id: 'business',
+    label: organizationProfiles.business.label,
+    description: organizationProfiles.business.description
+  }
 ];
 
-export const organizationTypeOptions = Object.values(organizationProfiles).map((profile) => ({
-  id: profile.id,
-  label: profile.label,
-  description: profile.description
-}));
-
 export function getOrganizationProfile(type: string | undefined) {
-  const normalizedType = (type === 'school' ? 'institution' : type) as OrganizationTypeKey | undefined;
-  return organizationProfiles[normalizedType || 'business'] || organizationProfiles.business;
+  return organizationProfiles.business;
 }
