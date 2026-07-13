@@ -94,7 +94,7 @@ function SidebarNavButton({ label, icon: Icon, active, onClick, badge }: { label
     <button
       onClick={onClick}
       className={`w-full flex items-center justify-between space-x-3 rounded-md border px-3 py-2 text-left transition-colors ${
-        active ? 'border-[#a6ff00] text-white' : 'border-transparent text-white/80 hover:border-white/20 hover:text-white'
+        active ? 'border-[#a6ff00] bg-[#f5fff0] text-black' : 'border-transparent text-neutral-600 hover:border-[#a6ff00]/30 hover:text-black'
       }`}
     >
       <div className="flex items-center space-x-3">
@@ -158,20 +158,20 @@ function AppHeader({
 
   return (
     <>
-      <header className="fixed inset-x-0 top-0 z-50 flex h-16 items-center justify-between px-4 sm:px-5 border-b border-[#021201] bg-[#021201]">
+      <header className="fixed inset-x-0 top-0 z-50 flex h-16 items-center justify-between px-4 sm:px-5 border-b border-[#E6ECEA] bg-white">
         <div className="flex items-center gap-3">
           {!isDesktop && (
             <button
               onClick={() => setMenuOpen(true)}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#021201] text-white transition hover:bg-[#021201]/90"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-neutral-200 bg-white text-black transition hover:bg-neutral-100"
               aria-label="Open menu"
             >
-              <Menu className="h-5 w-5 text-white" />
+              <Menu className="h-5 w-5 text-black" />
             </button>
           )}
           <div className="flex items-center gap-2">
             <img src="/eenvoq-app-logo.png" alt="Logo" className="h-6 w-6 object-contain" referrerPolicy="no-referrer" />
-            <span className="text-sm font-semibold uppercase tracking-[0.12em] text-white">EENVOQ</span>
+            <span className="text-sm font-semibold uppercase tracking-[0.12em] text-black">EENVOQ</span>
           </div>
         </div>
 
@@ -179,28 +179,28 @@ function AppHeader({
           <button
             type="button"
             onClick={() => setSearchOpen(true)}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-transparent text-white transition hover:bg-transparent"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white text-black transition hover:bg-neutral-100"
             aria-label="Open search"
           >
-            <Search className="h-5 w-5 text-white" />
+            <Search className="h-5 w-5 text-black" />
           </button>
 
           <button
             type="button"
             onClick={onOpenTagPage}
-            className="relative inline-flex h-10 w-10 items-center justify-center rounded-full bg-transparent text-white transition hover:bg-transparent"
+            className="relative inline-flex h-10 w-10 items-center justify-center rounded-full bg-white text-black transition hover:bg-neutral-100"
             aria-label="Open clip"
           >
-            <Paperclip className="h-5 w-5 text-white" />
+            <Paperclip className="h-5 w-5 text-black" />
             <span className="absolute -right-0.5 -top-0.5 inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-[#a6ff00] px-1.5 text-[10px] font-semibold text-black">
               {tagCount > 0 ? tagCount : 1}
             </span>
           </button>
 
-          <div className="flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-2 py-1.5 sm:px-2.5">
+          <div className="flex items-center gap-2 rounded-full border border-neutral-200 bg-white px-2 py-1.5 sm:px-2.5">
             {!isDesktop && (
               <div className="hidden sm:block">
-                <p className="text-[11px] font-semibold leading-none text-white">{ownerName}</p>
+                <p className="text-[11px] font-semibold leading-none text-black">{ownerName}</p>
               </div>
             )}
             <div className="relative inline-flex h-9 w-9 overflow-hidden rounded-full border border-[#E6ECEA] bg-white sm:h-10 sm:w-10">

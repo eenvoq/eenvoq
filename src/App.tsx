@@ -2726,29 +2726,29 @@ const availabilityResponse = await fetch('/api/auth/check-email', {
       <div className={`min-h-screen bg-white text-sm font-normal text-black select-none transition-opacity duration-300 ${(splashActive || !startupComplete) && appMode === 'app' ? 'opacity-0' : 'opacity-100'}`}>
       <div className="relative min-h-screen w-full overflow-hidden bg-white">
         {(menuOpen || isDesktop) && (
-          <div className={`${isDesktop ? 'fixed inset-y-0 left-0 z-40 hidden w-72 flex-col border-r border-[#021201] bg-[#021201] p-5 lg:flex' : 'fixed inset-0 z-50 flex bg-[#021201]/90 lg:hidden'}`}>
-            <div className={`${isDesktop ? 'flex h-full w-full flex-col justify-between bg-[#021201]' : 'w-[280px] h-full flex flex-col border-r border-[#021201] shadow-2xl p-5 justify-between bg-[#021201] animate-in slide-in-from-left duration-200'}`}>
+          <div className={`${isDesktop ? 'fixed inset-y-0 left-0 z-40 hidden w-72 flex-col border-r border-[#E6ECEA] bg-white p-5 lg:flex' : 'fixed inset-0 z-50 flex bg-white/95 lg:hidden'}`}>
+            <div className={`${isDesktop ? 'flex h-full w-full flex-col justify-between bg-white' : 'w-[280px] h-full flex flex-col border-r border-[#E6ECEA] shadow-2xl p-5 justify-between bg-white animate-in slide-in-from-left duration-200'}`}>
               <div className="space-y-5">
                 
                 {/* Drawer Header */}
-                <div className="flex justify-between items-center pb-4 border-b border-[#021201]">
+                <div className="flex justify-between items-center pb-4 border-b border-[#E6ECEA]">
                   <div className="flex items-center space-x-2">
                     <img src="/eenvoq-app-logo.png" alt="Logo" className="w-5 h-5 object-contain" referrerPolicy="no-referrer" />
                     <div className="flex flex-col">
-                      <span className="text-sm font-semibold text-white uppercase tracking-wider">EENVOQ</span>
+                      <span className="text-sm font-semibold text-black uppercase tracking-wider">EENVOQ</span>
                       {isDesktop && <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#a6ff00]">for {businessName}</span>}
                     </div>
                   </div>
                   <button 
                     onClick={() => setMenuOpen(false)}
-                    className="text-white hover:text-[#a6ff00]"
+                    className="text-black hover:text-[#a6ff00]"
                   >
                     <X className="w-4 h-4" />
                   </button>
                 </div>
 
                 {/* Owner Profile Snippet */}
-                <div className="flex items-center space-x-3 p-2 bg-[#021201]-50 rounded-lg">
+                <div className="flex items-center space-x-3 p-2 bg-[#F8FAFC] rounded-lg">
                   <img 
                     src={profilePic} 
                     alt={ownerName} 
@@ -2756,8 +2756,8 @@ const availabilityResponse = await fetch('/api/auth/check-email', {
                     referrerPolicy="no-referrer"
                   />
                   <div>
-                    <p className="text-sm font-semibold text-neutral-400 leading-tight">{ownerName}</p>
-                    <p className="text-xs font-normal text-neutral-400 leading-tight">{ownerRole}</p>
+                    <p className="text-sm font-semibold text-neutral-800 leading-tight">{ownerName}</p>
+                    <p className="text-xs font-normal text-neutral-600 leading-tight">{ownerRole}</p>
                   </div>
                 </div>
 
@@ -3025,40 +3025,38 @@ const availabilityResponse = await fetch('/api/auth/check-email', {
               {activeTab === 'desk' && (
                 <div className="space-y-6 px-2 pt-4 pb-3 sm:px-2 sm:pt-4 sm:pb-4 lg:px-2 lg:pt-4 lg:pb-6">
                   <div className="px-0 py-0 sm:px-0 lg:px-0">
-                    <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-[#021201] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] sm:p-7 lg:p-8">
-                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_18%,rgba(166,255,0,0.18),transparent_34%),radial-gradient(circle_at_82%_0%,rgba(95,232,210,0.16),transparent_24%),linear-gradient(135deg,#031204_0%,#021201_45%,#020d06_100%)]" aria-hidden="true" />
+                    <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-[#a6ff00] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] sm:p-7 lg:p-8">
+                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_18%,rgba(255,255,255,0.22),transparent_38%),radial-gradient(circle_at_82%_0%,rgba(255,255,255,0.16),transparent_24%),linear-gradient(135deg,rgba(255,255,255,0.12),rgba(255,255,255,0.04))]" aria-hidden="true" />
                       <div className="absolute inset-0 opacity-70" aria-hidden="true">
                         <svg viewBox="0 0 900 620" className="h-full w-full" preserveAspectRatio="none">
                           <defs>
                             <linearGradient id="hero-trace" x1="0%" y1="0%" x2="100%" y2="100%">
-                              <stop offset="0%" stopColor="#A6FF00" stopOpacity="0.95" />
-                              <stop offset="50%" stopColor="#5FE8D2" stopOpacity="0.75" />
-                              <stop offset="100%" stopColor="#A6FF00" stopOpacity="0.4" />
+                              <stop offset="0%" stopColor="#000000" stopOpacity="0.32" />
+                              <stop offset="50%" stopColor="#111111" stopOpacity="0.22" />
+                              <stop offset="100%" stopColor="#000000" stopOpacity="0.16" />
                             </linearGradient>
                           </defs>
                           <path d="M-40 478C120 420 220 330 330 350C430 368 460 236 572 240C686 244 760 130 940 100" stroke="url(#hero-trace)" strokeWidth="1.4" fill="none" strokeLinecap="round" />
                           <path d="M-20 160C96 112 154 176 272 208C386 240 462 164 590 166C700 168 786 92 926 82" stroke="url(#hero-trace)" strokeWidth="1" fill="none" strokeLinecap="round" opacity="0.8" />
                           <path d="M78 622C170 560 240 500 346 504C448 508 520 430 636 428C742 426 804 488 924 470" stroke="url(#hero-trace)" strokeWidth="1.2" fill="none" strokeLinecap="round" opacity="0.7" />
-                          <path d="M144 116C212 144 286 140 340 98C392 58 438 48 498 58C552 68 610 104 660 128" stroke="#A6FF00" strokeWidth="0.8" fill="none" strokeLinecap="round" opacity="0.56" />
-                          <path d="M368 40C450 72 516 76 574 52C636 26 700 28 760 50" stroke="#5FE8D2" strokeWidth="0.8" fill="none" strokeLinecap="round" opacity="0.48" />
+                          <path d="M144 116C212 144 286 140 340 98C392 58 438 48 498 58C552 68 610 104 660 128" stroke="rgba(0,0,0,0.18)" strokeWidth="0.8" fill="none" strokeLinecap="round" opacity="0.56" />
+                          <path d="M368 40C450 72 516 76 574 52C636 26 700 28 760 50" stroke="rgba(0,0,0,0.14)" strokeWidth="0.8" fill="none" strokeLinecap="round" opacity="0.48" />
                         </svg>
                       </div>
                       <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(255,255,255,0.06),transparent_46%,rgba(255,255,255,0.03))]" aria-hidden="true" />
 
                       <div className="relative z-10 flex flex-col">
                         <div className="space-y-3">
-                          <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-white/60">{dashboardHeroLabel}</p>
-                          <div>
-                            <h1 className="text-2xl font-semibold tracking-[-0.03em] text-white sm:text-3xl">
-                              Good morning, {userFirstName}
-                            </h1>
-                            <div className="mt-2 flex flex-wrap items-center gap-2 text-[12px] leading-6 text-white/60 sm:text-sm">
-                              <span>Live overview</span>
-                              <span className="h-1 w-1 rounded-full bg-white/40" />
-                              <span>{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</span>
-                              <span className="h-1 w-1 rounded-full bg-white/40" />
-                              <span>{new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</span>
-                            </div>
+                              <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-black/70">{dashboardHeroLabel}</p>
+                              <div>
+                                <h1 className="text-2xl font-semibold tracking-[-0.03em] text-black sm:text-3xl">
+                                  Good morning, {userFirstName}
+                                </h1>
+                                <div className="mt-2 flex flex-wrap items-center gap-2 text-[12px] leading-6 text-black/70 sm:text-sm">
+                                  <span>Live overview</span>
+                                  <span className="h-1 w-1 rounded-full bg-black/25" />
+                                  <span>{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                                  <span className="h-1 w-1 rounded-full bg-black/25" />
                           </div>
                         </div>
 
@@ -3074,7 +3072,7 @@ const availabilityResponse = await fetch('/api/auth/check-email', {
                           <button
                             type="button"
                             onClick={() => { setActiveTab('stock'); setInventoryType('Products'); setInventoryAlertFilter('Low'); setInventoryStatusFilter('All'); }}
-                            className={`inline-flex items-center justify-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-3 text-sm font-semibold text-white/90 backdrop-blur-sm transition hover:bg-white/15 ${isDesktop ? '' : 'w-full justify-start'}`}
+                            className={`inline-flex items-center justify-center gap-2 rounded-full border border-black/10 bg-black text-white px-4 py-3 text-sm font-semibold transition hover:bg-neutral-900 ${isDesktop ? '' : 'w-full justify-start'}`}
                           >
                             <Package className="h-4 w-4" />
                             Add Inventory
@@ -4808,22 +4806,19 @@ const availabilityResponse = await fetch('/api/auth/check-email', {
                   </div>
                 </div>
               )}
-            </>
-          )}
 
-        </div>
 
         {/* Bottom Tab Bar Navigation - Standard mobile paradigm */}
         {bottomNavVisible && (
           <div className="fixed inset-x-0 bottom-0 z-50 px-3 pb-3 lg:hidden">
-            <div className="overflow-hidden rounded-[32px] border border-[#a6ff00] bg-[#021201] shadow-[0_28px_80px_rgba(0,0,0,0.35)]">
+            <div className="overflow-hidden rounded-[32px] border border-[#E6ECEA] bg-white shadow-[0_10px_30px_rgba(0,0,0,0.12)]">
               <nav className="flex items-center justify-between gap-2 px-3 py-3">
                 <button
                   onClick={() => setActiveTab('desk')}
                   className={`flex flex-1 flex-col items-center justify-center gap-1 rounded-3xl border px-2 py-2 text-xs transition ${
                     activeTab === 'desk'
-                      ? 'border-[#a6ff00] bg-[#021201] text-[#a6ff00]'
-                      : 'border-transparent text-white/70 hover:border-[#a6ff00]/30 hover:text-[#a6ff00] hover:bg-white/5'
+                      ? 'border-[#a6ff00] bg-white text-black shadow-sm'
+                      : 'border-transparent text-neutral-600 hover:border-[#a6ff00]/30 hover:text-black hover:bg-[#F7FDF0]'
                   }`}
                 >
                   <Activity className="w-5 h-5" />
@@ -4834,8 +4829,8 @@ const availabilityResponse = await fetch('/api/auth/check-email', {
                   onClick={() => setActiveTab('stock')}
                   className={`flex flex-1 flex-col items-center justify-center gap-1 rounded-3xl border px-2 py-2 text-xs transition ${
                     activeTab === 'stock'
-                      ? 'border-[#a6ff00] bg-[#021201] text-[#a6ff00]'
-                      : 'border-transparent text-white/70 hover:border-[#a6ff00]/30 hover:text-[#a6ff00] hover:bg-white/5'
+                      ? 'border-[#a6ff00] bg-white text-black shadow-sm'
+                      : 'border-transparent text-neutral-600 hover:border-[#a6ff00]/30 hover:text-black hover:bg-[#F7FDF0]'
                   }`}
                 >
                   <Package className="w-5 h-5" />
@@ -4846,8 +4841,8 @@ const availabilityResponse = await fetch('/api/auth/check-email', {
                   onClick={() => setActiveTab('orders')}
                   className={`flex flex-1 flex-col items-center justify-center gap-1 rounded-3xl border px-2 py-2 text-xs transition ${
                     activeTab === 'orders'
-                      ? 'border-[#a6ff00] bg-[#021201] text-[#a6ff00]'
-                      : 'border-transparent text-white/70 hover:border-[#a6ff00]/30 hover:text-[#a6ff00] hover:bg-white/5'
+                      ? 'border-[#a6ff00] bg-white text-black shadow-sm'
+                      : 'border-transparent text-neutral-600 hover:border-[#a6ff00]/30 hover:text-black hover:bg-[#F7FDF0]'
                   }`}
                 >
                   <ShoppingCart className="w-5 h-5" />
@@ -4858,8 +4853,8 @@ const availabilityResponse = await fetch('/api/auth/check-email', {
                   onClick={() => setActiveTab('ai')}
                   className={`flex flex-1 flex-col items-center justify-center gap-1 rounded-3xl border px-2 py-2 text-xs transition ${
                     activeTab === 'ai'
-                      ? 'border-[#a6ff00] bg-[#021201] text-[#a6ff00]'
-                      : 'border-transparent text-white/70 hover:border-[#a6ff00]/30 hover:text-[#a6ff00] hover:bg-white/5'
+                      ? 'border-[#a6ff00] bg-white text-black shadow-sm'
+                      : 'border-transparent text-neutral-600 hover:border-[#a6ff00]/30 hover:text-black hover:bg-[#F7FDF0]'
                   }`}
                 >
                   <MessageSquare className="w-5 h-5" />
@@ -4870,8 +4865,8 @@ const availabilityResponse = await fetch('/api/auth/check-email', {
                   onClick={() => setActiveTab('tag')}
                   className={`flex flex-1 flex-col items-center justify-center gap-1 rounded-3xl border px-2 py-2 text-xs transition ${
                     activeTab === 'tag'
-                      ? 'border-[#a6ff00] bg-[#021201] text-[#a6ff00]'
-                      : 'border-transparent text-white/70 hover:border-[#a6ff00]/30 hover:text-[#a6ff00] hover:bg-white/5'
+                      ? 'border-[#a6ff00] bg-white text-black shadow-sm'
+                      : 'border-transparent text-neutral-600 hover:border-[#a6ff00]/30 hover:text-black hover:bg-[#F7FDF0]'
                   }`}
                 >
                   <Send className="w-5 h-5" />
