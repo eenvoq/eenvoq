@@ -3106,7 +3106,7 @@ const availabilityResponse = await fetch('/api/auth/check-email', {
                         <p className="text-[11px] uppercase tracking-[0.28em] text-neutral-500">Overview</p>
                         <div className="mt-1 flex flex-wrap items-center gap-2">
                           <h2 className="text-xl font-semibold text-black">Today's stats</h2>
-                          <p className="text-sm italic text-neutral-500">(click a card to view details)</p>
+                          <p className="text-sm italic text-neutral-500">(click a card to see details)</p>
                         </div>
                       </div>
                     </div>
