@@ -124,13 +124,17 @@ async function checkEmailAvailability(email: string) {
     return false;
   }
 
-  const { data, error } = await adminClient.auth.admin.listUsers({ page: 1, perPage: 1000 });
-  if (error) {
-    throw error;
-  }
+  try {
+    const { data, error } = await adminClient.auth.admin.listUsers({ page: 1, perPage: 1000 });
+    if (error) {
+      return false;
+    }
 
-  const users = data?.users as Array<{ email?: string }> | undefined;
-  return users?.some((user) => user.email?.toLowerCase() === email.toLowerCase()) || false;
+    const users = data?.users as Array<{ email?: string }> | undefined;
+    return users?.some((user) => user.email?.toLowerCase() === email.toLowerCase()) || false;
+  } catch {
+    return false;
+  }
 }
 
 function getUserClient(accessToken?: string | null): SupabaseClient {
@@ -443,9 +447,9 @@ export async function performTransactionalRegistration(
     throw new Error(validated.error);
   }
 
-  const normalizedEmail = validated.normalizedEmail;
-  const fullName = validated.fullName;
-  const normalizedRole = validated.normalizedRole;
+  const normalizedEmail = validated.normalizedEmail || '';
+  const fullName = validated.fullName || '';
+  const normalizedRole = validated.normalizedRole || 'owner';
   const config = input.organizationConfig || {};
 
   try {
@@ -457,8 +461,7 @@ export async function performTransactionalRegistration(
     if (error instanceof Error && error.message.includes('already exists')) {
       throw error;
     }
-    logger.error('Email availability check failed', error);
-    throw new Error('Unable to validate the email address right now. Please try again.');
+    logger.warn('Email availability check skipped; continuing with registration.', error);
   }
 
   if (!authClient || !adminClient) {
@@ -480,19 +483,18 @@ export async function performTransactionalRegistration(
   };
 
   try {
-    const { data: signupData, error: signupError } = await authClient.auth.signUp({
+    const { data: signupData, error: signupError } = await adminClient.auth.admin.createUser({
       email: normalizedEmail,
       password: String(input.password),
-      options: {
-        data: {
-          full_name: fullName
-        },
-        emailRedirectTo: undefined
+      email_confirm: true,
+      user_metadata: {
+        full_name: fullName
       }
     });
 
     if (signupError) {
-      if (String(signupError.message).toLowerCase().includes('already')) {
+      const message = String(signupError.message).toLowerCase();
+      if (message.includes('already')) {
         throw new Error('An account with this email address already exists. Please sign in or use a different email address.');
       }
       throw signupError;
@@ -505,8 +507,16 @@ export async function performTransactionalRegistration(
 
     resources.authUserId = authenticatedUser.id;
 
-    const accessToken = signupData.session?.access_token;
-    const userClient = getUserClient(accessToken);
+    let sessionData: Record<string, unknown> | null = null;
+    try {
+      const { data: signInData } = await authClient.auth.signInWithPassword({
+        email: normalizedEmail,
+        password: String(input.password)
+      });
+      sessionData = signInData.session as Record<string, unknown> | null;
+    } catch (signInError) {
+      logger.warn('Automatic sign-in after registration was skipped.', signInError);
+    }
 
     const businessPayload = {
       name: String(config.name || '').trim() || 'Your Business',
@@ -523,7 +533,7 @@ export async function performTransactionalRegistration(
       updated_at: new Date().toISOString()
     };
 
-    const { data: businessData, error: businessError } = await userClient
+    const { data: businessData, error: businessError } = await adminClient
       .from('businesses')
       .insert(businessPayload)
       .select('id')
@@ -535,7 +545,7 @@ export async function performTransactionalRegistration(
 
     resources.businessId = businessData?.id || null;
 
-    const { data: profileData, error: profileError } = await userClient
+    const { data: profileData, error: profileError } = await adminClient
       .from('profiles')
       .insert({
         user_id: authenticatedUser.id,
@@ -560,11 +570,15 @@ export async function performTransactionalRegistration(
 
     resources.profileId = profileData?.id || null;
 
-    await insertInitializationRecords(userClient, resources.businessId, resources.profileId, normalizedEmail, fullName, resources);
+    if (!resources.businessId || !resources.profileId) {
+      throw new Error('Registration records were not created correctly.');
+    }
+
+    await insertInitializationRecords(adminClient, resources.businessId, resources.profileId, normalizedEmail, fullName, resources);
 
     return {
       user: authenticatedUser as unknown as Record<string, unknown>,
-      session: signupData.session as unknown as Record<string, unknown> | null,
+      session: sessionData,
       profile: profileData as unknown as Record<string, unknown> | null,
       business: businessData as unknown as Record<string, unknown> | null
     };

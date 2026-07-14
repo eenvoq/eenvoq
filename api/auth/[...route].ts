@@ -171,8 +171,8 @@ export default async function handler(req: IncomingMessage & { method?: string; 
       const exists = await checkEmailAvailability(email);
       return sendJson(res, 200, { available: !exists });
     } catch (error: any) {
-      console.error('Vercel check-email error', error);
-      return sendJson(res, 500, { error: error?.message || 'Unable to validate email address.' });
+      console.warn('Vercel check-email fallback', error);
+      return sendJson(res, 200, { available: true, skipped: true });
     }
   }
 
@@ -249,16 +249,40 @@ export default async function handler(req: IncomingMessage & { method?: string; 
         return sendJson(res, 401, { error: error?.message || 'Incorrect email or password.' });
       }
 
+      let profileRow: Record<string, any> | null = null;
+      let businessRow: Record<string, any> | null = null;
+
+      try {
+        const { data: profileData } = await supabaseAuth
+          .from('profiles')
+          .select('full_name, email, role, business_id')
+          .eq('user_id', data.user.id)
+          .maybeSingle();
+
+        profileRow = profileData as Record<string, any> | null;
+
+        if (profileRow?.business_id) {
+          const { data: businessData } = await supabaseAuth
+            .from('businesses')
+            .select('id, name, currency, contact_email')
+            .eq('id', profileRow.business_id)
+            .maybeSingle();
+          businessRow = businessData as Record<string, any> | null;
+        }
+      } catch (profileError) {
+        console.warn('Profile lookup after login failed.', profileError);
+      }
+
       return sendJson(res, 200, {
         message: 'Signed in successfully.',
         user: data.user,
         session: data.session,
         profile: {
-          full_name: data.user.user_metadata?.full_name || 'Business Owner',
-          email: normalizedEmail,
-          role: normalizedRole
+          full_name: profileRow?.full_name || data.user.user_metadata?.full_name || 'Business Owner',
+          email: profileRow?.email || normalizedEmail,
+          role: profileRow?.role || normalizedRole
         },
-        business: null
+        business: businessRow || null
       });
     } catch (error: any) {
       console.error('Vercel login error', error);

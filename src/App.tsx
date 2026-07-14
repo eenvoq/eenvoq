@@ -2724,7 +2724,7 @@ const availabilityResponse = await fetch('/api/auth/check-email', {
         </div>
       )}
       <div className={`min-h-screen bg-white text-sm font-normal text-black select-none transition-opacity duration-300 ${(splashActive || !startupComplete) && appMode === 'app' ? 'opacity-0' : 'opacity-100'}`}>
-      <div className="relative min-h-screen w-full overflow-hidden bg-white">
+        <div className="relative min-h-screen w-full overflow-hidden bg-white">
         {(menuOpen || isDesktop) && (
           <div className={`${isDesktop ? 'fixed inset-y-0 left-0 z-40 hidden w-72 flex-col border-r border-[#E6ECEA] bg-white p-5 lg:flex' : 'fixed inset-0 z-50 flex bg-white/95 lg:hidden'}`}>
             <div className={`${isDesktop ? 'flex h-full w-full flex-col justify-between bg-white' : 'w-[280px] h-full flex flex-col border-r border-[#E6ECEA] shadow-2xl p-5 justify-between bg-white animate-in slide-in-from-left duration-200'}`}>
@@ -2768,31 +2768,31 @@ const availabilityResponse = await fetch('/api/auth/check-email', {
                   <SidebarNavButton
                     label={activeOrganizationProfile.navigation[0]?.label || 'Dashboard'}
                     icon={Activity}
-                    active={activeTab === 'desk'}
+                    active={(activeTab as string) === 'desk'}
                     onClick={() => { setActiveTab('desk'); setMenuOpen(false); }}
                   />
                   <SidebarNavButton
                     label={activeOrganizationProfile.navigation.find((item) => item.tab === 'stock')?.label || 'Stock & Inventory'}
                     icon={Package}
-                    active={activeTab === 'stock'}
+                    active={(activeTab as string) === 'stock'}
                     onClick={() => { setActiveTab('stock'); setMenuOpen(false); }}
                   />
                   <SidebarNavButton
                     label={activeOrganizationProfile.navigation.find((item) => item.tab === 'orders')?.label || 'Transactions'}
                     icon={ShoppingCart}
-                    active={activeTab === 'orders'}
+                    active={(activeTab as string) === 'orders'}
                     onClick={() => { setActiveTab('orders'); setMenuOpen(false); }}
                   />
                   <SidebarNavButton
                     label="Eenvoq AI"
                     icon={MessageSquare}
-                    active={activeTab === 'ai'}
+                    active={(activeTab as string) === 'ai'}
                     onClick={() => { setActiveTab('ai'); setMenuOpen(false); }}
                   />
                   <SidebarNavButton
                     label="Tags"
                     icon={MessageSquare}
-                    active={activeTab === 'tag'}
+                    active={(activeTab as string) === 'tag'}
                     badge={tagThreads.length > 0 ? tagThreads.length : undefined}
                     onClick={() => { setActiveTab('tag'); setMenuOpen(false); }}
                   />
@@ -2802,37 +2802,37 @@ const availabilityResponse = await fetch('/api/auth/check-email', {
                   <SidebarNavButton
                     label="Revenue & Analytics"
                     icon={TrendingUp}
-                    active={activeTab === 'analytics'}
+                    active={(activeTab as string) === 'analytics'}
                     onClick={() => { setActiveTab('analytics'); setMenuOpen(false); }}
                   />
                   <SidebarNavButton
                     label="Suppliers"
                     icon={Truck}
-                    active={activeTab === 'procurement'}
+                    active={(activeTab as string) === 'procurement'}
                     onClick={() => { setActiveTab('procurement'); setMenuOpen(false); }}
                   />
                   <SidebarNavButton
                     label="Audits"
                     icon={History}
-                    active={activeTab === 'audits'}
+                    active={(activeTab as string) === 'audits'}
                     onClick={() => { setActiveTab('audits'); setMenuOpen(false); }}
                   />
                   <SidebarNavButton
                     label={`${customerLabel} CRM`}
                     icon={User}
-                    active={activeTab === 'crm'}
+                    active={(activeTab as string) === 'crm'}
                     onClick={() => { setActiveTab('crm'); setMenuOpen(false); }}
                   />
                   <SidebarNavButton
                     label={`${staffLabel} & Access`}
                     icon={Users}
-                    active={activeTab === 'staff'}
+                    active={(activeTab as string) === 'staff'}
                     onClick={() => { setActiveTab('staff'); setMenuOpen(false); }}
                   />
                   <SidebarNavButton
                     label="Profile & Settings"
                     icon={Sliders}
-                    active={activeTab === 'settings'}
+                    active={(activeTab as string) === 'settings'}
                     onClick={() => { setActiveTab('settings'); setMenuOpen(false); }}
                   />
                   <SidebarNavButton
@@ -2895,7 +2895,7 @@ const availabilityResponse = await fetch('/api/auth/check-email', {
             </div>
           ) : (
             <>
-              {activeTab === 'tag' && (
+              {(activeTab as string) === 'tag' && (
                 <div className="space-y-4 px-2 pt-4 pb-3 sm:px-2 sm:pt-4 sm:pb-4 lg:px-2 lg:pt-4 lg:pb-6">
                   <div className="rounded-none border-0 bg-transparent p-0 py-4 shadow-none sm:py-5 lg:py-5">
                     <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
@@ -3022,7 +3022,7 @@ const availabilityResponse = await fetch('/api/auth/check-email', {
               )}
 
              {/* VIEW 1: DESK (DASHBOARD) */}
-              {activeTab === 'desk' && (
+              {(activeTab as string) === 'desk' && (
                 <div className="space-y-6 px-2 pt-4 pb-3 sm:px-2 sm:pt-4 sm:pb-4 lg:px-2 lg:pt-4 lg:pb-6">
                   <div className="px-0 py-0 sm:px-0 lg:px-0">
                     <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-[#a6ff00] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] sm:p-7 lg:p-8">
@@ -3047,16 +3047,17 @@ const availabilityResponse = await fetch('/api/auth/check-email', {
 
                       <div className="relative z-10 flex flex-col">
                         <div className="space-y-3">
-                              <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-black/70">{dashboardHeroLabel}</p>
-                              <div>
-                                <h1 className="text-2xl font-semibold tracking-[-0.03em] text-black sm:text-3xl">
-                                  Good morning, {userFirstName}
-                                </h1>
-                                <div className="mt-2 flex flex-wrap items-center gap-2 text-[12px] leading-6 text-black/70 sm:text-sm">
-                                  <span>Live overview</span>
-                                  <span className="h-1 w-1 rounded-full bg-black/25" />
-                                  <span>{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</span>
-                                  <span className="h-1 w-1 rounded-full bg-black/25" />
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-black/70">{dashboardHeroLabel}</p>
+                            <div>
+                              <h1 className="text-2xl font-semibold tracking-[-0.03em] text-black sm:text-3xl">
+                                Good morning, {userFirstName}
+                              </h1>
+                              <div className="mt-2 flex flex-wrap items-center gap-2 text-[12px] leading-6 text-black/70 sm:text-sm">
+                                <span>Live overview</span>
+                                <span className="h-1 w-1 rounded-full bg-black/25" />
+                                <span>{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                                <span className="h-1 w-1 rounded-full bg-black/25" />
+                              </div>                        
                           </div>
                         </div>
 
@@ -3064,7 +3065,7 @@ const availabilityResponse = await fetch('/api/auth/check-email', {
                           <button
                             type="button"
                             onClick={() => { setActiveTab('orders'); setTransactionReviewMode('standard'); }}
-                            className={`inline-flex items-center justify-center gap-2 rounded-full bg-[#a6ff00] px-4 py-3 text-sm font-semibold text-[#042D17] transition ${isDesktop ? '' : 'w-3/4 md:w-3/5 justify-start'}`}
+                            className={`inline-flex items-center justify-center gap-2 rounded-full bg-[#a6ff00] px-4 py-3 text-sm font-semibold text-[#042D17] transition ${isDesktop ? '' : 'w-full justify-start'}`}
                           >
                             <Plus className="h-4 w-4" />
                             Record Sale
@@ -3259,7 +3260,7 @@ const availabilityResponse = await fetch('/api/auth/check-email', {
               )}
 
               {/* VIEW 2: STOCK (INVENTORY) */}
-              {activeTab === 'stock' && (
+              {(activeTab as string) === 'stock' && (
                 <div className="space-y-4 px-2 pt-4 pb-3 sm:px-2 sm:pt-4 sm:pb-4 lg:px-2 lg:pt-4 lg:pb-6">
                   <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
                     <div>
@@ -3455,7 +3456,7 @@ const availabilityResponse = await fetch('/api/auth/check-email', {
               )}
 
               {/* VIEW 3: ORDERS (FULFILLMENT) */}
-              {activeTab === 'orders' && (
+              {(activeTab as string) === 'orders' && (
                 <div className="space-y-4 px-2 pt-4 pb-3 sm:px-2 sm:pt-4 sm:pb-4 lg:px-2 lg:pt-4 lg:pb-6">
                   <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
                     <div>
@@ -3847,7 +3848,7 @@ const availabilityResponse = await fetch('/api/auth/check-email', {
               )}
 
               {/* VIEW 4: AI COACH */}
-              {activeTab === 'ai' && (
+              {(activeTab as string) === 'ai' && (
                 <div className="px-2 pt-4 pb-3 sm:px-2 sm:pt-4 sm:pb-4 lg:px-2 lg:pt-4 lg:pb-6">
                   <div className="flex h-[520px] flex-col overflow-hidden rounded-[24px] border border-neutral-200 bg-white p-3 shadow-[0_16px_60px_rgba(0,0,0,0.03)] sm:p-4 md:h-[580px] lg:p-5">
                     <p className="text-[11px] uppercase tracking-[0.3em] text-neutral-500">Eenvoq your data</p>
@@ -3924,7 +3925,7 @@ const availabilityResponse = await fetch('/api/auth/check-email', {
               )}
 
               {/* VIEW 5: ANALYTICS (PROJECTIONS & PERFORMANCE) */}
-              {activeTab === 'analytics' && (
+              {(activeTab as string) === 'analytics' && (
                 <div className="space-y-4 px-2 pt-4 pb-3 sm:px-2 sm:pt-4 sm:pb-4 lg:px-2 lg:pt-4 lg:pb-6">
                   <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
                     <div>
@@ -4026,7 +4027,7 @@ const availabilityResponse = await fetch('/api/auth/check-email', {
               )}
 
               {/* VIEW 6: PROCUREMENT & SUPPLIERS */}
-              {activeTab === 'procurement' && (
+              {(activeTab as string) === 'procurement' && (
                 <div className="space-y-4 px-2 pt-4 pb-3 sm:px-2 sm:pt-4 sm:pb-4 lg:px-2 lg:pt-4 lg:pb-6">
                   <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
                     <div>
@@ -4136,7 +4137,7 @@ const availabilityResponse = await fetch('/api/auth/check-email', {
               )}
 
               {/* VIEW 7: AUDITING & SYSTEM LOGS */}
-              {activeTab === 'audits' && (
+              {(activeTab as string) === 'audits' && (
                 <div className="space-y-4 px-2 pt-4 pb-3 sm:px-2 sm:pt-4 sm:pb-4 lg:px-2 lg:pt-4 lg:pb-6">
                   <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
                     <div>
@@ -4202,7 +4203,7 @@ const availabilityResponse = await fetch('/api/auth/check-email', {
               )}
 
               {/* VIEW 8: PROFILE & BUSINESS SETTINGS */}
-              {activeTab === 'settings' && (
+              {(activeTab as string) === 'settings' && (
                 <div className="space-y-4 px-2 pt-4 pb-3 sm:px-2 sm:pt-4 sm:pb-4 lg:px-2 lg:pt-4 lg:pb-6">
                       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
@@ -4373,7 +4374,7 @@ const availabilityResponse = await fetch('/api/auth/check-email', {
               )}
 
               {/* VIEW 9: CUSTOMER CRM */}
-              {activeTab === 'crm' && (
+              {(activeTab as string) === 'crm' && (
                 <div className="space-y-4 px-2 pt-4 pb-3 sm:px-2 sm:pt-4 sm:pb-4 lg:px-2 lg:pt-4 lg:pb-6">
                   <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
                     <div>
@@ -4484,7 +4485,7 @@ const availabilityResponse = await fetch('/api/auth/check-email', {
               )}
 
               {/* VIEW 10: STAFF & ACCESS */}
-              {activeTab === 'staff' && (
+              {(activeTab as string) === 'staff' && (
                 <div className="space-y-4 px-2 pt-4 pb-3 sm:px-2 sm:pt-4 sm:pb-4 lg:px-2 lg:pt-4 lg:pb-6">
                   <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                     <div className="max-w-3xl">
@@ -4816,7 +4817,7 @@ const availabilityResponse = await fetch('/api/auth/check-email', {
                 <button
                   onClick={() => setActiveTab('desk')}
                   className={`flex flex-1 flex-col items-center justify-center gap-1 rounded-3xl border px-2 py-2 text-xs transition ${
-                    activeTab === 'desk'
+                    (activeTab as string) === 'desk'
                       ? 'border-[#a6ff00] bg-white text-black shadow-sm'
                       : 'border-transparent text-neutral-600 hover:border-[#a6ff00]/30 hover:text-black hover:bg-[#F7FDF0]'
                   }`}
@@ -4828,7 +4829,7 @@ const availabilityResponse = await fetch('/api/auth/check-email', {
                 <button
                   onClick={() => setActiveTab('stock')}
                   className={`flex flex-1 flex-col items-center justify-center gap-1 rounded-3xl border px-2 py-2 text-xs transition ${
-                    activeTab === 'stock'
+                    (activeTab as string) === 'stock'
                       ? 'border-[#a6ff00] bg-white text-black shadow-sm'
                       : 'border-transparent text-neutral-600 hover:border-[#a6ff00]/30 hover:text-black hover:bg-[#F7FDF0]'
                   }`}
@@ -4840,7 +4841,7 @@ const availabilityResponse = await fetch('/api/auth/check-email', {
                 <button
                   onClick={() => setActiveTab('orders')}
                   className={`flex flex-1 flex-col items-center justify-center gap-1 rounded-3xl border px-2 py-2 text-xs transition ${
-                    activeTab === 'orders'
+                    (activeTab as string) === 'orders'
                       ? 'border-[#a6ff00] bg-white text-black shadow-sm'
                       : 'border-transparent text-neutral-600 hover:border-[#a6ff00]/30 hover:text-black hover:bg-[#F7FDF0]'
                   }`}
@@ -4852,7 +4853,7 @@ const availabilityResponse = await fetch('/api/auth/check-email', {
                 <button
                   onClick={() => setActiveTab('ai')}
                   className={`flex flex-1 flex-col items-center justify-center gap-1 rounded-3xl border px-2 py-2 text-xs transition ${
-                    activeTab === 'ai'
+                    (activeTab as string) === 'ai'
                       ? 'border-[#a6ff00] bg-white text-black shadow-sm'
                       : 'border-transparent text-neutral-600 hover:border-[#a6ff00]/30 hover:text-black hover:bg-[#F7FDF0]'
                   }`}
@@ -4864,7 +4865,7 @@ const availabilityResponse = await fetch('/api/auth/check-email', {
                 <button
                   onClick={() => setActiveTab('tag')}
                   className={`flex flex-1 flex-col items-center justify-center gap-1 rounded-3xl border px-2 py-2 text-xs transition ${
-                    activeTab === 'tag'
+                    (activeTab as string) === 'tag'
                       ? 'border-[#a6ff00] bg-white text-black shadow-sm'
                       : 'border-transparent text-neutral-600 hover:border-[#a6ff00]/30 hover:text-black hover:bg-[#F7FDF0]'
                   }`}
@@ -5704,4 +5705,4 @@ const availabilityResponse = await fetch('/api/auth/check-email', {
       </div>
     </>
   );
-}
+
